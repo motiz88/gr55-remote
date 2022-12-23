@@ -16,37 +16,20 @@ export function useRolandIoSetup() {
   >(new Map());
 
   useEffect(() => {
-    if (includeFakeDevice) {
-      connectedDevicesRef.current.set("FAKE-GR55", {
-        sysExConfig: RolandGR55SysExConfig,
-        description: "Fake GR-55",
-        identity: {
-          manufacturerId: RolandGR55SysExConfig.manufacturerId,
-          deviceFamily: RolandGR55SysExConfig.familyCode,
-          deviceModel: RolandGR55SysExConfig.modelNumber,
-          deviceId: 0x7f,
-          softwareRevisionLevel: 0x0100,
-        },
-      });
-    } else {
-      connectedDevicesRef.current.delete("FAKE-GR55");
-    }
-
-    setConnectedDevicesSnapshot(new Map(connectedDevicesRef.current));
-  }, [includeFakeDevice]);
-
-  useEffect(() => {
-    if (!inputPort || !outputPort) {
-      return;
-    }
-    const handleIdentity = (identity: RolandSysExProtocol.DeviceIdentity) => {
+    const handleIdentity = (
+      identity: RolandSysExProtocol.DeviceIdentity,
+      isFake?: boolean
+    ) => {
       let deviceDescriptor: DeviceDescriptor | void;
       const deviceKey = [
         identity.manufacturerId.toString(16),
         identity.deviceFamily.toString(16),
         identity.deviceModel.toString(16),
         identity.deviceId.toString(16),
-      ].join("-");
+        isFake ? "FAKE" : "",
+      ]
+        .filter(Boolean)
+        .join("-");
 
       for (const sysExConfig of AllSysExConfigs) {
         if (
@@ -56,7 +39,7 @@ export function useRolandIoSetup() {
         ) {
           deviceDescriptor = {
             sysExConfig,
-            description: sysExConfig.description,
+            description: sysExConfig.description + (isFake ? " (fake)" : ""),
             identity,
           };
           break;
@@ -90,7 +73,24 @@ export function useRolandIoSetup() {
     };
 
     connectedDevicesRef.current.clear();
+
+    if (includeFakeDevice) {
+      handleIdentity(
+        {
+          manufacturerId: RolandGR55SysExConfig.manufacturerId,
+          deviceFamily: RolandGR55SysExConfig.familyCode,
+          deviceModel: RolandGR55SysExConfig.modelNumber,
+          deviceId: 0x7f,
+          softwareRevisionLevel: 0x0100,
+        },
+        /* isFake */ true
+      );
+    }
     setConnectedDevicesSnapshot(new Map(connectedDevicesRef.current));
+
+    if (!inputPort || !outputPort) {
+      return;
+    }
     outputPort.send(RolandSysExProtocol.BROADCAST_IDENTITY_REQUEST_MESSAGE);
 
     const myInputPort = inputPort;
@@ -98,7 +98,7 @@ export function useRolandIoSetup() {
     return () => {
       myInputPort.removeEventListener("midimessage", handleMidiMessage as any);
     };
-  }, [inputPort, outputPort]);
+  }, [inputPort, outputPort, includeFakeDevice]);
   const [selectedDeviceKey, setSelectedDeviceKey] = useState<
     string | undefined
   >();
