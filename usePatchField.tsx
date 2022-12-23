@@ -31,12 +31,13 @@ export function usePatchField<T extends FieldDefinition<any>>(
   );
 
   useEffect(() => {
-    setValue(
+    const newValue =
       localOverrides?.[field.address]?.value ??
-        patchData?.[1][field.address]?.value ??
-        defaultValue
-    );
-  }, [defaultValue, field.address, localOverrides, patchData]);
+      patchData?.[1][field.address]?.value;
+    if (newValue != null) {
+      setValue(newValue);
+    }
+  }, [field.address, localOverrides, patchData]);
 
   useEffect(
     () =>
@@ -56,21 +57,6 @@ export function usePatchField<T extends FieldDefinition<any>>(
     },
     [setFieldThrottled, field, setLocalOverride]
   );
-
-  // const value = useMemo(
-  //   () =>
-  //     localOverrides?.[field.address]?.value ??
-  //     patchData?.[1]?.[field.address]?.value ??
-  //     defaultValue,
-  //   [field, patchData, defaultValue, localOverrides?.[field.address]?.value]
-  // );
-
-  // useEffect(() => {
-  //   const newValue = localOverrides?.[field.address]?.value ?? patchData?.[1]?.[field.address]?.value;
-  //   if (newValue != null) {
-  //     setValue(newValue);
-  //   }
-  // }, [patchData, field]);
 
   return [value, setAndSendValue];
 }
