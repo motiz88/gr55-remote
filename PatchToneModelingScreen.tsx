@@ -49,7 +49,6 @@ export function PatchToneModelingScreen({
     0
   );
 
-  // TODO: This will likely be settable elsewhere in the app, figure out how to share state
   const [altTuneSwitch] = usePatchField(
     GR55.temporaryPatch.common.altTuneSwitch,
     false

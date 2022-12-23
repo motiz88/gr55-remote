@@ -219,14 +219,12 @@ export function PatchEffectsModScreen({
             <PatchFieldPicker
               field={GR55.temporaryPatch.ampModNs.eqLowCutoffFreq}
             />
-            {/* TODO: Units */}
             <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqLowGain} />
             <PatchFieldPicker
               field={GR55.temporaryPatch.ampModNs.eqLowMidCutoffFreq}
             />
             {/* TODO: Slider with nonlinear stops */}
             <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.eqLowMidQ} />
-            {/* TODO: Units */}
             <PatchFieldSlider
               field={GR55.temporaryPatch.ampModNs.eqLowMidGain}
             />
@@ -235,16 +233,13 @@ export function PatchEffectsModScreen({
             />
             {/* TODO: Slider with nonlinear stops */}
             <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.eqHighMidQ} />
-            {/* TODO: Units */}
             <PatchFieldSlider
               field={GR55.temporaryPatch.ampModNs.eqHighMidGain}
             />
-            {/* TODO: Units */}
             <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqHighGain} />
             <PatchFieldPicker
               field={GR55.temporaryPatch.ampModNs.eqHighCutoffFreq}
             />
-            {/* TODO: Units */}
             <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqLevel} />
           </>
         )}

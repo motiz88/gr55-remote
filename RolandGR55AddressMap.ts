@@ -18,8 +18,6 @@ import {
 } from "./RolandAddressMap";
 import { pack7 } from "./RolandSysExProtocol";
 
-// TODO: list the pages of contiguous data that make up each block
-
 // TODO: Fully implement rate field types
 // 0-100, and then 13 tempo-relative labelled values
 const rate113Field = new UByteField(0, 113);
@@ -2658,7 +2656,6 @@ export const PatchStruct = {
     phaserCrossFeedback: new FieldDefinition(
       pack7(0x0027),
       "PHASER Cross Feedback",
-      // TODO: Test this field type
       feedback98Field
     ),
     phaserMix: new FieldDefinition(
@@ -4303,7 +4300,6 @@ export const PatchStruct = {
       "EQ High Cutoff Freq",
       freq11000FlatField
     ),
-    // TODO: It's slightly suspicious that this is in dB and not 0-100
     eqLevel: new FieldDefinition(pack7(0x0059), "EQ Level", gain20dBField),
     nsSwitch: new FieldDefinition(pack7(0x005a), "NS Switch", booleanField),
     nsThreshold: new FieldDefinition(
