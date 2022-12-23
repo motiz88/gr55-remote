@@ -9,6 +9,7 @@ import {
   FieldDefinition,
   NumericField,
 } from "./RolandAddressMap";
+import { SwitchSelector } from "./SwitchSelector";
 import { usePatchField } from "./usePatchField";
 
 export function PatchFieldSlider({
@@ -96,6 +97,16 @@ export function PatchFieldPicker<T extends string>({
     field,
     field.definition.type.labels[0]
   );
+  if (Object.keys(field.definition.type.labels).length <= 3) {
+    return (
+      <PatchFieldSwitchSelectorControlled
+        field={field}
+        value={value}
+        disabled={disabled}
+        onValueChange={setValue}
+      />
+    );
+  }
   return (
     <PatchFieldPickerControlled
       field={field}
@@ -140,6 +151,46 @@ export function PatchFieldPickerControlled<T extends string>({
       >
         {items}
       </Picker>
+    </View>
+  );
+}
+
+export function PatchFieldSwitchSelectorControlled<T extends string>({
+  field,
+  disabled,
+  value,
+  onValueChange,
+}: {
+  field: {
+    address: number;
+    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
+  };
+  disabled?: boolean;
+  value: T;
+  onValueChange: (value: T) => void;
+}) {
+  const options = useMemo(
+    () =>
+      Object.entries(field.definition.type.labels).map(
+        ([encoded, label], index) => ({
+          label,
+          value: label,
+        })
+      ),
+    [field]
+  );
+
+  return (
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldDescription}>
+        {field.definition.description}
+      </Text>
+      <SwitchSelector
+        options={options}
+        value={value}
+        onValueChange={onValueChange}
+        style={styles.fieldControl}
+      />
     </View>
   );
 }
