@@ -1,7 +1,7 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
-import { Button, useWindowDimensions, View } from "react-native";
+import { Button, Platform, useWindowDimensions, View } from "react-native";
 
 import { PatchEffectsAmpScreen } from "./PatchEffectsAmpScreen";
 import { PatchEffectsChorusScreen } from "./PatchEffectsChorusScreen";
@@ -41,8 +41,10 @@ export function PatchEffectsScreen({
   const { width } = useWindowDimensions();
 
   // TODO: Move this to a custom tab bar component
-  // TODO: This causes some line wrapping on the tab labels on iOS
-  const MINIMUM_TAB_WIDTH = 65;
+  const MINIMUM_TAB_WIDTH = Platform.select({
+    ios: 75,
+    default: 65,
+  });
   const tabCount = 8;
   let tabsInView = Math.floor(width / MINIMUM_TAB_WIDTH);
   if (tabsInView < tabCount && tabsInView > 1) {
