@@ -51,15 +51,7 @@ export function PatchEffectsModScreen({
             <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.odDsLevel} />
           </>
         )}
-        {modType === "WAH" && (
-          <>
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.wahMode} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahSens} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahFreq} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahPeak} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahLevel} />
-          </>
-        )}
+        {modType === "WAH" && <WahSection />}
         {modType === "COMP" && (
           <>
             <PatchFieldSlider
@@ -252,6 +244,37 @@ export function PatchEffectsModScreen({
   );
 }
 
+function WahSection() {
+  const [wahMode, setWahMode] = usePatchField(
+    GR55.temporaryPatch.ampModNs.wahMode,
+    GR55.temporaryPatch.ampModNs.wahMode.definition.type.labels[0]
+  );
+  return (
+    <>
+      <PatchFieldPickerControlled
+        field={GR55.temporaryPatch.ampModNs.wahMode}
+        value={wahMode}
+        onValueChange={setWahMode}
+      />
+      {wahMode === "MANUAL" && (
+        <>
+          <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.wahType} />
+          <PatchFieldSlider
+            field={GR55.temporaryPatch.ampModNs.wahPedalPosition}
+          />
+        </>
+      )}
+      {(wahMode === "T.UP" || wahMode === "T.DOWN") && (
+        <>
+          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahSens} />
+          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahFreq} />
+          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahPeak} />
+        </>
+      )}
+      <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahLevel} />
+    </>
+  );
+}
 const styles = StyleSheet.create({
   disabledSection: {
     backgroundColor: "#ddd",

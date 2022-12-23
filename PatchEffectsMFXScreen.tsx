@@ -274,29 +274,7 @@ export function PatchEffectsMFXScreen({
             <PatchFieldSlider field={mfx.stepFlangerLevel} />
           </>
         )}
-        {mfxType === "GUITAR AMP SIM" && (
-          <>
-            <SwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
-              <PatchFieldPicker field={mfx.gtrAmpSimPreAmpType} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpVolume} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMaster} />
-              <PatchFieldPicker field={mfx.gtrAmpSimPreAmpGain} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpBass} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMiddle} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpTreble} />
-              <PatchFieldSlider field={mfx.gtrAmpSimPreAmpPresence} />
-              <PatchFieldSwitch field={mfx.gtrAmpSimPreAmpBright} />
-            </SwitchedSection>
-            <SwitchedSection field={mfx.gtrAmpSimSpeakerSw}>
-              <PatchFieldPicker field={mfx.gtrAmpSimSpeakerType} />
-              <PatchFieldPicker field={mfx.gtrAmpSimMicSetting} />
-              <PatchFieldSlider field={mfx.gtrAmpSimMicLevel} />
-            </SwitchedSection>
-            <PatchFieldSlider field={mfx.gtrAmpSimDirectLevel} />
-            <PatchFieldSlider field={mfx.gtrAmpSimPan} />
-            <PatchFieldSlider field={mfx.gtrAmpSimLevel} />
-          </>
-        )}
+        {mfxType === "GUITAR AMP SIM" && <GuitarAmpSimSection />}
         {mfxType === "COMPRESSOR" && (
           <>
             <PatchFieldSlider field={mfx.compressorAttack} />
@@ -411,6 +389,44 @@ function TimeOrNoteField({ syncSwitchField, noteField, timeField }) {
       ) : (
         <PatchFieldSlider field={timeField} />
       )}
+    </>
+  );
+}
+
+function GuitarAmpSimSection() {
+  const [gtrAmpSimPreAmpType, setGtrAmpSimPreAmpType] = usePatchField(
+    mfx.gtrAmpSimPreAmpType,
+    mfx.gtrAmpSimPreAmpType.definition.type.labels[0]
+  );
+  return (
+    <>
+      <SwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
+        <PatchFieldPickerControlled
+          field={mfx.gtrAmpSimPreAmpType}
+          value={gtrAmpSimPreAmpType}
+          onValueChange={setGtrAmpSimPreAmpType}
+        />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpVolume} />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMaster} />
+        <PatchFieldPicker field={mfx.gtrAmpSimPreAmpGain} />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpBass} />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMiddle} />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpTreble} />
+        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpPresence} />
+        {(gtrAmpSimPreAmpType === "JC-120" ||
+          gtrAmpSimPreAmpType === "CLEAN TWIN" ||
+          gtrAmpSimPreAmpType === "BG LEAD") && (
+          <PatchFieldSwitch field={mfx.gtrAmpSimPreAmpBright} />
+        )}
+      </SwitchedSection>
+      <SwitchedSection field={mfx.gtrAmpSimSpeakerSw}>
+        <PatchFieldPicker field={mfx.gtrAmpSimSpeakerType} />
+        <PatchFieldPicker field={mfx.gtrAmpSimMicSetting} />
+        <PatchFieldSlider field={mfx.gtrAmpSimMicLevel} />
+      </SwitchedSection>
+      <PatchFieldSlider field={mfx.gtrAmpSimDirectLevel} />
+      <PatchFieldSlider field={mfx.gtrAmpSimPan} />
+      <PatchFieldSlider field={mfx.gtrAmpSimLevel} />
     </>
   );
 }

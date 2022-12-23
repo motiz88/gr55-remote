@@ -98,16 +98,6 @@ export function PatchFieldPicker<T extends string>({
     field,
     field.definition.type.labels[0]
   );
-  if (Object.keys(field.definition.type.labels).length <= 3) {
-    return (
-      <PatchFieldSwitchSelectorControlled
-        field={field}
-        value={value}
-        disabled={disabled}
-        onValueChange={setValue}
-      />
-    );
-  }
   return (
     <PatchFieldPickerControlled
       field={field}
@@ -237,6 +227,16 @@ export function PatchFieldPickerControlled<T extends string>({
       )),
     [field]
   );
+  if (Object.keys(field.definition.type.labels).length <= 3) {
+    return (
+      <PatchFieldSwitchSelectorControlled
+        field={field}
+        value={value}
+        disabled={disabled}
+        onValueChange={onValueChange}
+      />
+    );
+  }
   return (
     <View style={styles.fieldRow}>
       <Text style={styles.fieldDescription}>

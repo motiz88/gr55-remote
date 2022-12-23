@@ -4021,7 +4021,7 @@ export const PatchStruct = {
     ),
     wahType: new FieldDefinition(
       pack7(0x001d),
-      "WAH Mode",
+      "WAH Type",
       enumField([
         "CRY WAH",
         "VO WAH",
