@@ -216,7 +216,7 @@ function ModelToneLabel() {
   const modelingTone = GR55.temporaryPatch.modelingTone;
 
   // TODO: loading states for system and patch data (Suspense?)
-  const [guitarBassSelect] = useGR55GuitarBassSelect();
+  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
   const [toneCategory] = usePatchField(
     guitarBassSelect === "GUITAR"
       ? modelingTone.toneCategory_guitar

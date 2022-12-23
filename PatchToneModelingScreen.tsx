@@ -24,7 +24,7 @@ export function PatchToneModelingScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchToneTabParamList, "Modeling">) {
   // TODO: loading states for system and patch data (Suspense?)
-  const [guitarBassSelect] = useGR55GuitarBassSelect();
+  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
 
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
