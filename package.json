@@ -7,7 +7,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint . --fix && prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@bacons/expo-metro-runtime": "^2.0.1",
@@ -47,14 +49,11 @@
     "eslint": "^8.30.0",
     "eslint-config-universe": "^11.1.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.2",
     "jest": "^27.5.1",
     "jest-expo": "^47.0.1",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.1",
     "typescript": "^4.6.3"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
-    ]
   }
 }

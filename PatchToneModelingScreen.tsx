@@ -14,8 +14,8 @@ import {
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { PatchToneTabParamList } from "./navigation";
-import { usePatchField } from "./usePatchField";
 import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
+import { usePatchField } from "./usePatchField";
 
 const { modelingTone } = GR55.temporaryPatch;
 
