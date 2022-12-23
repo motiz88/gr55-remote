@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { IoSetupScreen } from "./IoSetupScreen";
 import { MidiIoContext } from "./MidiIoContext";
@@ -67,34 +68,39 @@ function RolandDataTransferContainer({
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <MidiIoSetupContainer>
-        <RolandIoSetupContainer>
-          <RolandDataTransferContainer>
-            <RolandRemotePatchStateContainer>
-              <RootStack.Navigator initialRouteName="PatchMain" id="RootStack">
-                <RootStack.Screen
-                  name="PatchMain"
-                  component={PatchMainScreen}
-                />
-                <RootStack.Screen
-                  name="PatchTone"
-                  component={PatchToneScreen}
-                />
-                <RootStack.Screen
-                  name="PatchEffects"
-                  component={PatchEffectsScreen}
-                />
-                <RootStack.Screen
-                  name="IoSetup"
-                  component={IoSetupScreen}
-                  options={{ title: "Setup" }}
-                />
-              </RootStack.Navigator>
-            </RolandRemotePatchStateContainer>
-          </RolandDataTransferContainer>
-        </RolandIoSetupContainer>
-      </MidiIoSetupContainer>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <MidiIoSetupContainer>
+          <RolandIoSetupContainer>
+            <RolandDataTransferContainer>
+              <RolandRemotePatchStateContainer>
+                <RootStack.Navigator
+                  initialRouteName="PatchMain"
+                  id="RootStack"
+                >
+                  <RootStack.Screen
+                    name="PatchMain"
+                    component={PatchMainScreen}
+                  />
+                  <RootStack.Screen
+                    name="PatchTone"
+                    component={PatchToneScreen}
+                  />
+                  <RootStack.Screen
+                    name="PatchEffects"
+                    component={PatchEffectsScreen}
+                  />
+                  <RootStack.Screen
+                    name="IoSetup"
+                    component={IoSetupScreen}
+                    options={{ title: "Setup" }}
+                  />
+                </RootStack.Navigator>
+              </RolandRemotePatchStateContainer>
+            </RolandDataTransferContainer>
+          </RolandIoSetupContainer>
+        </MidiIoSetupContainer>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }

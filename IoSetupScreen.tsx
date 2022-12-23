@@ -1,7 +1,8 @@
 import { Picker } from "@react-native-picker/picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useContext } from "react";
-import { StyleSheet, Switch, Text, View } from "react-native";
+import { useContext, useMemo } from "react";
+import { ScrollView, StyleSheet, Switch, Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
@@ -21,8 +22,20 @@ export function IoSetupScreen({
 
   const rolandIoSetupContext = useContext(RolandIoSetupContext);
 
+  const insets = useSafeAreaInsets();
+
+  const safeAreaStyle = useMemo(
+    () => ({
+      // TODO: Landscape mode?
+      paddingBottom: insets.bottom,
+      paddingLeft: insets.left,
+      paddingRight: insets.right,
+    }),
+    [insets]
+  );
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={safeAreaStyle}>
       {inputs && outputs && (
         <>
           <Text>Input</Text>
@@ -76,7 +89,7 @@ export function IoSetupScreen({
           value={rolandIoSetupContext.includeFakeDevice}
         />
       </>
-    </View>
+    </ScrollView>
   );
 }
 
