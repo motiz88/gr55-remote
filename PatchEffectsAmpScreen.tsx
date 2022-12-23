@@ -10,6 +10,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 
 export function PatchEffectsAmpScreen({
@@ -17,12 +18,15 @@ export function PatchEffectsAmpScreen({
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "Amp">) {
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <SwitchedSection field={GR55.temporaryPatch.ampModNs.ampSwitch}>
         <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.ampType} />

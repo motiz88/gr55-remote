@@ -1,11 +1,11 @@
 import { Picker } from "@react-native-picker/picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useContext, useMemo } from "react";
+import { useContext } from "react";
 import { ScrollView, StyleSheet, Switch, Text } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { RootStackParamList } from "./navigation";
 
 export function IoSetupScreen({
@@ -22,17 +22,7 @@ export function IoSetupScreen({
 
   const rolandIoSetupContext = useContext(RolandIoSetupContext);
 
-  const insets = useSafeAreaInsets();
-
-  const safeAreaStyle = useMemo(
-    () => ({
-      // TODO: Landscape mode?
-      paddingBottom: insets.bottom,
-      paddingLeft: insets.left,
-      paddingRight: insets.right,
-    }),
-    [insets]
-  );
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={safeAreaStyle}>

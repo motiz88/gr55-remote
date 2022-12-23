@@ -9,6 +9,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 
 const { sendsAndEq } = GR55.temporaryPatch;
@@ -18,12 +19,15 @@ export function PatchEffectsEQScreen({
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "EQ">) {
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <SwitchedSection field={sendsAndEq.eqSwitch}>
         <PatchFieldPicker field={sendsAndEq.eqLowCutoffFreq} />

@@ -11,6 +11,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 import { usePatchField } from "./usePatchField";
 
@@ -24,12 +25,15 @@ export function PatchEffectsModScreen({
     GR55.temporaryPatch.ampModNs.modType.definition.type.labels[0]
   );
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       {/* "The PAN parameter is valid even if SWITCH is OFF." - GR-55 Owner's Manual */}
       <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.modPan} />

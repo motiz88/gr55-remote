@@ -23,6 +23,7 @@ import {
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { RootStackParamList } from "./navigation";
 import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
 import { usePatchField } from "./usePatchField";
@@ -54,6 +55,8 @@ export function PatchMainScreen({
 
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   if (!selectedDevice) {
     return <NotConnectedView navigation={navigation} />;
   }
@@ -63,7 +66,8 @@ export function PatchMainScreen({
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
-      style={styles.container}
+      style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <PatchFieldSlider field={GR55.temporaryPatch.common.patchLevel} />
       <SectionWithHeading heading="Tone">

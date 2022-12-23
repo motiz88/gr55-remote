@@ -13,6 +13,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchToneTabParamList } from "./navigation";
 import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
 import { usePatchField } from "./usePatchField";
@@ -102,12 +103,15 @@ export function PatchToneModelingScreen({
         toneCategory_guitar === "SYNTH")) ||
     (guitarBassSelect === "BASS" && toneCategory_bass === "SYNTH");
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <SwitchedSection field={modelingTone.muteSwitch}>
         {guitarBassSelect === "GUITAR" && (

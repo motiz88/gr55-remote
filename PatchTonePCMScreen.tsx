@@ -10,6 +10,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchToneTabParamList } from "./navigation";
 
 export function PatchTonePCMScreen({
@@ -113,12 +114,15 @@ export function PatchTonePCMScreen({
   //   />
   // );
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <SwitchedSection field={pcmTonePage.muteSwitch}>
         <PatchFieldPicker field={pcmTonePage.toneSelect} />

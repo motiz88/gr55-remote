@@ -12,6 +12,7 @@ import {
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 import { usePatchField } from "./usePatchField";
 
@@ -27,12 +28,15 @@ export function PatchEffectsMFXScreen({
     mfx.mfxType.definition.type.labels[0]
   );
 
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
   return (
     <ScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
+      contentContainerStyle={safeAreaStyle}
     >
       <SwitchedSection field={mfx.mfxSwitch}>
         <PatchFieldSlider field={mfx.mfxPan} />
