@@ -8,6 +8,7 @@ import {
   PatchFieldSlider,
   PatchFieldSwitch,
   PatchFieldSwitchControlled,
+  PatchFieldWaveShapePicker,
   SwitchedSection,
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
@@ -68,7 +69,9 @@ export function PatchEffectsMFXScreen({
             <PatchFieldSlider field={mfx.superFilterFilterResonance} />
             <PatchFieldSlider field={mfx.superFilterFilterGain} />
             <SwitchedSection field={mfx.superFilterModulationSw}>
-              <PatchFieldPicker field={mfx.superFilterModulationWave} />
+              <PatchFieldWaveShapePicker
+                field={mfx.superFilterModulationWave}
+              />
             </SwitchedSection>
             <TimeOrNoteField
               syncSwitchField={mfx.superFilterRateSyncSw}
@@ -136,7 +139,7 @@ export function PatchEffectsMFXScreen({
         )}
         {mfxType === "TREMOLO" && (
           <>
-            <PatchFieldPicker field={mfx.tremoloModWave} />
+            <PatchFieldWaveShapePicker field={mfx.tremoloModWave} />
             <TimeOrNoteField
               syncSwitchField={mfx.tremoloRateSyncSw}
               noteField={mfx.tremoloRateNote}
@@ -150,7 +153,7 @@ export function PatchEffectsMFXScreen({
         )}
         {mfxType === "AUTO PAN" && (
           <>
-            <PatchFieldPicker field={mfx.autoPanModWave} />
+            <PatchFieldWaveShapePicker field={mfx.autoPanModWave} />
             <TimeOrNoteField
               syncSwitchField={mfx.autoPanRateSyncSw}
               noteField={mfx.autoPanRateNote}

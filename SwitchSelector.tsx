@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { StyleProp, ViewStyle } from "react-native";
+import { StyleProp, TextStyle, ViewStyle } from "react-native";
 import SwitchSelectorBase from "react-native-switch-selector";
 
 export function SwitchSelector<T extends string>({
@@ -7,11 +7,15 @@ export function SwitchSelector<T extends string>({
   onValueChange,
   options,
   style,
+  textStyle,
+  selectedTextStyle,
 }: {
   value: T;
   onValueChange?: (value: T) => void;
   options: readonly { label: string; value: T }[];
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  selectedTextStyle?: StyleProp<TextStyle>;
 }) {
   const valueIndex = useMemo(
     () => options.findIndex((o) => o.value === value),
@@ -48,6 +52,8 @@ export function SwitchSelector<T extends string>({
       backgroundColor="#dedfdf"
       buttonMargin={2}
       height={32}
+      textStyle={textStyle}
+      selectedTextStyle={selectedTextStyle}
     />
   );
 }

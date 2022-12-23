@@ -1,3 +1,4 @@
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useMemo } from "react";
@@ -114,6 +115,104 @@ export function PatchFieldPicker<T extends string>({
       disabled={disabled}
       onValueChange={setValue}
     />
+  );
+}
+
+export function PatchFieldWaveShapePicker<
+  T extends "SAW" | "SQU" | "SQR" | "TRI" | "SIN" | "SAW1" | "SAW2"
+>({
+  field,
+  disabled,
+}: {
+  field: {
+    address: number;
+    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
+  };
+  disabled?: boolean;
+}) {
+  const [value, setValue] = usePatchField(
+    field,
+    field.definition.type.labels[0]
+  );
+  return (
+    <PatchFieldWaveShapePickerControlled
+      field={field}
+      value={value}
+      disabled={disabled}
+      onValueChange={setValue}
+    />
+  );
+}
+
+const iconsByShapeLabel = {
+  SAW: <MaterialCommunityIcons name="sawtooth-wave" size={24} color="black" />,
+  SQU: <MaterialCommunityIcons name="square-wave" size={24} color="black" />,
+  SQR: <MaterialCommunityIcons name="square-wave" size={24} color="black" />,
+  TRI: <MaterialCommunityIcons name="triangle-wave" size={24} color="black" />,
+  SIN: <MaterialCommunityIcons name="sine-wave" size={24} color="black" />,
+  // Rising saw
+  SAW1: <MaterialCommunityIcons name="sawtooth-wave" size={24} color="black" />,
+  // Falling saw
+  SAW2: (
+    <MaterialCommunityIcons
+      name="sawtooth-wave"
+      size={24}
+      color="black"
+      style={{ transform: [{ scaleY: -1 }] }}
+    />
+  ),
+};
+
+export function PatchFieldWaveShapePickerControlled<
+  T extends "SAW" | "SQU" | "SQR" | "TRI" | "SIN" | "SAW1" | "SAW2"
+>({
+  field,
+  disabled,
+  value,
+  onValueChange,
+}: {
+  field: {
+    address: number;
+    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
+  };
+  disabled?: boolean;
+  value: T;
+  onValueChange: (value: T) => void;
+}) {
+  const options = useMemo(
+    () =>
+      Object.entries(field.definition.type.labels).map(
+        ([encoded, label], index) => ({
+          label,
+          value: label,
+          customIcon: iconsByShapeLabel[label],
+        })
+      ),
+    [field]
+  );
+
+  return (
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldDescription}>
+        {field.definition.description}
+      </Text>
+      <SwitchSelector
+        options={options}
+        value={value}
+        onValueChange={onValueChange}
+        style={styles.fieldControl}
+        textStyle={
+          Object.keys(field.definition.type.labels).length <= 3
+            ? {}
+            : { display: "none" }
+        }
+        selectedTextStyle={
+          Object.keys(field.definition.type.labels).length <= 3
+            ? {}
+            : { display: "none" }
+        }
+      />
+    </View>
   );
 }
 

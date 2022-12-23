@@ -10,6 +10,7 @@ import {
   PatchFieldSliderControlled,
   PatchFieldPlaceholder,
   SwitchedSection,
+  PatchFieldWaveShapePicker,
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -465,7 +466,7 @@ export function PatchToneModelingScreen({
               ? toneNumberSynth_guitar
               : toneNumberSynth_bass) === "WAVE SYNTH" && (
               <>
-                <PatchFieldPicker
+                <PatchFieldWaveShapePicker
                   field={
                     guitarBassSelect === "GUITAR"
                       ? modelingTone.waveSynthType_guitar

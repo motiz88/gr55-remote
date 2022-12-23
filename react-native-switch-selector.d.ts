@@ -1,5 +1,5 @@
 declare module "react-native-switch-selector" {
-  import { ColorValue } from "react-native";
+  import { ColorValue, TextStyle, ViewStyle } from "react-native";
 
   declare const SwitchSelector: React.ComponentType<{
     value?: number;
@@ -14,6 +14,8 @@ declare module "react-native-switch-selector" {
     height?: number;
     onPress?: (value: string) => void;
     disableValueChangeOnPress?: boolean;
+    textStyle?: StyleProp<TextStyle>;
+    selectedTextStyle?: StyleProp<TextStyle>;
   }>;
 
   export default SwitchSelector;
