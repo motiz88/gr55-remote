@@ -69,7 +69,7 @@ export function useRolandRemotePatchState() {
         ) * GAP_BETWEEN_MESSAGES_MS,
         () => setInvalidationCount((x) => x + 1)
       ),
-    []
+    [addressMap?.temporaryPatch.definition.size]
   );
 
   useEffect(() => {
@@ -88,7 +88,7 @@ export function useRolandRemotePatchState() {
     return () => {
       inputPort.removeEventListener("midimessage", handleMidiMessage as any);
     };
-  }, [inputPort, selectedDevice, inputPort?.state]);
+  }, [inputPort, selectedDevice, inputPort?.state, invalidatePatchData]);
 
   const localOverrides = useRef<ParsedDataBag>({});
 

@@ -38,22 +38,24 @@ export function useMidiIoSetup() {
     handleMidiStateChange();
   }, [inputPort, outputPort, midiAccess, handleMidiStateChange]);
 
-  const midiIoContext = React.useMemo(
-    () => ({
+  const midiIoContext = React.useMemo(() => {
+    // eslint-disable-next-line no-unused-expressions
+    midiStateChangeCount;
+    return {
       inputPort: inputPort != null ? midiAccess?.inputs?.get(inputPort) : null,
       outputPort:
         outputPort != null ? midiAccess?.outputs?.get(outputPort) : null,
-    }),
-    [midiAccess, midiStateChangeCount]
-  );
+    };
+  }, [inputPort, midiAccess, midiStateChangeCount, outputPort]);
 
-  const { inputs, outputs } = React.useMemo(
-    () => ({
+  const { inputs, outputs } = React.useMemo(() => {
+    // eslint-disable-next-line no-unused-expressions
+    midiStateChangeCount;
+    return {
       inputs: new Map(midiAccess?.inputs),
       outputs: new Map(midiAccess?.outputs),
-    }),
-    [midiAccess, midiStateChangeCount]
-  );
+    };
+  }, [midiAccess, midiStateChangeCount]);
 
   return {
     midiIoContext,

@@ -164,7 +164,7 @@ export function PatchFieldSwitchControlled({
 
   const handleValueChange = useCallback(
     (value: boolean) => {
-      if (field.definition.type.invertedForDisplay) {
+      if (invertedForDisplay) {
         value = !value;
       }
       onValueChange(value);

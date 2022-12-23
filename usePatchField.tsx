@@ -43,7 +43,7 @@ export function usePatchField<T extends FieldDefinition<any>>(
       subscribeToField(field, (newValue: T["type"]["decode"]) => {
         setValue(newValue);
       }),
-    [subscribeToField]
+    [field, subscribeToField]
   );
 
   const setAndSendValue = useCallback(

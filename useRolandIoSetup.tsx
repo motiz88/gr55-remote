@@ -117,7 +117,12 @@ export function useRolandIoSetup() {
       includeFakeDevice,
       setIncludeFakeDevice,
     }),
-    [connectedDevicesSnapshot, selectedDevice, selectedDeviceKey]
+    [
+      connectedDevicesSnapshot,
+      includeFakeDevice,
+      selectedDevice,
+      selectedDeviceKey,
+    ]
   );
   return rolandIoSetupContext;
 }
