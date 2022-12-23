@@ -221,7 +221,7 @@ function ModelToneLabel() {
     guitarBassSelect === "GUITAR"
       ? modelingTone.toneCategory_guitar
       : modelingTone.toneCategory_bass,
-    ""
+    "E.GTR"
   );
   const [toneNumberEGtr_guitar] = usePatchField(
     modelingTone.toneNumberEGtr_guitar,
