@@ -17,7 +17,6 @@ import {
   isValidChecksum,
   makeDataRequestMessage,
   ALL_DEVICES,
-  unpack7,
   makeDataSetMessage,
   GAP_BETWEEN_MESSAGES_MS,
 } from "./RolandSysExProtocol";
@@ -66,24 +65,9 @@ export function useRolandDataTransfer() {
       // TODO: check address
       // Checksum validation is slow, save it for last
       if (!isValidChecksum(parsed)) {
-        console.log(
-          "Received invalid data claiming to be from 0x" +
-            unpack7(parsed.address).toString(16) +
-            " to 0x" +
-            unpack7(parsed.address + parsed.valueBytes.length - 1).toString(16)
-        );
         return;
       }
 
-      console.log(
-        "Received valid data from 0x" +
-          unpack7(parsed.address).toString(16) +
-          " to 0x" +
-          unpack7(parsed.address + parsed.valueBytes.length - 1).toString(16)
-      );
-      if (!pendingFetches.current.size) {
-        console.log("!! no pending fetches");
-      }
       for (const fetch of pendingFetches.current) {
         if (
           fetch.selectedDeviceKey !== selectedDeviceKey ||
@@ -91,7 +75,6 @@ export function useRolandDataTransfer() {
           fetch.outputPortId !== outputPort?.id
         ) {
           fetch.reject(new Error("Cancelled"));
-          console.log("eating stale fetch");
           pendingFetches.current.delete(fetch);
           continue;
         }
@@ -100,13 +83,6 @@ export function useRolandDataTransfer() {
           parsed.address + parsed.valueBytes.length ===
             fetch.address + fetch.length
         ) {
-          console.log(
-            `Response exactly matches a pending fetch for 0x${unpack7(
-              fetch.address
-            ).toString(16)}...0x${unpack7(
-              fetch.address + fetch.length - 1
-            ).toString(16)}, device ${fetch.selectedDeviceKey}`
-          );
           fetch.resolve(parsed.valueBytes);
           pendingFetches.current.delete(fetch);
         }
@@ -128,12 +104,6 @@ export function useRolandDataTransfer() {
       address: number,
       length: number
     ): Promise<Uint8Array> => {
-      console.log(
-        "fetching data from 0x" +
-          unpack7(address).toString(16) +
-          " to 0x" +
-          unpack7(address + length - 1).toString(16)
-      );
       return new Promise((resolve, reject) => {
         const thisFetch = {
           resolve,
@@ -171,7 +141,6 @@ export function useRolandDataTransfer() {
       definition: T,
       baseAddress: number = 0
     ): Promise<[ParsedAtom<T>, ParsedDataBag]> {
-      console.log("requestData called");
       const result = await fetchAndParse(definition, baseAddress, (...args) =>
         globalQueue.add(() => fetchContiguous(...args))
       );
