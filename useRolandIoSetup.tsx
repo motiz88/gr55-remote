@@ -20,6 +20,7 @@ export function useRolandIoSetup() {
     ReadonlyMap<string, Readonly<DeviceDescriptor>>
   >(new Map());
 
+  // TODO: Persist selected device key
   const [selectedDeviceKey, setSelectedDeviceKey] = useState<string>();
 
   useEffect(() => {
