@@ -1,7 +1,8 @@
 import { requestMIDIAccess } from "@motiz88/react-native-midi";
-import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import usePromise from "react-use-promise";
+
+import { useStateWithStoredDefault } from "./AsyncStorageUtils";
 
 function useMIDIAccess(sysex: boolean = false) {
   return usePromise(() => requestMIDIAccess({ sysex }), [sysex]);
@@ -10,19 +11,48 @@ function useMIDIAccess(sysex: boolean = false) {
 export function useMidiIoSetup() {
   const [midiAccess] = useMIDIAccess(true);
 
-  const [inputPort, setInputPort] = useState<string>();
-  const [outputPort, setOutputPort] = useState<string>();
+  const [inputPort, setInputPort, inputPortReadStatus] =
+    useStateWithStoredDefault<string>(
+      "@motiz88/gr55-remote/MidiIoSetup/inputPort"
+    );
+  const [outputPort, setOutputPort, outputPortReadStatus] =
+    useStateWithStoredDefault<string>(
+      "@motiz88/gr55-remote/MidiIoSetup/outputPort"
+    );
   const [midiStateChangeCount, setMidiStateChangeCount] = useState(0);
 
   const handleMidiStateChange = useCallback(() => {
-    if (inputPort == null && midiAccess && midiAccess.inputs.size) {
+    const connectedInputPort =
+      inputPort != null ? midiAccess?.inputs.get(inputPort) : null;
+    const connectedOutputPort =
+      outputPort != null ? midiAccess?.outputs.get(outputPort) : null;
+
+    if (
+      inputPortReadStatus !== "pending" &&
+      connectedInputPort == null &&
+      midiAccess &&
+      midiAccess.inputs.size
+    ) {
       setInputPort([...midiAccess.inputs.keys()][0]);
     }
-    if (outputPort == null && midiAccess && midiAccess.outputs.size) {
+    if (
+      outputPortReadStatus !== "pending" &&
+      connectedOutputPort == null &&
+      midiAccess &&
+      midiAccess.outputs.size
+    ) {
       setOutputPort([...midiAccess.outputs.keys()][0]);
     }
     setMidiStateChangeCount((x) => x + 1);
-  }, [inputPort, outputPort, midiAccess]);
+  }, [
+    inputPort,
+    midiAccess,
+    outputPort,
+    inputPortReadStatus,
+    outputPortReadStatus,
+    setInputPort,
+    setOutputPort,
+  ]);
 
   useEffect(() => {
     const myMidiAccess = midiAccess;
@@ -38,7 +68,7 @@ export function useMidiIoSetup() {
     handleMidiStateChange();
   }, [inputPort, outputPort, midiAccess, handleMidiStateChange]);
 
-  const midiIoContext = React.useMemo(() => {
+  const midiIoContext = useMemo(() => {
     // eslint-disable-next-line no-unused-expressions
     midiStateChangeCount;
     return {
@@ -48,7 +78,7 @@ export function useMidiIoSetup() {
     };
   }, [inputPort, midiAccess, midiStateChangeCount, outputPort]);
 
-  const { inputs, outputs } = React.useMemo(() => {
+  const { inputs, outputs } = useMemo(() => {
     // eslint-disable-next-line no-unused-expressions
     midiStateChangeCount;
     return {

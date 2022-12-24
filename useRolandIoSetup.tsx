@@ -1,19 +1,26 @@
 import type { MIDIMessageEvent } from "@motiz88/react-native-midi";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 
+import { useStateWithStoredDefault } from "./AsyncStorageUtils";
 import { MidiIoContext } from "./MidiIoContext";
 import { AllSysExConfigs, RolandGR55SysExConfig } from "./RolandDevices";
 import { DeviceDescriptor } from "./RolandIoSetupContext";
 import * as RolandSysExProtocol from "./RolandSysExProtocol";
 
 export function useRolandIoSetup() {
-  const [includeFakeDevice, setIncludeFakeDevice] = useState(false);
+  const [includeFakeDevice, setIncludeFakeDevice] =
+    useStateWithStoredDefault<boolean>(
+      "@motiz88/gr55-remote/RolandIoSetup/includeFakeDevice",
+      false
+    );
 
   const { inputPort, outputPort } = useContext(MidiIoContext);
   const connectedDevicesRef = useRef(new Map());
   const [connectedDevicesSnapshot, setConnectedDevicesSnapshot] = useState<
     ReadonlyMap<string, Readonly<DeviceDescriptor>>
   >(new Map());
+
+  const [selectedDeviceKey, setSelectedDeviceKey] = useState<string>();
 
   useEffect(() => {
     const handleIdentity = (
@@ -98,10 +105,7 @@ export function useRolandIoSetup() {
     return () => {
       myInputPort.removeEventListener("midimessage", handleMidiMessage as any);
     };
-  }, [inputPort, outputPort, includeFakeDevice]);
-  const [selectedDeviceKey, setSelectedDeviceKey] = useState<
-    string | undefined
-  >();
+  }, [inputPort, outputPort, includeFakeDevice, setSelectedDeviceKey]);
 
   const selectedDevice =
     selectedDeviceKey != null
@@ -122,6 +126,7 @@ export function useRolandIoSetup() {
       includeFakeDevice,
       selectedDevice,
       selectedDeviceKey,
+      setIncludeFakeDevice,
     ]
   );
   return rolandIoSetupContext;
