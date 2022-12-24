@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 import {
   PatchFieldPicker,
   PatchFieldPickerControlled,
+  PatchFieldSegmentedSwitch,
   PatchFieldSlider,
   PatchFieldSwitch,
   SwitchedSection,
@@ -66,7 +67,9 @@ export function PatchEffectsAmpScreen({
         ) : null}
         <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.ampSpType} />
         <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.ampMicType} />
-        <PatchFieldSwitch field={GR55.temporaryPatch.ampModNs.ampMicDistance} />
+        <PatchFieldSegmentedSwitch
+          field={GR55.temporaryPatch.ampModNs.ampMicDistance}
+        />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.ampMicPosition} />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.ampMicLevel} />
       </SwitchedSection>

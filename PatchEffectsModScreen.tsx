@@ -6,8 +6,8 @@ import {
   PatchFieldSlider,
   PatchFieldPickerControlled,
   PatchFieldPicker,
-  PatchFieldSwitch,
   SwitchedSection,
+  PatchFieldSegmentedSwitch,
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -151,7 +151,7 @@ export function PatchEffectsModScreen({
             <PatchFieldSlider
               field={GR55.temporaryPatch.ampModNs.rotaryDepth}
             />
-            <PatchFieldSwitch
+            <PatchFieldSegmentedSwitch
               field={GR55.temporaryPatch.ampModNs.rotarySelect}
             />
             <PatchFieldSlider

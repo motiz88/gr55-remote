@@ -1,18 +1,9 @@
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
-import SegmentedControl, {
-  NativeSegmentedControlIOSChangeEvent,
-} from "@react-native-segmented-control/segmented-control";
 import { useCallback, useMemo } from "react";
-import {
-  Switch,
-  Text,
-  StyleSheet,
-  View,
-  Pressable,
-  NativeSyntheticEvent,
-} from "react-native";
+import { Switch, Text, StyleSheet, View, Pressable } from "react-native";
 
+import { DirectPicker } from "./DirectPicker";
 import {
   BooleanField,
   EnumField,
@@ -23,6 +14,7 @@ import { usePatchField } from "./usePatchField";
 
 export function PatchFieldSlider({
   field,
+  // TODO: Remove unused disabled prop from all these components
   disabled,
   inline,
 }: {
@@ -169,35 +161,23 @@ export function PatchFieldWaveShapePickerControlled<
   onValueChange: (value: T) => void;
 }) {
   const values = useMemo(
-    () => Object.values(field.definition.type.labels),
-    [field]
-  );
-  const icons = useMemo(
     () =>
-      Object.values(field.definition.type.labels).map(
-        (label) => iconsByShapeLabel[label]
-      ),
+      Object.values(field.definition.type.labels).map((label) => ({
+        value: label,
+        icon: iconsByShapeLabel[label],
+      })),
     [field]
-  );
-  const selectedIndex = useMemo(() => {
-    return values.indexOf(value);
-  }, [value, values]);
-  const onChange = useCallback(
-    (e: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-      onValueChange?.(values[e.nativeEvent.selectedSegmentIndex]);
-    },
-    [onValueChange, values]
   );
   return (
     <View style={styles.fieldRow}>
       <Text style={styles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <SegmentedControl
+      <DirectPicker
         style={styles.fieldControl}
-        values={icons}
-        selectedIndex={selectedIndex}
-        onChange={onChange}
+        values={values}
+        value={value}
+        onValueChange={onValueChange}
       />
     </View>
   );
@@ -269,26 +249,70 @@ export function PatchFieldDirectPickerControlled<T extends string>({
     () => Object.values(field.definition.type.labels),
     [field]
   );
-  const selectedIndex = useMemo(() => {
-    return values.indexOf(value);
-  }, [value, values]);
-  const onChange = useCallback(
-    (e: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
-      onValueChange?.(e.nativeEvent.value as T);
-    },
-    [onValueChange]
-  );
-
   return (
     <View style={styles.fieldRow}>
       <Text style={styles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <SegmentedControl
+      <DirectPicker
         style={styles.fieldControl}
         values={values}
-        selectedIndex={selectedIndex}
-        onChange={onChange}
+        value={value}
+        onValueChange={onValueChange}
+      />
+    </View>
+  );
+}
+
+export function PatchFieldSegmentedSwitchControlled({
+  field,
+  value,
+  onValueChange,
+}: {
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  field: {
+    address: number;
+    definition: FieldDefinition<BooleanField>;
+  };
+  inline?: boolean;
+  segmented?: boolean;
+}) {
+  const invertedForDisplay = field.definition.type.invertedForDisplay;
+
+  const handleLabelChange = useCallback(
+    (label: string) => {
+      onValueChange(label === field.definition.type.trueLabel);
+    },
+    [field, onValueChange]
+  );
+  const labelsInOrder = useMemo(
+    () =>
+      invertedForDisplay
+        ? ([
+            field.definition.type.trueLabel,
+            field.definition.type.falseLabel,
+          ] as const)
+        : ([
+            field.definition.type.falseLabel,
+            field.definition.type.trueLabel,
+          ] as const),
+    [field, invertedForDisplay]
+  );
+  return (
+    <View style={styles.fieldRow}>
+      <Text style={styles.fieldDescription}>
+        {field.definition.description}
+      </Text>
+      <DirectPicker
+        style={styles.fieldControl}
+        onValueChange={handleLabelChange}
+        value={
+          (invertedForDisplay ? !value : value)
+            ? field.definition.type.trueLabel
+            : field.definition.type.falseLabel
+        }
+        values={labelsInOrder}
       />
     </View>
   );
@@ -321,6 +345,21 @@ export function PatchFieldSwitchControlled({
     },
     [onValueChange, invertedForDisplay]
   );
+
+  const labelsInOrder = useMemo(
+    () =>
+      invertedForDisplay
+        ? ([
+            field.definition.type.trueLabel,
+            field.definition.type.falseLabel,
+          ] as const)
+        : ([
+            field.definition.type.falseLabel,
+            field.definition.type.trueLabel,
+          ] as const),
+    [field, invertedForDisplay]
+  );
+
   const inlineSwitch = (
     // Prevent the switch from triggering any parent Pressables
     <Pressable android_disableSound>
@@ -341,21 +380,14 @@ export function PatchFieldSwitchControlled({
         {field.definition.description}
       </Text>
       <View style={[styles.horizontal, styles.fieldControl]}>
-        <Text style={styles.switchLabel}>
-          {invertedForDisplay
-            ? field.definition.type.trueLabel
-            : field.definition.type.falseLabel}
-        </Text>
+        <Text style={styles.switchLabel}>{labelsInOrder[0]}</Text>
         {inlineSwitch}
-        <Text style={styles.switchLabel}>
-          {invertedForDisplay
-            ? field.definition.type.falseLabel
-            : field.definition.type.trueLabel}
-        </Text>
+        <Text style={styles.switchLabel}>{labelsInOrder[1]}</Text>
       </View>
     </View>
   );
 }
+
 export function PatchFieldSwitch({
   field,
   disabled,
@@ -375,6 +407,29 @@ export function PatchFieldSwitch({
       value={value}
       onValueChange={setValue}
       disabled={disabled}
+      inline={inline}
+    />
+  );
+}
+
+export function PatchFieldSegmentedSwitch({
+  field,
+  disabled,
+  inline,
+}: {
+  field: {
+    address: number;
+    definition: FieldDefinition<BooleanField>;
+  };
+  disabled?: boolean;
+  inline?: boolean;
+}) {
+  const [value, setValue] = usePatchField(field, false);
+  return (
+    <PatchFieldSegmentedSwitchControlled
+      field={field}
+      value={value}
+      onValueChange={setValue}
       inline={inline}
     />
   );

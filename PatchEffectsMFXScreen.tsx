@@ -5,6 +5,7 @@ import { StyleSheet, ScrollView, RefreshControl } from "react-native";
 import {
   PatchFieldPicker,
   PatchFieldPickerControlled,
+  PatchFieldSegmentedSwitch,
   PatchFieldSlider,
   PatchFieldSwitch,
   PatchFieldSwitchControlled,
@@ -93,7 +94,7 @@ export function PatchEffectsMFXScreen({
               timeField={mfx.phaserRate}
             />
             <PatchFieldSlider field={mfx.phaserDepth} />
-            <PatchFieldSwitch field={mfx.phaserPolarity} />
+            <PatchFieldSegmentedSwitch field={mfx.phaserPolarity} />
             <PatchFieldSlider field={mfx.phaserResonance} />
             <PatchFieldSlider field={mfx.phaserCrossFeedback} />
             <PatchFieldSlider field={mfx.phaserMix} />
@@ -112,7 +113,7 @@ export function PatchEffectsMFXScreen({
               timeField={mfx.stepPhaserRate}
             />
             <PatchFieldSlider field={mfx.stepPhaserDepth} />
-            <PatchFieldSwitch field={mfx.stepPhaserPolarity} />
+            <PatchFieldSegmentedSwitch field={mfx.stepPhaserPolarity} />
             <PatchFieldSlider field={mfx.stepPhaserResonance} />
             <PatchFieldSlider field={mfx.stepPhaserCrossFeedback} />
             <TimeOrNoteField
@@ -130,7 +131,7 @@ export function PatchEffectsMFXScreen({
           <>
             <PatchFieldSlider field={mfx.ringModulatorFrequency} />
             <PatchFieldSlider field={mfx.ringModulatorSens} />
-            <PatchFieldSwitch field={mfx.ringModulatorPolarity} />
+            <PatchFieldSegmentedSwitch field={mfx.ringModulatorPolarity} />
             <PatchFieldSlider field={mfx.ringModulatorLowGain} />
             <PatchFieldSlider field={mfx.ringModulatorHighGain} />
             <PatchFieldSlider field={mfx.ringModulatorBalance} />
@@ -182,7 +183,7 @@ export function PatchEffectsMFXScreen({
         )}
         {mfxType === "VK ROTARY" && (
           <>
-            <PatchFieldSwitch field={mfx.vkRotarySpeed} />
+            <PatchFieldSegmentedSwitch field={mfx.vkRotarySpeed} />
             <PatchFieldSwitch field={mfx.vkRotaryBrake} />
             <PatchFieldSlider field={mfx.vkRotaryWooferSlowSpeed} />
             <PatchFieldSlider field={mfx.vkRotaryWooferFastSpeed} />

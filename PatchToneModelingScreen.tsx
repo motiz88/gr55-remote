@@ -11,6 +11,7 @@ import {
   PatchFieldPlaceholder,
   SwitchedSection,
   PatchFieldWaveShapePicker,
+  PatchFieldSegmentedSwitch,
 } from "./PatchFieldComponents";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -708,7 +709,7 @@ export function PatchToneModelingScreen({
                 <PatchFieldSlider field={modelingTone.eBassVolume_bass} />
                 <PatchFieldSwitch field={modelingTone.eBassTrebleSwitch_bass} />
                 <PatchFieldSwitch field={modelingTone.eBassBassSwitch_bass} />
-                <PatchFieldSwitch
+                <PatchFieldSegmentedSwitch
                   field={modelingTone.eBassRhythmSoloSwitch_bass}
                 />
               </>
