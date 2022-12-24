@@ -12,6 +12,12 @@ import {
   PatchFieldWaveShapePicker,
   SwitchedSection,
 } from "./PatchFieldComponents";
+import {
+  BooleanField,
+  EnumField,
+  FieldDefinition,
+  NumericField,
+} from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -374,9 +380,24 @@ export function PatchEffectsMFXScreen({
   );
 }
 
-function TimeOrNoteField({ syncSwitchField, noteField, timeField }) {
-  // TODO: the inner field values get nuked on toggle because they are in local state
-  // !must fix this!
+function TimeOrNoteField({
+  syncSwitchField,
+  noteField,
+  timeField,
+}: {
+  syncSwitchField: {
+    address: number;
+    definition: FieldDefinition<BooleanField>;
+  };
+  noteField: {
+    address: number;
+    definition: FieldDefinition<EnumField<any>>;
+  };
+  timeField: {
+    address: number;
+    definition: FieldDefinition<NumericField>;
+  };
+}) {
   const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField, false);
   return (
     <>
