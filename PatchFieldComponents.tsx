@@ -2,7 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useMemo } from "react";
-import { Switch, Text, StyleSheet, View } from "react-native";
+import { Switch, Text, StyleSheet, View, Pressable } from "react-native";
 
 import {
   BooleanField,
@@ -322,12 +322,15 @@ export function PatchFieldSwitchControlled({
     [onValueChange, invertedForDisplay]
   );
   const inlineSwitch = (
-    <Switch
-      style={inline ? null : styles.switchBetweenLabels}
-      disabled={disabled}
-      onValueChange={handleValueChange}
-      value={invertedForDisplay ? !value : value}
-    />
+    // Prevent the switch from triggering any parent Pressables
+    <Pressable android_disableSound>
+      <Switch
+        style={inline ? null : styles.switchBetweenLabels}
+        disabled={disabled}
+        onValueChange={handleValueChange}
+        value={invertedForDisplay ? !value : value}
+      />
+    </Pressable>
   );
   if (inline) {
     return inlineSwitch;
