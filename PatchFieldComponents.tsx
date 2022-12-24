@@ -1,8 +1,17 @@
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
+import SegmentedControl, {
+  NativeSegmentedControlIOSChangeEvent,
+} from "@react-native-segmented-control/segmented-control";
 import { useCallback, useMemo } from "react";
-import { Switch, Text, StyleSheet, View, Pressable } from "react-native";
+import {
+  Switch,
+  Text,
+  StyleSheet,
+  View,
+  Pressable,
+  NativeSyntheticEvent,
+} from "react-native";
 
 import {
   BooleanField,
@@ -10,7 +19,6 @@ import {
   FieldDefinition,
   NumericField,
 } from "./RolandAddressMap";
-import { SwitchSelector } from "./SwitchSelector";
 import { usePatchField } from "./usePatchField";
 
 export function PatchFieldSlider({
@@ -135,22 +143,13 @@ export function PatchFieldWaveShapePicker<
 }
 
 const iconsByShapeLabel = {
-  SAW: <MaterialCommunityIcons name="sawtooth-wave" size={24} color="black" />,
-  SQU: <MaterialCommunityIcons name="square-wave" size={24} color="black" />,
-  SQR: <MaterialCommunityIcons name="square-wave" size={24} color="black" />,
-  TRI: <MaterialCommunityIcons name="triangle-wave" size={24} color="black" />,
-  SIN: <MaterialCommunityIcons name="sine-wave" size={24} color="black" />,
-  // Rising saw
-  SAW1: <MaterialCommunityIcons name="sawtooth-wave" size={24} color="black" />,
-  // Falling saw
-  SAW2: (
-    <MaterialCommunityIcons
-      name="sawtooth-wave"
-      size={24}
-      color="black"
-      style={{ transform: [{ scaleY: -1 }] }}
-    />
-  ),
+  SAW: require("./assets/icon-rising-sawtooth-wave.png"),
+  SQU: require("./assets/icon-square-wave.png"),
+  SQR: require("./assets/icon-square-wave.png"),
+  TRI: require("./assets/icon-triangle-wave.png"),
+  SIN: require("./assets/icon-sine-wave.png"),
+  SAW1: require("./assets/icon-rising-sawtooth-wave.png"),
+  SAW2: require("./assets/icon-falling-sawtooth-wave.png"),
 };
 
 export function PatchFieldWaveShapePickerControlled<
@@ -169,38 +168,36 @@ export function PatchFieldWaveShapePickerControlled<
   value: T;
   onValueChange: (value: T) => void;
 }) {
-  const options = useMemo(
+  const values = useMemo(
+    () => Object.values(field.definition.type.labels),
+    [field]
+  );
+  const icons = useMemo(
     () =>
-      Object.entries(field.definition.type.labels).map(
-        ([encoded, label], index) => ({
-          label,
-          value: label,
-          customIcon: iconsByShapeLabel[label],
-        })
+      Object.values(field.definition.type.labels).map(
+        (label) => iconsByShapeLabel[label]
       ),
     [field]
   );
-
+  const selectedIndex = useMemo(() => {
+    return values.indexOf(value);
+  }, [value, values]);
+  const onChange = useCallback(
+    (e: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
+      onValueChange?.(values[e.nativeEvent.selectedSegmentIndex]);
+    },
+    [onValueChange, values]
+  );
   return (
     <View style={styles.fieldRow}>
       <Text style={styles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <SwitchSelector
-        options={options}
-        value={value}
-        onValueChange={onValueChange}
+      <SegmentedControl
         style={styles.fieldControl}
-        textStyle={
-          Object.keys(field.definition.type.labels).length <= 3
-            ? {}
-            : { display: "none" }
-        }
-        selectedTextStyle={
-          Object.keys(field.definition.type.labels).length <= 3
-            ? {}
-            : { display: "none" }
-        }
+        values={icons}
+        selectedIndex={selectedIndex}
+        onChange={onChange}
       />
     </View>
   );
@@ -268,15 +265,18 @@ export function PatchFieldDirectPickerControlled<T extends string>({
   value: T;
   onValueChange: (value: T) => void;
 }) {
-  const options = useMemo(
-    () =>
-      Object.entries(field.definition.type.labels).map(
-        ([encoded, label], index) => ({
-          label,
-          value: label,
-        })
-      ),
+  const values = useMemo(
+    () => Object.values(field.definition.type.labels),
     [field]
+  );
+  const selectedIndex = useMemo(() => {
+    return values.indexOf(value);
+  }, [value, values]);
+  const onChange = useCallback(
+    (e: NativeSyntheticEvent<NativeSegmentedControlIOSChangeEvent>) => {
+      onValueChange?.(e.nativeEvent.value as T);
+    },
+    [onValueChange]
   );
 
   return (
@@ -284,11 +284,11 @@ export function PatchFieldDirectPickerControlled<T extends string>({
       <Text style={styles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <SwitchSelector
-        options={options}
-        value={value}
-        onValueChange={onValueChange}
+      <SegmentedControl
         style={styles.fieldControl}
+        values={values}
+        selectedIndex={selectedIndex}
+        onChange={onChange}
       />
     </View>
   );
