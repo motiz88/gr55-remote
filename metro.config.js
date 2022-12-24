@@ -21,23 +21,26 @@ config.resolver.blockList = [
 
 config.resolver.nodeModulesPaths = [path.resolve(__dirname, "./node_modules")];
 
-// Hack to make Metro follow the symlink to @motiz88/react-native-midi if it exists.
-const REACT_NATIVE_MIDI = path.resolve(
-  __dirname,
-  "node_modules",
-  "@motiz88",
-  "react-native-midi"
-);
+const LINKABLE_PACKAGES = ["@motiz88/react-native-midi"];
+
+// Hack to make Metro follow symlinks to certain packages if they exist.
 config.watchFolders = [];
-if (fs.lstatSync(REACT_NATIVE_MIDI).isSymbolicLink()) {
-  const rnmidiRealPath = fs.realpathSync(REACT_NATIVE_MIDI);
-  config.watchFolders.push(rnmidiRealPath);
-  config.resolver.blockList.push(
-    new RegExp(
-      // TODO: escaping
-      path.join(rnmidiRealPath, "node_modules", "react-native") + path.sep
-    )
-  );
+
+for (const packageName of LINKABLE_PACKAGES) {
+  const localPath = path.resolve(__dirname, "node_modules", packageName);
+  if (fs.lstatSync(localPath).isSymbolicLink()) {
+    const realPath = fs.realpathSync(localPath);
+    config.watchFolders.push(realPath);
+
+    // Just in case the linked package has its own react-native installed.
+    // TODO: Invert this and force-resolve `react-native` to a single copy instead.
+    config.resolver.blockList.push(
+      new RegExp(
+        // TODO: escaping
+        path.join(realPath, "node_modules", "react-native") + path.sep
+      )
+    );
+  }
 }
 
 config.transformer.getTransformOptions = async () => ({
