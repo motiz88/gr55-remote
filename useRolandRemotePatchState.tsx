@@ -12,7 +12,11 @@ import usePromise from "react-use-promise";
 import { throttle } from "throttle-debounce";
 
 import { MidiIoContext } from "./MidiIoContext";
-import { FieldDefinition, ParsedDataBag } from "./RolandAddressMap";
+import {
+  AtomReference,
+  FieldDefinition,
+  ParsedDataBag,
+} from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
@@ -94,7 +98,7 @@ export function useRolandRemotePatchState() {
 
   const setLocalOverride = useCallback(
     <T extends FieldDefinition<any>>(
-      field: { address: number; definition: T },
+      field: AtomReference<T>,
       value: ReturnType<T["type"]["decode"]>
     ) => {
       localOverrides.current[field.address] = { value };
@@ -109,7 +113,7 @@ export function useRolandRemotePatchState() {
   }
   const subscribeToField = useCallback(
     <T extends FieldDefinition<any>>(
-      field: { address: number; definition: T },
+      field: AtomReference<T>,
       listener: (value: ReturnType<T["type"]["decode"]>) => void
     ) => {
       subscriptions.current!.addListener(field.address.toString(), listener);

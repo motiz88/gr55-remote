@@ -15,7 +15,7 @@ import {
 import {
   BooleanField,
   EnumField,
-  FieldDefinition,
+  FieldReference,
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
@@ -385,18 +385,9 @@ function TimeOrNoteField({
   noteField,
   timeField,
 }: {
-  syncSwitchField: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
-  noteField: {
-    address: number;
-    definition: FieldDefinition<EnumField<any>>;
-  };
-  timeField: {
-    address: number;
-    definition: FieldDefinition<NumericField>;
-  };
+  syncSwitchField: FieldReference<BooleanField>;
+  noteField: FieldReference<EnumField<any>>;
+  timeField: FieldReference<NumericField>;
 }) {
   const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField, false);
   return (

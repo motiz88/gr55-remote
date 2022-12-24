@@ -15,7 +15,7 @@ import { DirectPicker } from "./DirectPicker";
 import {
   BooleanField,
   EnumField,
-  FieldDefinition,
+  FieldReference,
   NumericField,
 } from "./RolandAddressMap";
 import { usePatchField } from "./usePatchField";
@@ -24,7 +24,7 @@ export function PatchFieldSlider({
   field,
   inline,
 }: {
-  field: { address: number; definition: FieldDefinition<NumericField> };
+  field: FieldReference<NumericField>;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, field.definition.type.min);
@@ -44,7 +44,7 @@ export function PatchFieldSliderControlled({
   onValueChange,
   inline,
 }: {
-  field: { address: number; definition: FieldDefinition<NumericField> };
+  field: FieldReference<NumericField>;
   value: number;
   onValueChange: (value: number) => void;
   inline?: boolean;
@@ -88,10 +88,7 @@ export function PatchFieldSliderControlled({
 export function PatchFieldPicker<T extends string>({
   field,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
-  };
+  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
 }) {
   const [value, setValue] = usePatchField(
     field,
@@ -108,14 +105,7 @@ export function PatchFieldPicker<T extends string>({
 
 export function PatchFieldWaveShapePicker<
   T extends "SAW" | "SQU" | "SQR" | "TRI" | "SIN" | "SAW1" | "SAW2"
->({
-  field,
-}: {
-  field: {
-    address: number;
-    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
-  };
-}) {
+>({ field }: { field: FieldReference<EnumField<{ [encoded: number]: T }>> }) {
   const [value, setValue] = usePatchField(
     field,
     field.definition.type.labels[0]
@@ -146,10 +136,7 @@ export function PatchFieldWaveShapePickerControlled<
   value,
   onValueChange,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
-  };
+  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -181,10 +168,7 @@ export function PatchFieldPickerControlled<T extends string>({
   value,
   onValueChange,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
-  };
+  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -225,10 +209,7 @@ export function PatchFieldDirectPickerControlled<T extends string>({
   value,
   onValueChange,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
-  };
+  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -258,10 +239,7 @@ export function PatchFieldSegmentedSwitchControlled({
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
-  field: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  field: FieldReference<BooleanField>;
   inline?: boolean;
   segmented?: boolean;
 }) {
@@ -313,10 +291,7 @@ export function PatchFieldSwitchControlled({
 }: {
   value: boolean;
   onValueChange: (value: boolean) => void;
-  field: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
   const invertedForDisplay = field.definition.type.invertedForDisplay;
@@ -376,10 +351,7 @@ export function PatchFieldSwitch({
   field,
   inline,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, false);
@@ -397,10 +369,7 @@ export function PatchFieldSegmentedSwitch({
   field,
   inline,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, false);
@@ -430,10 +399,7 @@ export function SwitchedSection({
   field,
   children,
 }: {
-  field: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  field: FieldReference<BooleanField>;
   children: React.ReactNode;
 }) {
   const [value, setValue] = usePatchField(field, false);

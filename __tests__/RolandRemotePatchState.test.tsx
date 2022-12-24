@@ -4,6 +4,7 @@ import { create, act, ReactTestRenderer } from "react-test-renderer";
 import {
   AsciiStringField,
   AtomDefinition,
+  AtomReference,
   FieldDefinition,
   FieldType,
   getAddresses,
@@ -90,7 +91,7 @@ function MockRolandDataTransferContainer({
   );
   const setField = useCallback(
     function setField<T extends FieldDefinition<any>>(
-      field: { address: number; definition: T },
+      field: AtomReference<T>,
       newValue: ReturnType<T["type"]["decode"]>
     ): void {
       field.definition.type.encode(

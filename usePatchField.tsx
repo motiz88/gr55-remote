@@ -1,13 +1,13 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { throttle } from "throttle-debounce";
 
-import { FieldDefinition } from "./RolandAddressMap";
+import { AtomReference, FieldDefinition } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 
 export function usePatchField<T extends FieldDefinition<any>>(
-  field: { address: number; definition: T },
+  field: AtomReference<T>,
   defaultValue: ReturnType<T["type"]["decode"]>
 ): [
   ReturnType<T["type"]["decode"]>,

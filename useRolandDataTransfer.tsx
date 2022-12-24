@@ -9,6 +9,7 @@ import {
   fetchAndParse,
   FieldDefinition,
   ParsedDataBag,
+  AtomReference,
 } from "./RolandAddressMap";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
@@ -148,7 +149,7 @@ export function useRolandDataTransfer() {
     }
 
     function setField<T extends FieldDefinition<any>>(
-      field: { address: number; definition: T },
+      field: AtomReference<T>,
       newValue: ReturnType<T["type"]["decode"]>
     ): void {
       const valueBytes = new Uint8Array(field.definition.type.size);

@@ -16,7 +16,7 @@ import {
 import { PatchFieldSlider, PatchFieldSwitch } from "./PatchFieldComponents";
 import {
   BooleanField,
-  FieldDefinition,
+  FieldReference,
   FieldType,
   NumericField,
 } from "./RolandAddressMap";
@@ -195,11 +195,7 @@ export function PatchMainScreen({
   );
 }
 
-function FieldLabel({
-  field,
-}: {
-  field: { address: number; definition: FieldDefinition<FieldType<string>> };
-}) {
+function FieldLabel({ field }: { field: FieldReference<FieldType<string>> }) {
   const [value] = usePatchField(field, "");
   return <Text>{value}</Text>;
 }
@@ -281,11 +277,7 @@ function ModelToneLabel() {
   );
 }
 
-function FieldLevelLabel({
-  field,
-}: {
-  field: { address: number; definition: FieldDefinition<NumericField> };
-}) {
+function FieldLevelLabel({ field }: { field: FieldReference<NumericField> }) {
   const [level] = usePatchField(field, 0);
   return <>{field.definition.type.format(level)}</>;
 }
@@ -427,10 +419,7 @@ function ToneSummaryView({
 }: {
   label: React.ReactNode;
   levelLabel: React.ReactNode;
-  muteField: {
-    address: number;
-    definition: FieldDefinition<BooleanField>;
-  };
+  muteField: FieldReference<BooleanField>;
   toneLabel: React.ReactNode;
   onPress: () => void;
 }) {

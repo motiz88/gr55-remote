@@ -1,6 +1,16 @@
 export interface RolandAddressMap {
-  readonly temporaryPatch: { address: number; definition: AtomDefinition };
+  readonly temporaryPatch: AtomReference;
 }
+
+export type AtomReference<Definition extends AtomDefinition = AtomDefinition> =
+  {
+    address: number;
+    definition: Definition;
+  };
+
+export type FieldReference<T extends FieldType<any>> = AtomReference<
+  FieldDefinition<T>
+>;
 
 export abstract class AtomDefinition {
   constructor(
@@ -718,15 +728,11 @@ async function fetchAndParseImpl<Definition extends AtomDefinition>(
 
 export type AbsoluteAddressMap<T extends AtomDefinition> =
   T extends StructDefinition<infer MembersMap>
-    ? { [Key in keyof MembersMap]: AbsoluteAddressMap<MembersMap[Key]> } & {
-        address: number;
-        definition: T;
-      }
-    : T extends FieldDefinition<any>
     ? {
-        address: number;
-        definition: T;
-      }
+        [Key in keyof MembersMap]: AbsoluteAddressMap<MembersMap[Key]>;
+      } & AtomReference<T>
+    : T extends FieldDefinition<any>
+    ? AtomReference<T>
     : never;
 
 export function getAddresses<Definition extends AtomDefinition>(

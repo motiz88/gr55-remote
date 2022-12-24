@@ -2,6 +2,7 @@ import * as React from "react";
 
 import {
   AtomDefinition,
+  AtomReference,
   FieldDefinition,
   ParsedAtom,
   ParsedDataBag,
@@ -17,7 +18,7 @@ export const RolandDataTransferContext = React.createContext<{
   setField:
     | undefined
     | (<T extends FieldDefinition<any>>(
-        field: { address: number; definition: T },
+        field: AtomReference<T>,
         newValue: ReturnType<T["type"]["decode"]>
       ) => void);
 }>({

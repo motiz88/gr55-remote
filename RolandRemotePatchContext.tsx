@@ -1,6 +1,11 @@
 import * as React from "react";
 
-import { FieldDefinition, ParsedAtom, ParsedDataBag } from "./RolandAddressMap";
+import {
+  AtomReference,
+  FieldDefinition,
+  ParsedAtom,
+  ParsedDataBag,
+} from "./RolandAddressMap";
 
 export const RolandRemotePatchContext = React.createContext<{
   patchData: undefined | [ParsedAtom<any>, ParsedDataBag];
@@ -9,17 +14,11 @@ export const RolandRemotePatchContext = React.createContext<{
   reloadPatchData: () => void;
   localOverrides: ParsedDataBag;
   setLocalOverride: <T extends FieldDefinition<any>>(
-    field: {
-      address: number;
-      definition: T;
-    },
+    field: AtomReference<T>,
     value: ReturnType<T["type"]["decode"]>
   ) => void;
   subscribeToField: <T extends FieldDefinition<any>>(
-    field: {
-      address: number;
-      definition: T;
-    },
+    field: AtomReference<T>,
     listener: (value: ReturnType<T["type"]["decode"]>) => void
   ) => () => void;
 }>({
