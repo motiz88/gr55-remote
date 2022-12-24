@@ -229,7 +229,7 @@ export function PatchFieldPickerControlled<T extends string>({
   );
   if (Object.keys(field.definition.type.labels).length <= 3) {
     return (
-      <PatchFieldSwitchSelectorControlled
+      <PatchFieldDirectPickerControlled
         field={field}
         value={value}
         disabled={disabled}
@@ -254,7 +254,7 @@ export function PatchFieldPickerControlled<T extends string>({
   );
 }
 
-export function PatchFieldSwitchSelectorControlled<T extends string>({
+export function PatchFieldDirectPickerControlled<T extends string>({
   field,
   disabled,
   value,
