@@ -22,10 +22,8 @@ export function PatchEffectsScreen({
 }: NativeStackScreenProps<RootStackParamList, "PatchEffects">) {
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
   useEffect(() => {
-    // Use `setOptions` to update the button that we previously specified
-    // Now the button includes an `onPress` handler to update the count
     navigation.setOptions({
-      headerTitle: patchName + " > Effects",
+      title: patchName + " > Effects",
       headerRight: () => (
         <View style={{ marginRight: 8 }}>
           <Button

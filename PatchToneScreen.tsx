@@ -17,10 +17,8 @@ export function PatchToneScreen({
 }: NativeStackScreenProps<RootStackParamList, "PatchTone">) {
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
   useEffect(() => {
-    // Use `setOptions` to update the button that we previously specified
-    // Now the button includes an `onPress` handler to update the count
     navigation.setOptions({
-      headerTitle: patchName + " > Tone",
+      title: patchName + " > Tone",
       headerRight: () => (
         <View style={{ marginRight: 8 }}>
           <Button

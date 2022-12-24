@@ -34,10 +34,8 @@ export function PatchMainScreen({
   const { selectedDevice } = useContext(RolandIoSetupContext);
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
   useEffect(() => {
-    // Use `setOptions` to update the button that we previously specified
-    // Now the button includes an `onPress` handler to update the count
     navigation.setOptions({
-      headerTitle: selectedDevice && patchName ? patchName : "GR-55 Editor",
+      title: selectedDevice && patchName ? patchName : "GR-55 Editor",
       headerRight: () => (
         <>
           {selectedDevice && (
