@@ -1,7 +1,15 @@
 import Slider from "@react-native-community/slider";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useMemo } from "react";
-import { Switch, Text, StyleSheet, View, Pressable } from "react-native";
+import {
+  Switch,
+  Text,
+  StyleSheet,
+  View,
+  Pressable,
+  Animated,
+} from "react-native";
+import { useAnimation } from "react-native-animation-hooks";
 
 import { DirectPicker } from "./DirectPicker";
 import {
@@ -14,19 +22,15 @@ import { usePatchField } from "./usePatchField";
 
 export function PatchFieldSlider({
   field,
-  // TODO: Remove unused disabled prop from all these components
-  disabled,
   inline,
 }: {
   field: { address: number; definition: FieldDefinition<NumericField> };
-  disabled?: boolean;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, field.definition.type.min);
   return (
     <PatchFieldSliderControlled
       field={field}
-      disabled={disabled}
       value={value}
       onValueChange={setValue}
       inline={inline}
@@ -36,13 +40,11 @@ export function PatchFieldSlider({
 
 export function PatchFieldSliderControlled({
   field,
-  disabled,
   value,
   onValueChange,
   inline,
 }: {
   field: { address: number; definition: FieldDefinition<NumericField> };
-  disabled?: boolean;
   value: number;
   onValueChange: (value: number) => void;
   inline?: boolean;
@@ -62,7 +64,6 @@ export function PatchFieldSliderControlled({
     <View style={styles.sliderContainer}>
       <Text style={styles.sliderValueLabel}>{prettyValue}</Text>
       <Slider
-        disabled={disabled}
         minimumValue={field.definition.type.min}
         maximumValue={field.definition.type.max}
         step={field.definition.type.step}
@@ -86,13 +87,11 @@ export function PatchFieldSliderControlled({
 
 export function PatchFieldPicker<T extends string>({
   field,
-  disabled,
 }: {
   field: {
     address: number;
     definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
   };
-  disabled?: boolean;
 }) {
   const [value, setValue] = usePatchField(
     field,
@@ -102,7 +101,6 @@ export function PatchFieldPicker<T extends string>({
     <PatchFieldPickerControlled
       field={field}
       value={value}
-      disabled={disabled}
       onValueChange={setValue}
     />
   );
@@ -112,13 +110,11 @@ export function PatchFieldWaveShapePicker<
   T extends "SAW" | "SQU" | "SQR" | "TRI" | "SIN" | "SAW1" | "SAW2"
 >({
   field,
-  disabled,
 }: {
   field: {
     address: number;
     definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
   };
-  disabled?: boolean;
 }) {
   const [value, setValue] = usePatchField(
     field,
@@ -128,7 +124,6 @@ export function PatchFieldWaveShapePicker<
     <PatchFieldWaveShapePickerControlled
       field={field}
       value={value}
-      disabled={disabled}
       onValueChange={setValue}
     />
   );
@@ -148,7 +143,6 @@ export function PatchFieldWaveShapePickerControlled<
   T extends "SAW" | "SQU" | "SQR" | "TRI" | "SIN" | "SAW1" | "SAW2"
 >({
   field,
-  disabled,
   value,
   onValueChange,
 }: {
@@ -156,7 +150,6 @@ export function PatchFieldWaveShapePickerControlled<
     address: number;
     definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
   };
-  disabled?: boolean;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -185,7 +178,6 @@ export function PatchFieldWaveShapePickerControlled<
 
 export function PatchFieldPickerControlled<T extends string>({
   field,
-  disabled,
   value,
   onValueChange,
 }: {
@@ -193,7 +185,6 @@ export function PatchFieldPickerControlled<T extends string>({
     address: number;
     definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
   };
-  disabled?: boolean;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -209,7 +200,6 @@ export function PatchFieldPickerControlled<T extends string>({
       <PatchFieldDirectPickerControlled
         field={field}
         value={value}
-        disabled={disabled}
         onValueChange={onValueChange}
       />
     );
@@ -220,7 +210,6 @@ export function PatchFieldPickerControlled<T extends string>({
         {field.definition.description}
       </Text>
       <Picker
-        enabled={!disabled}
         onValueChange={onValueChange}
         selectedValue={value}
         style={styles.fieldControl}
@@ -233,7 +222,6 @@ export function PatchFieldPickerControlled<T extends string>({
 
 export function PatchFieldDirectPickerControlled<T extends string>({
   field,
-  disabled,
   value,
   onValueChange,
 }: {
@@ -241,7 +229,6 @@ export function PatchFieldDirectPickerControlled<T extends string>({
     address: number;
     definition: FieldDefinition<EnumField<{ [encoded: number]: T }>>;
   };
-  disabled?: boolean;
   value: T;
   onValueChange: (value: T) => void;
 }) {
@@ -321,7 +308,6 @@ export function PatchFieldSegmentedSwitchControlled({
 export function PatchFieldSwitchControlled({
   field,
   value,
-  disabled,
   onValueChange,
   inline,
 }: {
@@ -331,7 +317,6 @@ export function PatchFieldSwitchControlled({
     address: number;
     definition: FieldDefinition<BooleanField>;
   };
-  disabled?: boolean;
   inline?: boolean;
 }) {
   const invertedForDisplay = field.definition.type.invertedForDisplay;
@@ -365,7 +350,6 @@ export function PatchFieldSwitchControlled({
     <Pressable android_disableSound>
       <Switch
         style={inline ? null : styles.switchBetweenLabels}
-        disabled={disabled}
         onValueChange={handleValueChange}
         value={invertedForDisplay ? !value : value}
       />
@@ -390,14 +374,12 @@ export function PatchFieldSwitchControlled({
 
 export function PatchFieldSwitch({
   field,
-  disabled,
   inline,
 }: {
   field: {
     address: number;
     definition: FieldDefinition<BooleanField>;
   };
-  disabled?: boolean;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, false);
@@ -406,7 +388,6 @@ export function PatchFieldSwitch({
       field={field}
       value={value}
       onValueChange={setValue}
-      disabled={disabled}
       inline={inline}
     />
   );
@@ -414,14 +395,12 @@ export function PatchFieldSwitch({
 
 export function PatchFieldSegmentedSwitch({
   field,
-  disabled,
   inline,
 }: {
   field: {
     address: number;
     definition: FieldDefinition<BooleanField>;
   };
-  disabled?: boolean;
   inline?: boolean;
 }) {
   const [value, setValue] = usePatchField(field, false);
@@ -458,6 +437,16 @@ export function SwitchedSection({
   children: React.ReactNode;
 }) {
   const [value, setValue] = usePatchField(field, false);
+  const isDisabled = field.definition.type.invertedForDisplay ? value : !value;
+
+  const overlayOpacity = useAnimation({
+    type: "timing",
+    initialValue: isDisabled ? 0.5 : 0,
+    toValue: isDisabled ? 0.5 : 0,
+    duration: 150,
+    useNativeDriver: true,
+  });
+
   return (
     <>
       <PatchFieldSwitchControlled
@@ -465,13 +454,14 @@ export function SwitchedSection({
         value={value}
         onValueChange={setValue}
       />
-      <View
-        style={
-          (field.definition.type.invertedForDisplay ? !value : value)
-            ? null
-            : styles.disabledSection
-        }
-      >
+      <View>
+        {/* NOTE: This is first with a custom zIndex, because placing this last
+            with a "natural" zIndex breaks some overlaid components' touch
+            behaviour (specifically Slider) on web. */}
+        <Animated.View
+          pointerEvents="none"
+          style={[styles.disabledSectionOverlay, { opacity: overlayOpacity }]}
+        />
         {children}
       </View>
     </>
@@ -506,9 +496,15 @@ const styles = StyleSheet.create({
   sliderTrack: {
     height: 32,
   },
-  disabledSection: {
-    // TODO: overhaul disabled styling
-    backgroundColor: "#ddd",
+  disabledSectionOverlay: {
+    zIndex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: "#f2f2f2",
+    opacity: 0.5,
   },
   switchBetweenLabels: {
     marginHorizontal: 8,

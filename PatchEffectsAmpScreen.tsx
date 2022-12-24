@@ -78,9 +78,6 @@ export function PatchEffectsAmpScreen({
 }
 
 const styles = StyleSheet.create({
-  disabledSection: {
-    backgroundColor: "#ddd",
-  },
   container: {
     padding: 8,
   },

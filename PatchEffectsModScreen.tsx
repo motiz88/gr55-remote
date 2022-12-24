@@ -276,9 +276,6 @@ function WahSection() {
   );
 }
 const styles = StyleSheet.create({
-  disabledSection: {
-    backgroundColor: "#ddd",
-  },
   container: {
     padding: 8,
   },
