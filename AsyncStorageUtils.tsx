@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { Platform } from "react-native";
 import usePromise from "react-use-promise";
 
 type Serializable = { [key: string]: Serializable } | string | number | boolean;
