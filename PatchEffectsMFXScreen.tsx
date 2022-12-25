@@ -2,16 +2,10 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet, ScrollView, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldPickerControlled,
-} from "./PatchFieldPicker";
+import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
 import { PatchFieldSlider } from "./PatchFieldSlider";
-import {
-  PatchFieldSwitch,
-  PatchFieldSwitchControlled,
-} from "./PatchFieldSwitch";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import {
@@ -33,10 +27,7 @@ export function PatchEffectsMFXScreen({
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "MFX">) {
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
-  const [mfxType, setMfxType] = usePatchField(
-    mfx.mfxType,
-    mfx.mfxType.definition.type.labels[0]
-  );
+  const [mfxType, setMfxType] = usePatchField(mfx.mfxType);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
@@ -50,7 +41,7 @@ export function PatchEffectsMFXScreen({
     >
       <PatchFieldSwitchedSection field={mfx.mfxSwitch}>
         <PatchFieldSlider field={mfx.mfxPan} />
-        <PatchFieldPickerControlled
+        <PatchFieldPicker
           field={mfx.mfxType}
           value={mfxType}
           onValueChange={setMfxType}
@@ -394,7 +385,7 @@ function TimeOrNoteField({
   const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField, false);
   return (
     <>
-      <PatchFieldSwitchControlled
+      <PatchFieldSwitch
         field={syncSwitchField}
         value={syncSwitch}
         onValueChange={setSyncSwitch}
@@ -410,13 +401,12 @@ function TimeOrNoteField({
 
 function GuitarAmpSimSection() {
   const [gtrAmpSimPreAmpType, setGtrAmpSimPreAmpType] = usePatchField(
-    mfx.gtrAmpSimPreAmpType,
-    mfx.gtrAmpSimPreAmpType.definition.type.labels[0]
+    mfx.gtrAmpSimPreAmpType
   );
   return (
     <>
       <PatchFieldSwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
-        <PatchFieldPickerControlled
+        <PatchFieldPicker
           field={mfx.gtrAmpSimPreAmpType}
           value={gtrAmpSimPreAmpType}
           onValueChange={setGtrAmpSimPreAmpType}

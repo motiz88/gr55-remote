@@ -3,37 +3,24 @@ import { Switch, Text, View, Pressable, StyleSheet } from "react-native";
 
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { useMaybeControlledPatchField } from "./usePatchField";
 
 export function PatchFieldSwitch({
   field,
+  value: valueProp,
+  onValueChange: onValueChangeProp,
   inline,
 }: {
+  value?: boolean;
+  onValueChange?: (value: boolean) => void;
   field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
-  const [value, setValue] = usePatchField(field, false);
-  return (
-    <PatchFieldSwitchControlled
-      field={field}
-      value={value}
-      onValueChange={setValue}
-      inline={inline}
-    />
+  const [value, onValueChange] = useMaybeControlledPatchField(
+    field,
+    valueProp,
+    onValueChangeProp
   );
-}
-
-export function PatchFieldSwitchControlled({
-  field,
-  value,
-  onValueChange,
-  inline,
-}: {
-  value: boolean;
-  onValueChange: (value: boolean) => void;
-  field: FieldReference<BooleanField>;
-  inline?: boolean;
-}) {
   const invertedForDisplay = field.definition.type.invertedForDisplay;
 
   const handleValueChange = useCallback(

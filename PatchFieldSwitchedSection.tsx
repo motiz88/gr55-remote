@@ -1,7 +1,7 @@
 import { View, Animated, StyleSheet } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
-import { PatchFieldSwitchControlled } from "./PatchFieldSwitch";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { usePatchField } from "./usePatchField";
 
@@ -25,11 +25,7 @@ export function PatchFieldSwitchedSection({
 
   return (
     <>
-      <PatchFieldSwitchControlled
-        field={field}
-        value={value}
-        onValueChange={setValue}
-      />
+      <PatchFieldSwitch field={field} value={value} onValueChange={setValue} />
       <View>
         {/* NOTE: This is first with a custom zIndex, because placing this last
                 with a "natural" zIndex breaks some overlaid components' touch

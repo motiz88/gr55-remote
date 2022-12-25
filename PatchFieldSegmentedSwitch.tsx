@@ -4,37 +4,24 @@ import { Text, View } from "react-native";
 import { DirectPicker } from "./DirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { useMaybeControlledPatchField } from "./usePatchField";
 
 export function PatchFieldSegmentedSwitch({
   field,
-  inline,
+  value: valueProp,
+  onValueChange: onValueChangeProp,
 }: {
-  field: FieldReference<BooleanField>;
-  inline?: boolean;
-}) {
-  const [value, setValue] = usePatchField(field, false);
-  return (
-    <PatchFieldSegmentedSwitchControlled
-      field={field}
-      value={value}
-      onValueChange={setValue}
-      inline={inline}
-    />
-  );
-}
-
-export function PatchFieldSegmentedSwitchControlled({
-  field,
-  value,
-  onValueChange,
-}: {
-  value: boolean;
-  onValueChange: (value: boolean) => void;
+  value?: boolean;
+  onValueChange?: (value: boolean) => void;
   field: FieldReference<BooleanField>;
   inline?: boolean;
   segmented?: boolean;
 }) {
+  const [value, onValueChange] = useMaybeControlledPatchField(
+    field,
+    valueProp,
+    onValueChangeProp
+  );
   const invertedForDisplay = field.definition.type.invertedForDisplay;
 
   const handleLabelChange = useCallback(

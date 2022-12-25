@@ -1,14 +1,30 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { throttle } from "throttle-debounce";
 
-import { AtomReference, FieldDefinition } from "./RolandAddressMap";
+import {
+  AtomReference,
+  FieldDefinition,
+  FieldReference,
+  FieldType,
+} from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 
 export function usePatchField<T extends FieldDefinition<any>>(
   field: AtomReference<T>,
-  defaultValue: ReturnType<T["type"]["decode"]>
+  defaultValue?: ReturnType<T["type"]["decode"]>
+): [
+  ReturnType<T["type"]["decode"]>,
+  (newValue: ReturnType<T["type"]["decode"]>) => void
+] {
+  return usePatchFieldImpl(field, defaultValue, /* detached */ false);
+}
+
+function usePatchFieldImpl<T extends FieldDefinition<any>>(
+  field: AtomReference<T>,
+  defaultValue: ReturnType<T["type"]["decode"]> | undefined,
+  detached: boolean
 ): [
   ReturnType<T["type"]["decode"]>,
   (newValue: ReturnType<T["type"]["decode"]>) => void
@@ -27,7 +43,8 @@ export function usePatchField<T extends FieldDefinition<any>>(
     () =>
       localOverrides?.[field.address]?.value ??
       patchData?.[1][field.address]?.value ??
-      defaultValue
+      defaultValue ??
+      field.definition.type.emptyValue
   );
 
   useEffect(() => {
@@ -41,10 +58,12 @@ export function usePatchField<T extends FieldDefinition<any>>(
 
   useEffect(
     () =>
-      subscribeToField(field, (newValue: T["type"]["decode"]) => {
-        setValue(newValue);
-      }),
-    [field, subscribeToField]
+      detached
+        ? undefined
+        : subscribeToField(field, (newValue: T["type"]["decode"]) => {
+            setValue(newValue);
+          }),
+    [field, subscribeToField, detached]
   );
 
   const setAndSendValue = useCallback(
@@ -59,4 +78,28 @@ export function usePatchField<T extends FieldDefinition<any>>(
   );
 
   return [value, setAndSendValue];
+}
+
+export function useMaybeControlledPatchField<T>(
+  field: FieldReference<FieldType<T>>,
+  value: T | undefined,
+  onValueChange: ((value: T) => void) | undefined
+) {
+  const isControlled = value != null;
+  const [uncontrolledValue, setUncontrolledValue] = usePatchFieldImpl(
+    field,
+    undefined,
+    isControlled
+  );
+  const setValue = useCallback(
+    (newValue: T) => {
+      if (!isControlled) {
+        setUncontrolledValue(newValue);
+      }
+      // Always fire the onValueChange event, even if controlled
+      onValueChange?.(newValue);
+    },
+    [onValueChange, setUncontrolledValue, isControlled]
+  );
+  return [value ?? uncontrolledValue, setValue] as const;
 }

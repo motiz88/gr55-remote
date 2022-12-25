@@ -2,10 +2,7 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldPickerControlled,
-} from "./PatchFieldPicker";
+import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
@@ -24,8 +21,7 @@ export function PatchEffectsAmpScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   const [ampType, setAmpType] = usePatchField(
-    GR55.temporaryPatch.ampModNs.ampType,
-    GR55.temporaryPatch.ampModNs.ampType.definition.type.labels[0]
+    GR55.temporaryPatch.ampModNs.ampType
   );
 
   return (
@@ -37,7 +33,7 @@ export function PatchEffectsAmpScreen({
       contentContainerStyle={safeAreaStyle}
     >
       <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.ampSwitch}>
-        <PatchFieldPickerControlled
+        <PatchFieldPicker
           field={GR55.temporaryPatch.ampModNs.ampType}
           value={ampType}
           onValueChange={setAmpType}

@@ -12,6 +12,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@babel/plugin-proposal-logical-assignment-operators": "^7.20.7",
     "@bacons/expo-metro-runtime": "^2.0.1",
     "@expo/vector-icons": "^13.0.0",
     "@miblanchard/react-native-slider": "^2.1.0",

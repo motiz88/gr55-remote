@@ -2,10 +2,7 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPickerControlled,
-  PatchFieldPicker,
-} from "./PatchFieldPicker";
+import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
@@ -21,8 +18,7 @@ export function PatchEffectsModScreen({
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
   const [modType, setModType] = usePatchField(
-    GR55.temporaryPatch.ampModNs.modType,
-    GR55.temporaryPatch.ampModNs.modType.definition.type.labels[0]
+    GR55.temporaryPatch.ampModNs.modType
   );
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
@@ -38,7 +34,7 @@ export function PatchEffectsModScreen({
       {/* "The PAN parameter is valid even if SWITCH is OFF." - GR-55 Owner's Manual */}
       <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.modPan} />
       <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.modSwitch}>
-        <PatchFieldPickerControlled
+        <PatchFieldPicker
           field={GR55.temporaryPatch.ampModNs.modType}
           value={modType}
           onValueChange={setModType}
@@ -246,12 +242,11 @@ export function PatchEffectsModScreen({
 
 function WahSection() {
   const [wahMode, setWahMode] = usePatchField(
-    GR55.temporaryPatch.ampModNs.wahMode,
-    GR55.temporaryPatch.ampModNs.wahMode.definition.type.labels[0]
+    GR55.temporaryPatch.ampModNs.wahMode
   );
   return (
     <>
-      <PatchFieldPickerControlled
+      <PatchFieldPicker
         field={GR55.temporaryPatch.ampModNs.wahMode}
         value={wahMode}
         onValueChange={setWahMode}

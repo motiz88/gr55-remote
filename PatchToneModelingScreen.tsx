@@ -2,16 +2,10 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldPickerControlled,
-} from "./PatchFieldPicker";
+import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldPlaceholder } from "./PatchFieldPlaceholder";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
-import {
-  PatchFieldSlider,
-  PatchFieldSliderControlled,
-} from "./PatchFieldSlider";
+import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
@@ -33,13 +27,11 @@ export function PatchToneModelingScreen({
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
   const [toneCategory_guitar, setToneCategory_guitar] = usePatchField(
-    modelingTone.toneCategory_guitar,
-    modelingTone.toneCategory_guitar.definition.type.labels[0]
+    modelingTone.toneCategory_guitar
   );
 
   const [toneCategory_bass, setToneCategory_bass] = usePatchField(
-    modelingTone.toneCategory_bass,
-    modelingTone.toneCategory_bass.definition.type.labels[0]
+    modelingTone.toneCategory_bass
   );
 
   const [pitchShiftString1, setPitchShiftString1] = usePatchField(
@@ -65,38 +57,31 @@ export function PatchToneModelingScreen({
     altTuneSwitch;
 
   const [toneNumberEGtr_guitar, setToneNumberEGtr_guitar] = usePatchField(
-    modelingTone.toneNumberEGtr_guitar,
-    modelingTone.toneNumberEGtr_guitar.definition.type.labels[0]
+    modelingTone.toneNumberEGtr_guitar
   );
 
   const [toneNumberAc_guitar, setToneNumberAc_guitar] = usePatchField(
-    modelingTone.toneNumberAc_guitar,
-    modelingTone.toneNumberAc_guitar.definition.type.labels[0]
+    modelingTone.toneNumberAc_guitar
   );
 
   const [toneNumberEBass_guitar, setToneNumberEBass_guitar] = usePatchField(
-    modelingTone.toneNumberEBass_guitar,
-    modelingTone.toneNumberEBass_guitar.definition.type.labels[0]
+    modelingTone.toneNumberEBass_guitar
   );
 
   const [toneNumberSynth_guitar, setToneNumberSynth_guitar] = usePatchField(
-    modelingTone.toneNumberSynth_guitar,
-    modelingTone.toneNumberSynth_guitar.definition.type.labels[0]
+    modelingTone.toneNumberSynth_guitar
   );
 
   const [toneNumberEBass_bass, setToneNumberEBass_bass] = usePatchField(
-    modelingTone.toneNumberEBass_bass,
-    modelingTone.toneNumberEBass_bass.definition.type.labels[0]
+    modelingTone.toneNumberEBass_bass
   );
 
   const [toneNumberEGtr_bass, setToneNumberEGtr_bass] = usePatchField(
-    modelingTone.toneNumberEGtr_bass,
-    modelingTone.toneNumberEGtr_bass.definition.type.labels[0]
+    modelingTone.toneNumberEGtr_bass
   );
 
   const [toneNumberSynth_bass, setToneNumberSynth_bass] = usePatchField(
-    modelingTone.toneNumberSynth_bass,
-    modelingTone.toneNumberSynth_bass.definition.type.labels[0]
+    modelingTone.toneNumberSynth_bass
   );
 
   const hideNoiseSuppressorControls =
@@ -119,34 +104,34 @@ export function PatchToneModelingScreen({
       <PatchFieldSwitchedSection field={modelingTone.muteSwitch}>
         {guitarBassSelect === "GUITAR" && (
           <>
-            <PatchFieldPickerControlled
+            <PatchFieldPicker
               field={modelingTone.toneCategory_guitar}
               value={toneCategory_guitar}
               onValueChange={setToneCategory_guitar}
             />
             {toneCategory_guitar === "E.GTR" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberEGtr_guitar}
                 value={toneNumberEGtr_guitar}
                 onValueChange={setToneNumberEGtr_guitar}
               />
             )}
             {toneCategory_guitar === "AC" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberAc_guitar}
                 value={toneNumberAc_guitar}
                 onValueChange={setToneNumberAc_guitar}
               />
             )}
             {toneCategory_guitar === "E.BASS" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberEBass_guitar}
                 value={toneNumberEBass_guitar}
                 onValueChange={setToneNumberEBass_guitar}
               />
             )}
             {toneCategory_guitar === "SYNTH" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberSynth_guitar}
                 value={toneNumberSynth_guitar}
                 onValueChange={setToneNumberSynth_guitar}
@@ -156,27 +141,27 @@ export function PatchToneModelingScreen({
         )}
         {guitarBassSelect === "BASS" && (
           <>
-            <PatchFieldPickerControlled
+            <PatchFieldPicker
               field={modelingTone.toneCategory_bass}
               value={toneCategory_bass}
               onValueChange={setToneCategory_bass}
             />
             {toneCategory_bass === "E.BASS" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberEBass_bass}
                 value={toneNumberEBass_bass}
                 onValueChange={setToneNumberEBass_bass}
               />
             )}
             {toneCategory_bass === "SYNTH" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberSynth_bass}
                 value={toneNumberSynth_bass}
                 onValueChange={setToneNumberSynth_bass}
               />
             )}
             {toneCategory_bass === "E.GTR" && (
-              <PatchFieldPickerControlled
+              <PatchFieldPicker
                 field={modelingTone.toneNumberEGtr_bass}
                 value={toneNumberEGtr_bass}
                 onValueChange={setToneNumberEGtr_bass}
@@ -192,12 +177,12 @@ export function PatchToneModelingScreen({
         <PatchFieldSlider field={modelingTone.string4Level} />
         <PatchFieldSlider field={modelingTone.string5Level} />
         <PatchFieldSlider field={modelingTone.string6Level} />
-        <PatchFieldSliderControlled
+        <PatchFieldSlider
           field={modelingTone.pitchShiftString1}
           value={pitchShiftString1}
           onValueChange={setPitchShiftString1}
         />
-        <PatchFieldSliderControlled
+        <PatchFieldSlider
           field={modelingTone.pitchShiftFineString1}
           value={pitchShiftFineString1}
           onValueChange={setPitchShiftFineString1}

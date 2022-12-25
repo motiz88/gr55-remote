@@ -4,37 +4,24 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { FieldReference, NumericField } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { useMaybeControlledPatchField } from "./usePatchField";
 
 export function PatchFieldSlider({
   field,
+  value: valueProp,
+  onValueChange: onValueChangeProp,
   inline,
 }: {
   field: FieldReference<NumericField>;
+  value?: number;
+  onValueChange?: (value: number) => void;
   inline?: boolean;
 }) {
-  const [value, setValue] = usePatchField(field, field.definition.type.min);
-  return (
-    <PatchFieldSliderControlled
-      field={field}
-      value={value}
-      onValueChange={setValue}
-      inline={inline}
-    />
+  const [value, onValueChange] = useMaybeControlledPatchField(
+    field,
+    valueProp,
+    onValueChangeProp
   );
-}
-
-export function PatchFieldSliderControlled({
-  field,
-  value,
-  onValueChange,
-  inline,
-}: {
-  field: FieldReference<NumericField>;
-  value: number;
-  onValueChange: (value: number) => void;
-  inline?: boolean;
-}) {
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
       if (typeof valueOrValues === "number") {

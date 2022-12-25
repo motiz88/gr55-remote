@@ -2,38 +2,25 @@ import { Picker } from "@react-native-picker/picker";
 import { useMemo } from "react";
 import { Text, View } from "react-native";
 
-import { PatchFieldDirectPickerControlled } from "./PatchFieldDirectPicker";
+import { PatchFieldDirectPicker } from "./PatchFieldDirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { useMaybeControlledPatchField } from "./usePatchField";
 
 export function PatchFieldPicker<T extends string>({
   field,
+  value: valueProp,
+  onValueChange: onValueChangeProp,
 }: {
   field: FieldReference<EnumField<{ [encoded: number]: T }>>;
+  value?: T;
+  onValueChange?: (value: T) => void;
 }) {
-  const [value, setValue] = usePatchField(
+  const [value, onValueChange] = useMaybeControlledPatchField(
     field,
-    field.definition.type.labels[0]
+    valueProp,
+    onValueChangeProp
   );
-  return (
-    <PatchFieldPickerControlled
-      field={field}
-      value={value}
-      onValueChange={setValue}
-    />
-  );
-}
-
-export function PatchFieldPickerControlled<T extends string>({
-  field,
-  value,
-  onValueChange,
-}: {
-  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
-  value: T;
-  onValueChange: (value: T) => void;
-}) {
   const items = useMemo(
     () =>
       Object.entries(field.definition.type.labels).map(([encoded, label]) => (
@@ -43,7 +30,7 @@ export function PatchFieldPickerControlled<T extends string>({
   );
   if (Object.keys(field.definition.type.labels).length <= 3) {
     return (
-      <PatchFieldDirectPickerControlled
+      <PatchFieldDirectPicker
         field={field}
         value={value}
         onValueChange={onValueChange}

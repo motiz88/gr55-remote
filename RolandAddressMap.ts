@@ -32,6 +32,7 @@ export interface FieldType<Representation> {
   decode(bytes: Uint8Array, offset: number, length: number): Representation;
   readonly size: number;
   readonly description: string;
+  readonly emptyValue: Representation;
 }
 
 export interface NumericField extends FieldType<number> {
@@ -63,6 +64,10 @@ abstract class NumericFieldBase implements NumericField {
 
   format(value: number): string {
     return (this.min < 0 && value > 0 ? "+" : "") + value.toString();
+  }
+
+  get emptyValue(): number {
+    return this.min;
   }
 }
 
@@ -99,6 +104,8 @@ export class AsciiStringField implements FieldType<string> {
     }
     return result.trimEnd();
   }
+
+  readonly emptyValue: string = "";
 }
 
 export class BooleanField implements FieldType<boolean> {
@@ -124,6 +131,7 @@ export class BooleanField implements FieldType<boolean> {
 
   readonly description: string = "Boolean";
   readonly invertedForDisplay: boolean;
+  readonly emptyValue: boolean = false;
 }
 
 export class ReservedField implements FieldType<undefined> {
@@ -142,6 +150,7 @@ export class ReservedField implements FieldType<undefined> {
     this.description = `${size} reserved byte${size > 1 ? "s" : ""}`;
   }
   readonly description: string;
+  readonly emptyValue: undefined = undefined;
 }
 
 export class UIntBEField extends NumericFieldBase implements NumericField {
@@ -464,12 +473,17 @@ export class EnumField<
     this.size = this.rawField.size;
     for (const encoded of Object.keys(labels)) {
       const label = labels[encoded as any];
+      this.emptyValue ??= label;
       this.#labelsToEncoded[label] = Number(encoded);
+    }
+    if (Object.keys(labels).length === 0) {
+      throw new Error("Cannot define enum type with zero labels");
     }
   }
 
   description: string;
   readonly size: number;
+  readonly emptyValue!: LabelsMap[number];
 }
 
 export class FieldDefinition<

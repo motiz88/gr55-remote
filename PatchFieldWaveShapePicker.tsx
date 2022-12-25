@@ -4,7 +4,7 @@ import { Text, View } from "react-native";
 import { DirectPicker } from "./DirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { useMaybeControlledPatchField } from "./usePatchField";
 
 const iconsByShapeLabel = {
   SAW: require("./assets/icon-rising-sawtooth-wave.png"),
@@ -20,31 +20,18 @@ type WaveShapeLabel = keyof typeof iconsByShapeLabel;
 
 export function PatchFieldWaveShapePicker<T extends WaveShapeLabel>({
   field,
+  value: valueProp,
+  onValueChange: onValueChangeProp,
 }: {
   field: FieldReference<EnumField<{ [encoded: number]: T }>>;
+  value?: T;
+  onValueChange?: (value: T) => void;
 }) {
-  const [value, setValue] = usePatchField(
+  const [value, onValueChange] = useMaybeControlledPatchField(
     field,
-    field.definition.type.labels[0]
+    valueProp,
+    onValueChangeProp
   );
-  return (
-    <PatchFieldWaveShapePickerControlled
-      field={field}
-      value={value}
-      onValueChange={setValue}
-    />
-  );
-}
-
-export function PatchFieldWaveShapePickerControlled<T extends WaveShapeLabel>({
-  field,
-  value,
-  onValueChange,
-}: {
-  field: FieldReference<EnumField<{ [encoded: number]: T }>>;
-  value: T;
-  onValueChange: (value: T) => void;
-}) {
   const values = useMemo(
     () =>
       Object.values(field.definition.type.labels).map((label) => ({

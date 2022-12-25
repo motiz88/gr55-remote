@@ -219,38 +219,27 @@ function ModelToneLabel() {
     "E.GTR"
   );
   const [toneNumberEGtr_guitar] = usePatchField(
-    modelingTone.toneNumberEGtr_guitar,
-    modelingTone.toneNumberEGtr_guitar.definition.type.labels[0]
+    modelingTone.toneNumberEGtr_guitar
   );
 
-  const [toneNumberAc_guitar] = usePatchField(
-    modelingTone.toneNumberAc_guitar,
-    modelingTone.toneNumberAc_guitar.definition.type.labels[0]
-  );
+  const [toneNumberAc_guitar] = usePatchField(modelingTone.toneNumberAc_guitar);
 
   const [toneNumberEBass_guitar] = usePatchField(
-    modelingTone.toneNumberEBass_guitar,
-    modelingTone.toneNumberEBass_guitar.definition.type.labels[0]
+    modelingTone.toneNumberEBass_guitar
   );
 
   const [toneNumberSynth_guitar] = usePatchField(
-    modelingTone.toneNumberSynth_guitar,
-    modelingTone.toneNumberSynth_guitar.definition.type.labels[0]
+    modelingTone.toneNumberSynth_guitar
   );
 
   const [toneNumberEBass_bass] = usePatchField(
-    modelingTone.toneNumberEBass_bass,
-    modelingTone.toneNumberEBass_bass.definition.type.labels[0]
+    modelingTone.toneNumberEBass_bass
   );
 
-  const [toneNumberEGtr_bass] = usePatchField(
-    modelingTone.toneNumberEGtr_bass,
-    modelingTone.toneNumberEGtr_bass.definition.type.labels[0]
-  );
+  const [toneNumberEGtr_bass] = usePatchField(modelingTone.toneNumberEGtr_bass);
 
   const [toneNumberSynth_bass] = usePatchField(
-    modelingTone.toneNumberSynth_bass,
-    modelingTone.toneNumberSynth_bass.definition.type.labels[0]
+    modelingTone.toneNumberSynth_bass
   );
 
   const toneNumber =
@@ -282,10 +271,7 @@ function FieldLevelLabel({ field }: { field: FieldReference<NumericField> }) {
 }
 
 function ModLevelLabel() {
-  const [modType] = usePatchField(
-    GR55.temporaryPatch.ampModNs.modType,
-    GR55.temporaryPatch.ampModNs.modType.definition.type.labels[0]
-  );
+  const [modType] = usePatchField(GR55.temporaryPatch.ampModNs.modType);
   let field;
   switch (modType) {
     case "OD/DS":
@@ -337,10 +323,7 @@ function ModLevelLabel() {
 }
 
 function MFXLevelLabel() {
-  const [mfxType] = usePatchField(
-    GR55.temporaryPatch.mfx.mfxType,
-    GR55.temporaryPatch.mfx.mfxType.definition.type.labels[0]
-  );
+  const [mfxType] = usePatchField(GR55.temporaryPatch.mfx.mfxType);
   let field;
   switch (mfxType) {
     case "EQ":
