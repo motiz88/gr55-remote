@@ -2,11 +2,9 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldSlider,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -29,7 +27,7 @@ export function PatchEffectsDelayScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={sendsAndEq.delaySwitch}>
+      <PatchFieldSwitchedSection field={sendsAndEq.delaySwitch}>
         <PatchFieldPicker field={sendsAndEq.delayType} />
         <PatchFieldSlider field={sendsAndEq.delayTime} />
         <PatchFieldSlider field={sendsAndEq.delayFeedback} />
@@ -37,7 +35,7 @@ export function PatchEffectsDelayScreen({
         <PatchFieldSlider field={mfx.mfxDelaySendLevel} />
         <PatchFieldSlider field={ampModNs.modDelaySendLevel} />
         <PatchFieldSlider field={common.bypassDelaySendLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

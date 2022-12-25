@@ -5,13 +5,15 @@ import { StyleSheet, ScrollView, RefreshControl } from "react-native";
 import {
   PatchFieldPicker,
   PatchFieldPickerControlled,
-  PatchFieldSegmentedSwitch,
-  PatchFieldSlider,
+} from "./PatchFieldPicker";
+import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import {
   PatchFieldSwitch,
   PatchFieldSwitchControlled,
-  PatchFieldWaveShapePicker,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+} from "./PatchFieldSwitch";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
+import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import {
   BooleanField,
   EnumField,
@@ -46,7 +48,7 @@ export function PatchEffectsMFXScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={mfx.mfxSwitch}>
+      <PatchFieldSwitchedSection field={mfx.mfxSwitch}>
         <PatchFieldSlider field={mfx.mfxPan} />
         <PatchFieldPickerControlled
           field={mfx.mfxType}
@@ -75,11 +77,11 @@ export function PatchEffectsMFXScreen({
             <PatchFieldSlider field={mfx.superFilterFilterCutoff} />
             <PatchFieldSlider field={mfx.superFilterFilterResonance} />
             <PatchFieldSlider field={mfx.superFilterFilterGain} />
-            <SwitchedSection field={mfx.superFilterModulationSw}>
+            <PatchFieldSwitchedSection field={mfx.superFilterModulationSw}>
               <PatchFieldWaveShapePicker
                 field={mfx.superFilterModulationWave}
               />
-            </SwitchedSection>
+            </PatchFieldSwitchedSection>
             <TimeOrNoteField
               syncSwitchField={mfx.superFilterRateSyncSw}
               noteField={mfx.superFilterRateNote}
@@ -181,9 +183,9 @@ export function PatchEffectsMFXScreen({
               timeField={mfx.slicerRate}
             />
             <PatchFieldSlider field={mfx.slicerAttack} />
-            <SwitchedSection field={mfx.slicerInputSyncSw}>
+            <PatchFieldSwitchedSection field={mfx.slicerInputSyncSw}>
               <PatchFieldSlider field={mfx.slicerInputSyncThreshold} />
-            </SwitchedSection>
+            </PatchFieldSwitchedSection>
             <PatchFieldSlider field={mfx.slicerLevel} />
           </>
         )}
@@ -375,7 +377,7 @@ export function PatchEffectsMFXScreen({
             <PatchFieldSlider field={mfx.pitchShifterLevel} />
           </>
         )}
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }
@@ -413,7 +415,7 @@ function GuitarAmpSimSection() {
   );
   return (
     <>
-      <SwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
+      <PatchFieldSwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
         <PatchFieldPickerControlled
           field={mfx.gtrAmpSimPreAmpType}
           value={gtrAmpSimPreAmpType}
@@ -431,12 +433,12 @@ function GuitarAmpSimSection() {
           gtrAmpSimPreAmpType === "BG LEAD") && (
           <PatchFieldSwitch field={mfx.gtrAmpSimPreAmpBright} />
         )}
-      </SwitchedSection>
-      <SwitchedSection field={mfx.gtrAmpSimSpeakerSw}>
+      </PatchFieldSwitchedSection>
+      <PatchFieldSwitchedSection field={mfx.gtrAmpSimSpeakerSw}>
         <PatchFieldPicker field={mfx.gtrAmpSimSpeakerType} />
         <PatchFieldPicker field={mfx.gtrAmpSimMicSetting} />
         <PatchFieldSlider field={mfx.gtrAmpSimMicLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
       <PatchFieldSlider field={mfx.gtrAmpSimDirectLevel} />
       <PatchFieldSlider field={mfx.gtrAmpSimPan} />
       <PatchFieldSlider field={mfx.gtrAmpSimLevel} />

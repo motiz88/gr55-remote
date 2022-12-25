@@ -5,11 +5,11 @@ import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 import {
   PatchFieldPicker,
   PatchFieldPickerControlled,
-  PatchFieldSegmentedSwitch,
-  PatchFieldSlider,
-  PatchFieldSwitch,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+} from "./PatchFieldPicker";
+import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -36,7 +36,7 @@ export function PatchEffectsAmpScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={GR55.temporaryPatch.ampModNs.ampSwitch}>
+      <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.ampSwitch}>
         <PatchFieldPickerControlled
           field={GR55.temporaryPatch.ampModNs.ampType}
           value={ampType}
@@ -72,7 +72,7 @@ export function PatchEffectsAmpScreen({
         />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.ampMicPosition} />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.ampMicLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

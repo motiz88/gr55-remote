@@ -2,11 +2,9 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldSlider,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -29,7 +27,7 @@ export function PatchEffectsEQScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={sendsAndEq.eqSwitch}>
+      <PatchFieldSwitchedSection field={sendsAndEq.eqSwitch}>
         <PatchFieldPicker field={sendsAndEq.eqLowCutoffFreq} />
         <PatchFieldSlider field={sendsAndEq.eqLowGain} />
         <PatchFieldPicker field={sendsAndEq.eqLowMidCutoffFreq} />
@@ -42,7 +40,7 @@ export function PatchEffectsEQScreen({
         <PatchFieldPicker field={sendsAndEq.eqHighCutoffFreq} />
         <PatchFieldSlider field={sendsAndEq.eqLevel} />
         <PatchFieldSlider field={sendsAndEq.ezCharacter} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

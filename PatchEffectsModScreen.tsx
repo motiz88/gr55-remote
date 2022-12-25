@@ -3,12 +3,12 @@ import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
 import {
-  PatchFieldSlider,
   PatchFieldPickerControlled,
   PatchFieldPicker,
-  SwitchedSection,
-  PatchFieldSegmentedSwitch,
-} from "./PatchFieldComponents";
+} from "./PatchFieldPicker";
+import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -37,7 +37,7 @@ export function PatchEffectsModScreen({
     >
       {/* "The PAN parameter is valid even if SWITCH is OFF." - GR-55 Owner's Manual */}
       <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.modPan} />
-      <SwitchedSection field={GR55.temporaryPatch.ampModNs.modSwitch}>
+      <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.modSwitch}>
         <PatchFieldPickerControlled
           field={GR55.temporaryPatch.ampModNs.modType}
           value={modType}
@@ -235,11 +235,11 @@ export function PatchEffectsModScreen({
             <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqLevel} />
           </>
         )}
-      </SwitchedSection>
-      <SwitchedSection field={GR55.temporaryPatch.ampModNs.nsSwitch}>
+      </PatchFieldSwitchedSection>
+      <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.nsSwitch}>
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsThreshold} />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsReleaseTime} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

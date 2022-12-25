@@ -2,12 +2,10 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldSlider,
-  PatchFieldSwitch,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -39,7 +37,7 @@ export function PatchTonePCMScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={pcmTonePage.muteSwitch}>
+      <PatchFieldSwitchedSection field={pcmTonePage.muteSwitch}>
         <PatchFieldPicker field={pcmTonePage.toneSelect} />
         <PatchFieldSlider field={pcmTonePage.partLevel} />
         <PatchFieldSlider field={pcmTonePage.partOctaveShift} />
@@ -109,7 +107,7 @@ export function PatchTonePCMScreen({
         <PatchFieldSlider field={pcmToneOffsetPage.lfo2TVFDepthOffset} />
         <PatchFieldSlider field={pcmToneOffsetPage.lfo2TVADepthOffset} />
         <PatchFieldSlider field={pcmToneOffsetPage.lfo2PanDepthOffset} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

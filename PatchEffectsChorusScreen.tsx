@@ -2,11 +2,9 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldSlider,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -29,7 +27,7 @@ export function PatchEffectsChorusScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={sendsAndEq.chorusSwitch}>
+      <PatchFieldSwitchedSection field={sendsAndEq.chorusSwitch}>
         <PatchFieldPicker field={sendsAndEq.chorusType} />
         <PatchFieldSlider field={sendsAndEq.chorusRate} />
         <PatchFieldSlider field={sendsAndEq.chorusDepth} />
@@ -40,7 +38,7 @@ export function PatchEffectsChorusScreen({
         <PatchFieldSlider field={mfx.mfxChorusSendLevel} />
         <PatchFieldSlider field={ampModNs.modChorusSendLevel} />
         <PatchFieldSlider field={common.bypassChorusSendLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

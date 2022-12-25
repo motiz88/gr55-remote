@@ -13,7 +13,8 @@ import {
   View,
 } from "react-native";
 
-import { PatchFieldSlider, PatchFieldSwitch } from "./PatchFieldComponents";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import {
   BooleanField,
   FieldReference,

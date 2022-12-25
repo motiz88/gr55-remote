@@ -2,7 +2,8 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import { PatchFieldSlider, SwitchedSection } from "./PatchFieldComponents";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -23,9 +24,11 @@ export function PatchToneNormalScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={GR55.temporaryPatch.common.normalPuMute}>
+      <PatchFieldSwitchedSection
+        field={GR55.temporaryPatch.common.normalPuMute}
+      >
         <PatchFieldSlider field={GR55.temporaryPatch.common.normalPuLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

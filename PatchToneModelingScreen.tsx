@@ -4,15 +4,17 @@ import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
 import {
   PatchFieldPicker,
-  PatchFieldSlider,
-  PatchFieldSwitch,
   PatchFieldPickerControlled,
+} from "./PatchFieldPicker";
+import { PatchFieldPlaceholder } from "./PatchFieldPlaceholder";
+import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
+import {
+  PatchFieldSlider,
   PatchFieldSliderControlled,
-  PatchFieldPlaceholder,
-  SwitchedSection,
-  PatchFieldWaveShapePicker,
-  PatchFieldSegmentedSwitch,
-} from "./PatchFieldComponents";
+} from "./PatchFieldSlider";
+import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
+import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -114,7 +116,7 @@ export function PatchToneModelingScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={modelingTone.muteSwitch}>
+      <PatchFieldSwitchedSection field={modelingTone.muteSwitch}>
         {guitarBassSelect === "GUITAR" && (
           <>
             <PatchFieldPickerControlled
@@ -208,7 +210,7 @@ export function PatchToneModelingScreen({
           </>
         ) : (
           <>
-            <SwitchedSection field={modelingTone.twelveStrSwitch}>
+            <PatchFieldSwitchedSection field={modelingTone.twelveStrSwitch}>
               <PatchFieldSlider field={modelingTone.twelveStrDirectLevel} />
               <PatchFieldSlider field={modelingTone.twelveStrShiftString1} />
               <PatchFieldSlider field={modelingTone.twelveStrFineString1} />
@@ -222,7 +224,7 @@ export function PatchToneModelingScreen({
               <PatchFieldSlider field={modelingTone.twelveStrFineString5} />
               <PatchFieldSlider field={modelingTone.twelveStrShiftString6} />
               <PatchFieldSlider field={modelingTone.twelveStrFineString6} />
-            </SwitchedSection>
+            </PatchFieldSwitchedSection>
           </>
         )}
         {guitarBassSelect === "GUITAR" && toneCategory_guitar === "E.GTR" && (
@@ -416,7 +418,7 @@ export function PatchToneModelingScreen({
                       : modelingTone.gr300PitchDuet_bass
                   }
                 />
-                <SwitchedSection
+                <PatchFieldSwitchedSection
                   field={
                     guitarBassSelect === "GUITAR"
                       ? modelingTone.gr300SweepSwitch_guitar
@@ -437,8 +439,8 @@ export function PatchToneModelingScreen({
                         : modelingTone.gr300SweepFall_bass
                     }
                   />
-                </SwitchedSection>
-                <SwitchedSection
+                </PatchFieldSwitchedSection>
+                <PatchFieldSwitchedSection
                   field={
                     guitarBassSelect === "GUITAR"
                       ? modelingTone.gr300VibratoSwitch_guitar
@@ -459,7 +461,7 @@ export function PatchToneModelingScreen({
                         : modelingTone.gr300VibratoDepth_bass
                     }
                   />
-                </SwitchedSection>
+                </PatchFieldSwitchedSection>
               </>
             )}
             {(guitarBassSelect === "GUITAR"
@@ -717,12 +719,12 @@ export function PatchToneModelingScreen({
           </>
         )}
         {!hideNoiseSuppressorControls && (
-          <SwitchedSection field={modelingTone.nsSwitch}>
+          <PatchFieldSwitchedSection field={modelingTone.nsSwitch}>
             <PatchFieldSlider field={modelingTone.nsThreshold} />
             <PatchFieldSlider field={modelingTone.nsRelease} />
-          </SwitchedSection>
+          </PatchFieldSwitchedSection>
         )}
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }

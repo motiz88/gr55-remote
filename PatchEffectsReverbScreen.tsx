@@ -2,11 +2,9 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
-import {
-  PatchFieldPicker,
-  PatchFieldSlider,
-  SwitchedSection,
-} from "./PatchFieldComponents";
+import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -29,7 +27,7 @@ export function PatchEffectsReverbScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SwitchedSection field={sendsAndEq.reverbSwitch}>
+      <PatchFieldSwitchedSection field={sendsAndEq.reverbSwitch}>
         <PatchFieldPicker field={sendsAndEq.reverbType} />
         <PatchFieldSlider field={sendsAndEq.reverbTime} />
         <PatchFieldPicker field={sendsAndEq.reverbHighCut} />
@@ -40,7 +38,7 @@ export function PatchEffectsReverbScreen({
         <PatchFieldSlider field={mfx.mfxReverbSendLevel} />
         <PatchFieldSlider field={ampModNs.modReverbSendLevel} />
         <PatchFieldSlider field={common.bypassReverbSendLevel} />
-      </SwitchedSection>
+      </PatchFieldSwitchedSection>
     </ScrollView>
   );
 }
