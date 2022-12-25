@@ -4,6 +4,7 @@ import { ScrollView, StyleSheet, RefreshControl } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldPlaceholder } from "./PatchFieldPlaceholder";
+import { PatchFieldSegmentedPicker } from "./PatchFieldSegmentedPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
@@ -104,7 +105,7 @@ export function PatchToneModelingScreen({
       <PatchFieldSwitchedSection field={modelingTone.muteSwitch}>
         {guitarBassSelect === "GUITAR" && (
           <>
-            <PatchFieldPicker
+            <PatchFieldSegmentedPicker
               field={modelingTone.toneCategory_guitar}
               value={toneCategory_guitar}
               onValueChange={setToneCategory_guitar}
@@ -141,7 +142,7 @@ export function PatchToneModelingScreen({
         )}
         {guitarBassSelect === "BASS" && (
           <>
-            <PatchFieldPicker
+            <PatchFieldSegmentedPicker
               field={modelingTone.toneCategory_bass}
               value={toneCategory_bass}
               onValueChange={setToneCategory_bass}

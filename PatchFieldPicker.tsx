@@ -28,6 +28,7 @@ export function PatchFieldPicker<T extends string>({
       )),
     [field]
   );
+  // TODO: Use a layout-sensitive threshold
   if (Object.keys(field.definition.type.labels).length <= 3) {
     return (
       <PatchFieldSegmentedPicker
