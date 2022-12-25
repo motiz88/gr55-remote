@@ -1,9 +1,9 @@
-import { Picker } from "@react-native-picker/picker";
 import { useMemo } from "react";
 import { Text, View } from "react-native";
 
-import { PatchFieldDirectPicker } from "./PatchFieldDirectPicker";
+import { PatchFieldSegmentedPicker } from "./PatchFieldSegmentedPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
+import { Picker } from "./Picker";
 import { EnumField, FieldReference } from "./RolandAddressMap";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
@@ -30,7 +30,7 @@ export function PatchFieldPicker<T extends string>({
   );
   if (Object.keys(field.definition.type.labels).length <= 3) {
     return (
-      <PatchFieldDirectPicker
+      <PatchFieldSegmentedPicker
         field={field}
         value={value}
         onValueChange={onValueChange}

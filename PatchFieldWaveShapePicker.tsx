@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
 
-import { DirectPicker } from "./DirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
+import { SegmentedPicker } from "./SegmentedPicker";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
 const iconsByShapeLabel = {
@@ -45,7 +45,7 @@ export function PatchFieldWaveShapePicker<T extends WaveShapeLabel>({
       <Text style={PatchFieldStyles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <DirectPicker
+      <SegmentedPicker
         style={PatchFieldStyles.fieldControl}
         values={values}
         value={value}

@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react";
 import { Text, View } from "react-native";
 
-import { DirectPicker } from "./DirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
+import { SegmentedPicker } from "./SegmentedPicker";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
 export function PatchFieldSegmentedSwitch({
@@ -48,7 +48,7 @@ export function PatchFieldSegmentedSwitch({
       <Text style={PatchFieldStyles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <DirectPicker
+      <SegmentedPicker
         style={PatchFieldStyles.fieldControl}
         onValueChange={handleLabelChange}
         value={

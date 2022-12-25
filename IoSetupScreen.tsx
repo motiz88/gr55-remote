@@ -1,9 +1,9 @@
-import { Picker } from "@react-native-picker/picker";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext } from "react";
 import { ScrollView, StyleSheet, Switch, Text } from "react-native";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
+import { Picker } from "./Picker";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { RootStackParamList } from "./navigation";

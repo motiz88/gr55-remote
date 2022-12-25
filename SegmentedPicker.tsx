@@ -2,9 +2,9 @@ import type {
   NativeSegmentedControlIOSChangeEvent,
   SegmentedControlProps,
 } from "@react-native-segmented-control/segmented-control";
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import SegmentedControlImpl from "@react-native-segmented-control/segmented-control";
 // TODO: Use the native SegmentedControl for icons when iOS image resizing is fixed
-import SegmentedControlWithIcons from "@react-native-segmented-control/segmented-control/js/SegmentedControl.js";
+import SegmentedControlImplWithIcons from "@react-native-segmented-control/segmented-control/js/SegmentedControl.js";
 import { useCallback, useMemo } from "react";
 import { NativeSyntheticEvent } from "react-native";
 
@@ -17,7 +17,7 @@ export type Props<T extends string> = Omit<
   values: readonly T[] | readonly { value: T; icon?: unknown }[];
 };
 
-export function DirectPicker<T extends string>({
+export function SegmentedPicker<T extends string>({
   values,
   value,
   onValueChange,
@@ -53,7 +53,9 @@ export function DirectPicker<T extends string>({
     [normalizedValues, onValueChange]
   );
 
-  const Component = hasIcons ? SegmentedControlWithIcons : SegmentedControl;
+  const Component = hasIcons
+    ? SegmentedControlImplWithIcons
+    : SegmentedControlImpl;
 
   return (
     <Component

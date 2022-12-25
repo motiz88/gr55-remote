@@ -1,12 +1,12 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
 
-import { DirectPicker } from "./DirectPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
+import { SegmentedPicker } from "./SegmentedPicker";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
-export function PatchFieldDirectPicker<T extends string>({
+export function PatchFieldSegmentedPicker<T extends string>({
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
@@ -29,7 +29,7 @@ export function PatchFieldDirectPicker<T extends string>({
       <Text style={PatchFieldStyles.fieldDescription}>
         {field.definition.description}
       </Text>
-      <DirectPicker
+      <SegmentedPicker
         style={PatchFieldStyles.fieldControl}
         values={values}
         value={value}
