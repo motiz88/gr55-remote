@@ -1,8 +1,8 @@
-import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import AppNavigationContainer from "./AppNavigationContainer";
 import { IoSetupScreen } from "./IoSetupScreen";
 import { MidiIoContext } from "./MidiIoContext";
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
@@ -69,11 +69,11 @@ function RolandDataTransferContainer({
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <MidiIoSetupContainer>
-          <RolandIoSetupContainer>
-            <RolandDataTransferContainer>
-              <RolandRemotePatchStateContainer>
+      <MidiIoSetupContainer>
+        <RolandIoSetupContainer>
+          <RolandDataTransferContainer>
+            <RolandRemotePatchStateContainer>
+              <AppNavigationContainer>
                 <RootStack.Navigator
                   initialRouteName="PatchMain"
                   id="RootStack"
@@ -96,11 +96,11 @@ export default function App() {
                     options={{ title: "Setup" }}
                   />
                 </RootStack.Navigator>
-              </RolandRemotePatchStateContainer>
-            </RolandDataTransferContainer>
-          </RolandIoSetupContainer>
-        </MidiIoSetupContainer>
-      </NavigationContainer>
+              </AppNavigationContainer>
+            </RolandRemotePatchStateContainer>
+          </RolandDataTransferContainer>
+        </RolandIoSetupContainer>
+      </MidiIoSetupContainer>
     </SafeAreaProvider>
   );
 }
