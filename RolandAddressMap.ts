@@ -441,7 +441,7 @@ export class EnumField<
 {
   #labelsToEncoded: {
     [label: string | number]: number;
-  } = {};
+  } = Object.create(null);
 
   encode(
     value: LabelsMap[number],
@@ -469,11 +469,16 @@ export class EnumField<
     public readonly labels: Readonly<LabelsMap>,
     private rawField: FieldType<number> = new UByteField(0, 127)
   ) {
-    this.description = `enum ${this.rawField}`;
+    this.description = `enum ${this.rawField.description}`;
     this.size = this.rawField.size;
     for (const encoded of Object.keys(labels)) {
       const label = labels[encoded as any];
       this.emptyValue ??= label;
+      if (label in this.#labelsToEncoded) {
+        throw new Error(
+          `Encountered duplicate label "${label}" in ${this.description}`
+        );
+      }
       this.#labelsToEncoded[label] = Number(encoded);
     }
     if (Object.keys(labels).length === 0) {

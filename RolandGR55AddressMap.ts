@@ -1347,7 +1347,8 @@ export const PatchPCMToneStruct = {
         "Glockenspeil",
         "Vibraphone 2",
         "Vibraphone w",
-        "Marimba 2",
+        // NOTE: Listed as "Marimba 2" which is a duplicate
+        "Marimba 2*",
         "Marimba w",
         "Xylophone 3",
         "SteelDrums 2",
@@ -1449,8 +1450,10 @@ export const PatchPCMToneStruct = {
         "Reso Bass 7",
         "Reso Bass 8",
         "Acid Bass 1",
-        "Reso Bass 2",
-        "Reso Bass 3",
+        // NOTE: Listed as "Reso Bass 2" which is a duplicate
+        "Reso Bass 2*",
+        // NOTE: Listed as "Reso Bass 3" which is a duplicate
+        "Reso Bass 3*",
         "Alpha Bass 1",
         "TB Bass 1",
         "TB Bass 2",
