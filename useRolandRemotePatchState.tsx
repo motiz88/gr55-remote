@@ -50,7 +50,7 @@ export function useRolandRemotePatchState() {
     for (const address of Object.keys(oldLocalOverrides)) {
       subscriptions.current!.emit(
         address,
-        remoteData[1][address as unknown as number].value
+        remoteData[address as unknown as number].value
       );
     }
     return remoteData;

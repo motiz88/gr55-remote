@@ -44,7 +44,7 @@ function usePatchFieldImpl<T extends FieldDefinition<any>>(
   const [value, setValue] = useState(
     () =>
       localOverrides?.[field.address]?.value ??
-      patchData?.[1][field.address]?.value ??
+      patchData?.[field.address]?.value ??
       defaultValue ??
       field.definition.type.emptyValue
   );
@@ -52,7 +52,7 @@ function usePatchFieldImpl<T extends FieldDefinition<any>>(
   useEffect(() => {
     const newValue =
       localOverrides?.[field.address]?.value ??
-      patchData?.[1][field.address]?.value;
+      patchData?.[field.address]?.value;
     if (newValue != null) {
       setValue(newValue);
     }

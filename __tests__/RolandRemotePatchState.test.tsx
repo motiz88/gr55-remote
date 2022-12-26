@@ -9,7 +9,6 @@ import {
   FieldType,
   getAddresses,
   parse,
-  ParsedAtom,
   ParsedDataBag,
   StructDefinition,
 } from "../RolandAddressMap";
@@ -84,8 +83,8 @@ function MockRolandDataTransferContainer({
     async function requestData<T extends AtomDefinition>(
       definition: T,
       baseAddress: number = 0
-    ): Promise<[ParsedAtom<T>, ParsedDataBag]> {
-      return parse(data, definition, baseAddress);
+    ): Promise<ParsedDataBag> {
+      return parse(data, definition, baseAddress)[1];
     },
     [data]
   );

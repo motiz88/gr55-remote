@@ -3,12 +3,11 @@ import * as React from "react";
 import {
   AtomReference,
   FieldDefinition,
-  ParsedAtom,
   ParsedDataBag,
 } from "./RolandAddressMap";
 
 export const RolandRemotePatchContext = React.createContext<{
-  patchData: undefined | [ParsedAtom<any>, ParsedDataBag];
+  patchData: undefined | ParsedDataBag;
   patchReadError: undefined | Error;
   patchReadStatus: undefined | "pending" | "resolved" | "rejected";
   reloadPatchData: () => void;

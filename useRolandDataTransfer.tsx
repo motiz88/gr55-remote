@@ -5,7 +5,6 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import { MidiIoContext } from "./MidiIoContext";
 import {
   AtomDefinition,
-  ParsedAtom,
   fetchAndParse,
   FieldDefinition,
   ParsedDataBag,
@@ -141,11 +140,11 @@ export function useRolandDataTransfer() {
     async function requestData<T extends AtomDefinition>(
       definition: T,
       baseAddress: number = 0
-    ): Promise<[ParsedAtom<T>, ParsedDataBag]> {
+    ): Promise<ParsedDataBag> {
       const result = await fetchAndParse(definition, baseAddress, (...args) =>
         globalQueue.add(() => fetchContiguous(...args))
       );
-      return result;
+      return result[1];
     }
 
     function setField<T extends FieldDefinition<any>>(
