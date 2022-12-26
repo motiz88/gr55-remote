@@ -1,22 +1,29 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import {
   Button,
   RefreshControl,
   ScrollView,
   View,
   StyleSheet,
+  Text,
 } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSlider } from "./PatchFieldSlider";
+import { PatchFieldStyles } from "./PatchFieldStyles";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import {
+  RolandGR55PatchAssignsMapBassMode,
+  RolandGR55PatchAssignsMapGuitarMode,
+} from "./RolandGR55AssignsMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { SegmentedPicker } from "./SegmentedPicker";
 import { RootStackParamList } from "./navigation";
+import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
 import { usePatchField } from "./usePatchField";
 
 export function PatchAssignsScreen({
@@ -92,10 +99,30 @@ function AssignSection({
   assign: typeof GR55.temporaryPatch.common.assign1;
 }) {
   const [source, setSource] = usePatchField(assign.source);
+  // TODO: loading states for system and patch data (Suspense?)
+  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
+  const targetNames = useMemo(() => {
+    if (guitarBassSelect === "GUITAR") {
+      return Object.keys(RolandGR55PatchAssignsMapGuitarMode);
+    }
+    return Object.keys(RolandGR55PatchAssignsMapBassMode);
+  }, [guitarBassSelect]);
+  const [target, setTarget] = usePatchField(assign.target);
   return (
     <>
       <PatchFieldSwitchedSection field={assign.switch}>
-        <PatchFieldSlider field={assign.target} />
+        {/* TODO: Useful target picker */}
+        <View style={{ flexDirection: "row" }}>
+          <View style={PatchFieldStyles.fieldDescription} />
+          <Text style={PatchFieldStyles.fieldControl}>
+            {targetNames[target]}
+          </Text>
+        </View>
+        <PatchFieldSlider
+          field={assign.target}
+          value={target}
+          onValueChange={setTarget}
+        />
         {/* TODO: Range slider? But what about inverted ranges? */}
         {/* TODO: Value ranges/types vary by target */}
         <PatchFieldSlider field={assign.targetMin} />

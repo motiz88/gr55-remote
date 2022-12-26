@@ -2406,7 +2406,8 @@ const PatchAssignStruct = {
     pack7(0x010d - 0x010c),
     "ASSIGN Target",
     // TODO: enumerate targets and link to fields
-    new USplit12Field(0, 1024)
+    // NOTE: This is documented as [0, 1024] but targets >= 535 are invalid
+    new USplit12Field(0, 534)
   ),
   targetMin: new FieldDefinition(
     pack7(0x0110 - 0x010c),
@@ -2572,6 +2573,30 @@ export const PatchStruct = {
     assign6: new StructDefinition(pack7(0x016b), "ASSIGN6", PatchAssignStruct),
     assign7: new StructDefinition(pack7(0x017e), "ASSIGN7", PatchAssignStruct),
     assign8: new StructDefinition(pack7(0x0211), "ASSIGN8", PatchAssignStruct),
+    gkSet: new FieldDefinition(
+      pack7(0x0224),
+      "GK SET",
+      enumField([
+        "SYSTEM",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+      ] as const)
+    ),
+    guitarOutSource: new FieldDefinition(
+      pack7(0x0225),
+      "Guitar Out Source",
+      // TODO: Model this as a bitfield? In the UI it might be nice to treat this as a "send"
+      // from each of the sources.
+      enumField(["OFF", "NORMAL PU", "MODELING", "BOTH"] as const)
+    ),
     effectStructure: new FieldDefinition(
       pack7(0x022c),
       "EFFECT Structure",
@@ -2606,6 +2631,60 @@ export const PatchStruct = {
       pack7(0x0234),
       "Alt Tune Switch",
       booleanField
+    ),
+    altTuneType: new FieldDefinition(
+      pack7(0x0235),
+      "Alt Tune Type",
+      enumField([
+        "OPEN-D",
+        "OPEN-E",
+        "OPEN-G",
+        "OPEN-A",
+        "DROP-D",
+        "D-MODAL",
+        "-1 STEP",
+        "-2 STEP",
+        "BARITONE",
+        "NASHVL",
+        "-1 OCT",
+        "+1 OCT",
+        "USER",
+      ] as const)
+    ),
+    userTuneShiftString1: new FieldDefinition(
+      pack7(0x0236),
+      "User Tune Shift String 1",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    userTuneShiftString2: new FieldDefinition(
+      pack7(0x0237),
+      "User Tune Shift String 2",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    userTuneShiftString3: new FieldDefinition(
+      pack7(0x0238),
+      "User Tune Shift String 3",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    userTuneShiftString4: new FieldDefinition(
+      pack7(0x0239),
+      "User Tune Shift String 4",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    userTuneShiftString5: new FieldDefinition(
+      pack7(0x023a),
+      "User Tune Shift String 5",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    userTuneShiftString6: new FieldDefinition(
+      pack7(0x023b),
+      "User Tune Shift String 6",
+      new UByteField(-24, 24, { encodedOffset: 64 })
+    ),
+    patchTempo: new FieldDefinition(
+      pack7(0x023c),
+      "Patch Tempo",
+      new USplit8Field(20, 250)
     ),
     bypassChorusSendLevel: new FieldDefinition(
       pack7(0x023e),
