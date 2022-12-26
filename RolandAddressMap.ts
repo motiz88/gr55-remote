@@ -324,7 +324,6 @@ export class C63Field extends NumericFieldBase implements NumericField {
   readonly description = "C63";
 }
 
-// TODO: Render -51 as "OFF" in the UI and potentially have a dedicated control for it.
 export class C63OffField extends NumericFieldBase implements NumericField {
   readonly size = 1;
 
@@ -348,6 +347,13 @@ export class C63OffField extends NumericFieldBase implements NumericField {
   readonly max = 50;
   readonly step = 1;
   readonly description = "C63Off";
+
+  constructor() {
+    super({
+      format: (value) =>
+        value === -51 ? "OFF" : (value > 0 ? "+" : "") + value.toString(),
+    });
+  }
 }
 
 export class USplit8Field extends NumericFieldBase implements NumericField {
