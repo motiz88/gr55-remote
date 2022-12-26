@@ -41,6 +41,7 @@
     "react-native-sectioned-multi-select": "^0.9.1",
     "react-native-tab-view": "^3.3.4",
     "react-native-web": "~0.18.9",
+    "react-native-web-refresh-control": "^1.1.1",
     "react-use-promise": "^0.5.0",
     "throttle-debounce": "^5.0.0"
   },

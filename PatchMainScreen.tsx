@@ -5,7 +5,6 @@ import {
   Button,
   Image,
   Pressable,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -15,6 +14,7 @@ import {
 
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { RefreshControl } from "./RefreshControl";
 import {
   BooleanField,
   FieldReference,
@@ -63,6 +63,8 @@ export function PatchMainScreen({
   return (
     <ScrollView
       refreshControl={
+        // TODO: Connect this to the actual refresh state
+        // TODO: Refactor to avoid duplication with all the other screens
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}

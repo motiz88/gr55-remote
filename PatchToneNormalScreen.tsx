@@ -1,9 +1,10 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { ScrollView, StyleSheet, RefreshControl } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
+import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";

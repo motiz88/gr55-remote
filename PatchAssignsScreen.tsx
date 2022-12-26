@@ -1,19 +1,13 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext, useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  RefreshControl,
-  ScrollView,
-  View,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { Button, ScrollView, View, StyleSheet, Text } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import { RefreshControl } from "./RefreshControl";
 import {
   FieldDefinition,
   FieldReference,

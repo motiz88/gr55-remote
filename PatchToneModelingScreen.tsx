@@ -1,6 +1,6 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { ScrollView, StyleSheet, RefreshControl } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldPlaceholder } from "./PatchFieldPlaceholder";
@@ -10,6 +10,7 @@ import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";

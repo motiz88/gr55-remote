@@ -1,6 +1,6 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { StyleSheet, ScrollView, RefreshControl } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
@@ -8,6 +8,7 @@ import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import { RefreshControl } from "./RefreshControl";
 import {
   BooleanField,
   EnumField,

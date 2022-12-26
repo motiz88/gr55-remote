@@ -1,7 +1,8 @@
 import { useContext } from "react";
-import { ScrollView, StyleSheet, RefreshControl, Text } from "react-native";
+import { ScrollView, StyleSheet, Text } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
+import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
