@@ -10,6 +10,7 @@ import {
   parse,
   StructDefinition,
   UByteField,
+  USplit12Field,
   UWordField,
 } from "../RolandAddressMap";
 
@@ -382,5 +383,94 @@ describe("C63Field", () => {
     field.encode(25, valueBytes, 3, 1);
     field.encode(50, valueBytes, 4, 1);
     expect(valueBytes).toEqual(new Uint8Array([1, 33, 64, 96, 127]));
+  });
+});
+
+describe("remapping", () => {
+  describe("decodedFactor", () => {
+    const field = new UWordField(0, 2048);
+    const remappedField = field.remapped({ decodedFactor: 10 });
+
+    test("updates metadata", () => {
+      expect(remappedField.size).toBe(2);
+      expect(remappedField.min).toBe(0);
+      expect(remappedField.max).toBe(20480);
+      expect(remappedField.description).toMatchInlineSnapshot(
+        `"remapped to [0, 20480] from unsigned word [0, 2048]"`
+      );
+    });
+
+    test("encode normally, then decode remapped", () => {
+      const valueBytes = new Uint8Array(2);
+      field.encode(102, valueBytes, 0, valueBytes.length);
+      expect(remappedField.decode(valueBytes, 0, valueBytes.length)).toBe(1020);
+    });
+
+    test("encode remapped, then decode normally", () => {
+      const valueBytes = new Uint8Array(2);
+      remappedField.encode(1020, valueBytes, 0, valueBytes.length);
+      expect(field.decode(valueBytes, 0, valueBytes.length)).toBe(102);
+    });
+  });
+
+  describe("encodedOffset", () => {
+    const field = new UWordField(0, 2048);
+    const remappedField = field.remapped({ encodedOffset: 1024 });
+
+    test("updates metadata", () => {
+      expect(remappedField.size).toBe(2);
+      expect(remappedField.min).toBe(-1024);
+      expect(remappedField.max).toBe(1024);
+      expect(remappedField.description).toMatchInlineSnapshot(
+        `"remapped to [-1024, 1024] from unsigned word [0, 2048]"`
+      );
+    });
+
+    test("encode normally, then decode remapped", () => {
+      const valueBytes = new Uint8Array(2);
+      field.encode(256, valueBytes, 0, valueBytes.length);
+      expect(remappedField.decode(valueBytes, 0, valueBytes.length)).toBe(-768);
+    });
+
+    test("encode remapped, then decode normally", () => {
+      const valueBytes = new Uint8Array(2);
+      remappedField.encode(-768, valueBytes, 0, valueBytes.length);
+      expect(field.decode(valueBytes, 0, valueBytes.length)).toBe(256);
+    });
+  });
+
+  describe("min and max", () => {
+    const field = new UWordField(0, 2048);
+    const remappedField = field.remapped({ min: 1, max: 100 });
+
+    test("updates metadata", () => {
+      expect(remappedField.size).toBe(2);
+      expect(remappedField.min).toBe(1);
+      expect(remappedField.max).toBe(100);
+      expect(remappedField.description).toMatchInlineSnapshot(
+        `"remapped to [1, 100] from unsigned word [0, 2048]"`
+      );
+    });
+
+    test("encode normally, then decode remapped", () => {
+      const valueBytes = new Uint8Array(2);
+      field.encode(2, valueBytes, 0, valueBytes.length);
+      expect(remappedField.decode(valueBytes, 0, valueBytes.length)).toBe(2);
+    });
+
+    test("encode remapped, then decode normally", () => {
+      const valueBytes = new Uint8Array(2);
+      remappedField.encode(2, valueBytes, 0, valueBytes.length);
+      expect(field.decode(valueBytes, 0, valueBytes.length)).toBe(2);
+    });
+  });
+
+  describe("format", () => {
+    const field = new USplit12Field(-1024, 1023);
+    test("with min/max", () => {
+      const remappedField = field.remapped({ min: 0, max: 100 });
+      expect(remappedField.format(0)).toBe("0");
+      expect(remappedField.format(100)).toBe("100");
+    });
   });
 });

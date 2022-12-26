@@ -39,6 +39,14 @@ export interface NumericField extends FieldType<number> {
   max: number;
   step: number;
   format: (value: number) => string;
+  remapped(options?: {
+    encodedOffset?: number;
+    decodedFactor?: number;
+    min?: number;
+    max?: number;
+    format?: (value: number) => string;
+  }): NumericField;
+  encodedOffset?: number;
 }
 
 abstract class NumericFieldBase implements NumericField {
@@ -61,12 +69,85 @@ abstract class NumericFieldBase implements NumericField {
     }
   }
 
+  remapped(options?: {
+    encodedOffset?: number;
+    decodedFactor?: number;
+    format?: (value: number) => string;
+    min?: number;
+    max?: number;
+  }): NumericField {
+    return new RemappedNumericField(this, options);
+  }
+
   format(value: number): string {
     return (this.min < 0 && value > 0 ? "+" : "") + value.toString();
   }
 
   get emptyValue(): number {
     return this.min;
+  }
+}
+
+export class RemappedNumericField
+  extends NumericFieldBase
+  implements NumericField
+{
+  readonly min: number;
+  readonly max: number;
+  readonly step: number;
+
+  encode(
+    value: number,
+    outBytes: Uint8Array,
+    offset: number,
+    length: number
+  ): void {
+    const cookedValue = Math.round(
+      Math.min(Math.max(this.min, value), this.max) / this.decodedFactor +
+        this.encodedOffset
+    );
+    this.rawField.encode(cookedValue, outBytes, offset, length);
+  }
+
+  decode(bytes: Uint8Array, offset: number, length: number): number {
+    const result = this.rawField.decode(bytes, offset, length);
+    return this.decodedFactor * (result - this.encodedOffset);
+  }
+
+  size: number;
+
+  description: string;
+
+  private readonly decodedFactor: number;
+  readonly encodedOffset: number;
+
+  // encoded = (decoded / decodedFactor) + encodedOffset
+  // therefore decoded = (encoded - encodedOffset) * decodedFactor
+
+  constructor(
+    private readonly rawField: NumericField,
+    options?: {
+      encodedOffset?: number;
+      decodedFactor?: number;
+      format?: (value: number) => string;
+      min?: number;
+      max?: number;
+    }
+  ) {
+    super({
+      format: options?.format,
+    });
+    this.decodedFactor = options?.decodedFactor ?? 1;
+    this.encodedOffset = options?.encodedOffset ?? 0;
+    this.min =
+      options?.min ??
+      (this.rawField.min - this.encodedOffset) * this.decodedFactor;
+    this.max =
+      options?.max ??
+      (this.rawField.max - this.encodedOffset) * this.decodedFactor;
+    this.step = this.decodedFactor;
+    this.size = this.rawField.size;
+    this.description = `remapped to [${this.min}, ${this.max}] from ${this.rawField.description}`;
   }
 }
 
