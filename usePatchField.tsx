@@ -29,6 +29,8 @@ function usePatchFieldImpl<T extends FieldDefinition<any>>(
   ReturnType<T["type"]["decode"]>,
   (newValue: ReturnType<T["type"]["decode"]>) => void
 ] {
+  // TODO: store *encoded* data here and in RolandDataTransferContext
+  // so that fields can be aliased through multiple definitions.
   const { setField } = useContext(RolandDataTransferContext);
   const setFieldThrottled = useMemo(() => {
     if (setField) {

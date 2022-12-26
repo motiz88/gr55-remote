@@ -14,7 +14,13 @@ import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import {
+  FieldDefinition,
+  FieldReference,
+  NumericField,
+} from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { AssignDefinition, FieldAssignDefinition } from "./RolandGR55Assigns";
 import {
   RolandGR55PatchAssignsMapBassMode,
   RolandGR55PatchAssignsMapGuitarMode,
@@ -101,13 +107,14 @@ function AssignSection({
   const [source, setSource] = usePatchField(assign.source);
   // TODO: loading states for system and patch data (Suspense?)
   const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
-  const targetNames = useMemo(() => {
+  const assignsMap = useMemo(() => {
     if (guitarBassSelect === "GUITAR") {
-      return Object.keys(RolandGR55PatchAssignsMapGuitarMode);
+      return RolandGR55PatchAssignsMapGuitarMode;
     }
-    return Object.keys(RolandGR55PatchAssignsMapBassMode);
+    return RolandGR55PatchAssignsMapBassMode;
   }, [guitarBassSelect]);
   const [target, setTarget] = usePatchField(assign.target);
+  const assignDef = assignsMap.getByIndex(target);
   return (
     <>
       <PatchFieldSwitchedSection field={assign.switch}>
@@ -115,7 +122,7 @@ function AssignSection({
         <View style={{ flexDirection: "row" }}>
           <View style={PatchFieldStyles.fieldDescription} />
           <Text style={PatchFieldStyles.fieldControl}>
-            {targetNames[target]}
+            {assignDef.description}
           </Text>
         </View>
         <PatchFieldSlider
@@ -125,8 +132,14 @@ function AssignSection({
         />
         {/* TODO: Range slider? But what about inverted ranges? */}
         {/* TODO: Value ranges/types vary by target */}
-        <PatchFieldSlider field={assign.targetMin} />
-        <PatchFieldSlider field={assign.targetMax} />
+        <PatchAssignBoundField
+          assignDef={assignDef}
+          minOrMaxField={assign.targetMin}
+        />
+        <PatchAssignBoundField
+          assignDef={assignDef}
+          minOrMaxField={assign.targetMax}
+        />
         <PatchFieldPicker
           field={assign.source}
           value={source}
@@ -153,6 +166,32 @@ function AssignSection({
       </PatchFieldSwitchedSection>
     </>
   );
+}
+
+function PatchAssignBoundField({
+  assignDef,
+  minOrMaxField,
+}: {
+  assignDef: AssignDefinition;
+  minOrMaxField: FieldReference<NumericField>;
+}) {
+  const modifiedFieldDef = useMemo(() => {
+    if (!(assignDef instanceof FieldAssignDefinition)) {
+      return minOrMaxField;
+    }
+    return {
+      ...minOrMaxField,
+      definition: new FieldDefinition(
+        minOrMaxField.definition.offset,
+        minOrMaxField.definition.description +
+          " (" +
+          assignDef.field.definition.description +
+          ")",
+        minOrMaxField.definition.type
+      ),
+    };
+  }, [assignDef, minOrMaxField]);
+  return <PatchFieldSlider field={modifiedFieldDef} />;
 }
 
 const styles = StyleSheet.create({

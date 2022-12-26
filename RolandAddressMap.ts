@@ -8,9 +8,8 @@ export type AtomReference<Definition extends AtomDefinition = AtomDefinition> =
     definition: Definition;
   };
 
-export type FieldReference<T extends FieldType<any>> = AtomReference<
-  FieldDefinition<T>
->;
+export type FieldReference<T extends FieldType<any> = FieldType<any>> =
+  AtomReference<FieldDefinition<T>>;
 
 export abstract class AtomDefinition {
   constructor(
