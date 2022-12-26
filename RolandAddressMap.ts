@@ -395,7 +395,9 @@ export class USplit12Field extends NumericFieldBase implements NumericField {
     offset: number,
     _length: number
   ): void {
-    const val = Math.min(Math.max(this.min, value), this.max) & 0x0fff;
+    const val =
+      (Math.min(Math.max(this.min, value), this.max) + this.encodedOffset) &
+      0x0fff;
     const aaaa = ((val & 0x0f00) >> 8) & 0x0f; // right nibble of the first byte
     const bbbb = ((val & 0x00f0) >> 4) & 0x0f; // left nibble of the second byte
     const cccc = val & 0x000f & 0x0f; // right nibble of the second byte
@@ -408,17 +410,20 @@ export class USplit12Field extends NumericFieldBase implements NumericField {
     const aaaa = bytes[offset] & 0x0f;
     const bbbb = bytes[offset + 1] & 0x0f;
     const cccc = bytes[offset + 2] & 0x0f;
-    return ((aaaa << 8) | (bbbb << 4) | cccc) & 0x0fff;
+    return (((aaaa << 8) | (bbbb << 4) | cccc) & 0x0fff) - this.encodedOffset;
   }
 
   constructor(
     public readonly min: number,
     public readonly max: number,
-    options?: { format?: (value: number) => string }
+    options?: { format?: (value: number) => string; encodedOffset?: number }
   ) {
     super(options);
     this.description = `unsigned split 12-bit number [${this.min}, ${this.max}]`;
+    this.encodedOffset = options?.encodedOffset ?? 0;
   }
+  // the offset added to the value before encoding
+  readonly encodedOffset: number;
   readonly description: string;
 }
 
