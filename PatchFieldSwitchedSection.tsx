@@ -10,7 +10,7 @@ export function PatchFieldSwitchedSection({
   children,
 }: {
   field: FieldReference<BooleanField>;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }) {
   const [value, setValue] = usePatchField(field, false);
   const isDisabled = field.definition.type.invertedForDisplay ? value : !value;

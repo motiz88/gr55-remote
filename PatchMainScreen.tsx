@@ -190,6 +190,13 @@ export function PatchMainScreen({
           onPress={() => navigation.navigate("PatchEffects", { screen: "EQ" })}
         />
       </SectionWithHeading>
+      {/* TODO: Move assigns to a hamburger menu */}
+      {/* <SectionWithHeading
+        heading="Assigns (WIP)"
+        onPress={() => {
+          navigation.navigate("PatchAssigns", {});
+        }}
+      /> */}
     </ScrollView>
   );
 }
@@ -446,15 +453,47 @@ function ToneSummaryView({
 function SectionWithHeading({
   children,
   heading,
+  onPress,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   heading: React.ReactNode;
+  onPress?: () => void;
 }) {
   return (
     <View style={styles.sectionWithHeading}>
-      <Text style={styles.sectionHeading}>{heading}</Text>
+      {onPress ? (
+        <HeadingLink onPress={onPress} heading={heading} />
+      ) : (
+        <Text style={styles.sectionHeading}>{heading}</Text>
+      )}
       {children}
     </View>
+  );
+}
+
+function HeadingLink({
+  onPress,
+  heading,
+}: {
+  onPress?: () => void;
+  heading: React.ReactNode;
+}) {
+  return (
+    <Pressable android_ripple={{ color: "lightgray" }} onPress={onPress}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          borderBottomWidth: 1,
+          borderBottomColor: "lightgray",
+          paddingTop: 16,
+          alignItems: "center",
+        }}
+      >
+        <Text style={styles.sectionHeading}>{heading}</Text>
+        <FontAwesome name="chevron-right" />
+      </View>
+    </Pressable>
   );
 }
 

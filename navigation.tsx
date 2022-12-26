@@ -2,6 +2,7 @@ export type RootStackParamList = {
   PatchMain: object;
   PatchEffects: object;
   PatchTone: object;
+  PatchAssigns: object;
   IoSetup: object;
 };
 

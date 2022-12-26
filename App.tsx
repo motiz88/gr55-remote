@@ -6,6 +6,7 @@ import AppNavigationContainer from "./AppNavigationContainer";
 import { IoSetupScreen } from "./IoSetupScreen";
 import { MidiIoContext } from "./MidiIoContext";
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
+import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchToneScreen } from "./PatchToneScreen";
@@ -89,6 +90,10 @@ export default function App() {
                   <RootStack.Screen
                     name="PatchEffects"
                     component={PatchEffectsScreen}
+                  />
+                  <RootStack.Screen
+                    name="PatchAssigns"
+                    component={PatchAssignsScreen}
                   />
                   <RootStack.Screen
                     name="IoSetup"
