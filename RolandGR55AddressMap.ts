@@ -2396,6 +2396,161 @@ export const PatchPCMToneOffsetStruct = {
   ),
 };
 
+const PatchAssignStruct = {
+  switch: new FieldDefinition(
+    pack7(0x010c - 0x010c),
+    "ASSIGN Switch",
+    booleanField
+  ),
+  target: new FieldDefinition(
+    pack7(0x010d - 0x010c),
+    "ASSIGN Target",
+    // TODO: enumerate targets and link to fields
+    new USplit12Field(0, 1024)
+  ),
+  targetMin: new FieldDefinition(
+    pack7(0x0110 - 0x010c),
+    "ASSIGN Target Min",
+    new USplit12Field(-1024, 1023, { encodedOffset: 1024 })
+  ),
+  targetMax: new FieldDefinition(
+    pack7(0x0113 - 0x010c),
+    "ASSIGN Target Max",
+    new USplit12Field(-1024, 1023, { encodedOffset: 1024 })
+  ),
+  source: new FieldDefinition(
+    pack7(0x0116 - 0x010c),
+    "ASSIGN Source",
+    enumField([
+      "CTL",
+      "EXP PEDAL OFF",
+      "EXP PEDAL ON",
+      "EXP PEDAL SW",
+      "INT PDL",
+      "WAVE PDL",
+      "GK S1",
+      "GK S2",
+      "GK VOL",
+      "CC1",
+      "CC2",
+      "CC3",
+      "CC4",
+      "CC5",
+      "CC6",
+      "CC7",
+      "CC8",
+      "CC9",
+      "CC10",
+      "CC11",
+      "CC12",
+      "CC13",
+      "CC14",
+      "CC15",
+      "CC16",
+      "CC17",
+      "CC18",
+      "CC19",
+      "CC20",
+      "CC21",
+      "CC22",
+      "CC23",
+      "CC24",
+      "CC25",
+      "CC26",
+      "CC27",
+      "CC28",
+      "CC29",
+      "CC30",
+      "CC31",
+      "CC64",
+      "CC65",
+      "CC66",
+      "CC67",
+      "CC68",
+      "CC69",
+      "CC70",
+      "CC71",
+      "CC72",
+      "CC73",
+      "CC74",
+      "CC75",
+      "CC76",
+      "CC77",
+      "CC78",
+      "CC79",
+      "CC80",
+      "CC81",
+      "CC82",
+      "CC83",
+      "CC84",
+      "CC85",
+      "CC86",
+      "CC87",
+      "CC88",
+      "CC89",
+      "CC90",
+      "CC91",
+      "CC92",
+      "CC93",
+      "CC94",
+      "CC95",
+    ] as const)
+  ),
+  sourceMode: new FieldDefinition(
+    pack7(0x0117 - 0x010c),
+    "ASSIGN Source Mode",
+    enumField(["MOMENT", "TOGGLE"] as const)
+  ),
+  activeRangeLo: new FieldDefinition(
+    pack7(0x0118 - 0x010c),
+    "ASSIGN Active Range Lo",
+    new UByteField(0, 126)
+  ),
+  activeRangeHi: new FieldDefinition(
+    pack7(0x0119 - 0x010c),
+    "ASSIGN Active Range Hi",
+    new UByteField(1, 127)
+  ),
+  internalPedalTrigger: new FieldDefinition(
+    pack7(0x011a - 0x010c),
+    "ASSIGN Internal Pedal Trigger",
+    enumField([
+      "PATCH CHANGE",
+      "CTL",
+      "EXP LOW",
+      "EXP MID",
+      "EXP HIGH",
+      "EXP ON LOW",
+      "EXP ON MID",
+      "EXP ON HIGH",
+      "EXP SW",
+      "GK S1",
+      "GK S2",
+    ] as const)
+  ),
+  internalPedalTime: new FieldDefinition(
+    pack7(0x011b - 0x010c),
+    "ASSIGN Internal Pedal Time",
+    new UByteField(0, 100)
+  ),
+  internalPedalCurve: new FieldDefinition(
+    pack7(0x011c - 0x010c),
+    "ASSIGN Internal Pedal Curve",
+    // TODO: Icons for curve types
+    enumField(["LINEAR", "SLOW RISE", "FAST RISE"] as const)
+  ),
+  wavePedalRate: new FieldDefinition(
+    pack7(0x011d - 0x010c),
+    "ASSIGN Wave Pedal Rate",
+    rate113Field
+  ),
+  wavePedalForm: new FieldDefinition(
+    pack7(0x011e - 0x010c),
+    "ASSIGN Wave Pedal Form",
+    enumField(["SAW", "TRI", "SIN"] as const)
+  ),
+};
+
 export const PatchStruct = {
   common: new StructDefinition(pack7(0x000000), "Common", {
     patchAttribute: new FieldDefinition(
@@ -2408,6 +2563,15 @@ export const PatchStruct = {
       "Patch Name",
       new AsciiStringField(16)
     ),
+    // TODO: Is it worth creating an ArrayDefinition atom type?
+    assign1: new StructDefinition(pack7(0x010c), "ASSIGN1", PatchAssignStruct),
+    assign2: new StructDefinition(pack7(0x011f), "ASSIGN2", PatchAssignStruct),
+    assign3: new StructDefinition(pack7(0x0132), "ASSIGN3", PatchAssignStruct),
+    assign4: new StructDefinition(pack7(0x0145), "ASSIGN4", PatchAssignStruct),
+    assign5: new StructDefinition(pack7(0x0158), "ASSIGN5", PatchAssignStruct),
+    assign6: new StructDefinition(pack7(0x016b), "ASSIGN6", PatchAssignStruct),
+    assign7: new StructDefinition(pack7(0x017e), "ASSIGN7", PatchAssignStruct),
+    assign8: new StructDefinition(pack7(0x0211), "ASSIGN8", PatchAssignStruct),
     effectStructure: new FieldDefinition(
       pack7(0x022c),
       "EFFECT Structure",
