@@ -794,3 +794,33 @@ export function getAddresses<Definition extends AtomDefinition>(
       definition.description
   );
 }
+
+export function isNumericField(type: FieldType<any>): type is NumericField {
+  return type instanceof NumericFieldBase;
+}
+
+export function isNumericFieldReference(
+  field: FieldReference<FieldType<any>>
+): field is FieldReference<NumericField> {
+  return isNumericField(field.definition.type);
+}
+
+export function isEnumField(type: FieldType<any>): type is EnumField {
+  return type instanceof EnumField;
+}
+
+export function isEnumFieldReference(
+  field: FieldReference<FieldType<any>>
+): field is FieldReference<EnumField> {
+  return isEnumField(field.definition.type);
+}
+
+export function isBooleanField(type: FieldType<any>): type is BooleanField {
+  return type instanceof BooleanField;
+}
+
+export function isBooleanFieldReference(
+  field: FieldReference<FieldType<any>>
+): field is FieldReference<BooleanField> {
+  return isBooleanField(field.definition.type);
+}
