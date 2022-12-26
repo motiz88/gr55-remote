@@ -1,15 +1,36 @@
-import { AtomReference, FieldReference } from "./RolandAddressMap";
+import {
+  AtomReference,
+  EnumField,
+  FieldDefinition,
+  FieldReference,
+  FieldType,
+  isBooleanField,
+  isEnumField,
+  isNumericField,
+  NumericField,
+} from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute } from "./RolandGR55AddressMap";
 
 export interface AssignDefinition {
   readonly description: string;
   withAddressOffset(offset: number): AssignDefinition;
+  reinterpretAssignValueField(
+    minOrMaxField: FieldReference<NumericField>
+  ): FieldReference<FieldType<any>> | void;
+}
+
+// Assignable fields require a "min" and "max" value even if they're not numeric.
+export interface AssignableFieldType<Representation>
+  extends FieldType<Representation> {
+  readonly min: Representation;
+  readonly max: Representation;
 }
 
 export class FieldAssignDefinition implements AssignDefinition {
   constructor(
     public readonly description: string,
-    public readonly field: FieldReference
+    public readonly field: FieldReference<AssignableFieldType<any>>,
+    public readonly customAssignType?: FieldType<any>
   ) {}
 
   withAddressOffset(offset: number): FieldAssignDefinition {
@@ -18,6 +39,58 @@ export class FieldAssignDefinition implements AssignDefinition {
       address: this.field.address + offset,
     });
   }
+
+  reinterpretAssignValueField(
+    minOrMaxField: FieldReference<NumericField>
+  ): FieldReference<FieldType<any>> | void {
+    // The point of this function is to try to infer a useful type for the min or max field
+    // without having to explicitly specify it in the assign definition. Theoretically,
+    // this should work for the vast majority of fields, except where Roland implemented
+    // fully custom remapping logic for a field to fit it into the min/max field's range.
+    let remappedType;
+    if (this.customAssignType) {
+      if (minOrMaxField.definition.type.size !== this.customAssignType.size) {
+        throw new Error(
+          "Custom assign type must have same size as min or max field"
+        );
+      }
+      remappedType = this.customAssignType;
+    } else if (isNumericField(this.field.definition.type)) {
+      const { type } = this.field.definition;
+      const { min, max, encodedOffset, format } = type;
+      remappedType = minOrMaxField.definition.type.remapped({
+        min,
+        max,
+        encodedOffset,
+        format: format.bind(type),
+      });
+    } else if (isEnumField(this.field.definition.type)) {
+      const { type } = this.field.definition;
+      remappedType = new EnumField(type.labels, minOrMaxField.definition.type);
+    } else if (isBooleanField(this.field.definition.type)) {
+      const { type } = this.field.definition;
+      // TODO: Remap to a boolean with USplit12Field storage
+      remappedType = new EnumField(
+        type.invertedForDisplay
+          ? { 0: type.trueLabel, 1: type.falseLabel }
+          : { 0: type.falseLabel, 1: type.trueLabel },
+        minOrMaxField.definition.type.remapped({ encodedOffset: 0 })
+      );
+    }
+    if (remappedType) {
+      return {
+        ...minOrMaxField,
+        definition: new FieldDefinition(
+          minOrMaxField.definition.offset,
+          minOrMaxField.definition.description +
+            " (" +
+            this.field.definition.description +
+            ")",
+          remappedType
+        ),
+      };
+    }
+  }
 }
 
 // TODO: Model virtual fields (fields with no address in patch memory).
@@ -25,6 +98,12 @@ export class VirtualFieldAssignDefinition implements AssignDefinition {
   constructor(public readonly description: string) {}
   withAddressOffset(offset: number): VirtualFieldAssignDefinition {
     return this;
+  }
+
+  reinterpretAssignValueField(
+    minOrMaxField: FieldReference<NumericField>
+  ): FieldReference<FieldType<any>> | void {
+    // TODO: Do something useful here, probably with a custom field type?
   }
 }
 
@@ -36,6 +115,7 @@ export class MultiFieldAssignDefinition implements AssignDefinition {
     public readonly description: string,
     public readonly fields: readonly FieldReference[]
   ) {}
+
   withAddressOffset(offset: number): AssignDefinition {
     return new MultiFieldAssignDefinition(
       this.description,
@@ -44,6 +124,12 @@ export class MultiFieldAssignDefinition implements AssignDefinition {
         address: field.address + offset,
       }))
     );
+  }
+
+  reinterpretAssignValueField(
+    minOrMaxField: FieldReference<NumericField>
+  ): FieldReference<FieldType<any>> | void {
+    // TODO: Do something useful here
   }
 }
 

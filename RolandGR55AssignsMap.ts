@@ -1,4 +1,7 @@
-import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import {
+  RolandGR55AddressMapAbsolute as GR55,
+  time3413Field,
+} from "./RolandGR55AddressMap";
 import {
   AssignsMap,
   FieldAssignDefinition,
@@ -1227,7 +1230,11 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     new FieldAssignDefinition("MOD PAN Level", patch.ampModNs.panLevel),
 
     new FieldAssignDefinition("MOD DELAY Type", patch.ampModNs.delayType),
-    new FieldAssignDefinition("MOD DELAY Time", patch.ampModNs.delayTime),
+    new FieldAssignDefinition(
+      "MOD DELAY Time",
+      patch.ampModNs.delayTime,
+      time3413Field.forAssign
+    ),
     new FieldAssignDefinition(
       "MOD DELAY Feedback",
       patch.ampModNs.delayFeedback
@@ -1891,7 +1898,11 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       patch.sendsAndEq.delaySwitch
     ),
     new FieldAssignDefinition("DELAY Type", patch.sendsAndEq.delayType),
-    new FieldAssignDefinition("DELAY Time", patch.sendsAndEq.delayTime),
+    new FieldAssignDefinition(
+      "DELAY Time",
+      patch.sendsAndEq.delayTime,
+      time3413Field.forAssign
+    ),
     new FieldAssignDefinition("DELAY Feedback", patch.sendsAndEq.delayFeedback),
     new FieldAssignDefinition(
       "DELAY Effect Level",

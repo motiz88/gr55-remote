@@ -26,7 +26,14 @@ const toneRate150Field = new USplit8Field(0, 150);
 
 // TODO: Fully implement time field type
 // 0-3400, and then 13 tempo-relative labelled values
-const time3413Field = new USplit12Field(0, 3413);
+export const time3413Field = {
+  forPatch: new USplit12Field(0, 3413),
+  // NOTE: the assign version of this field omits the tempo-relative values
+  forAssign: new USplit12Field(5, 3400, {
+    decodedFactor: 5,
+    encodedOffset: 1024,
+  }),
+};
 
 const gain20dBField = new UByteField(-20, 20, {
   encodedOffset: 20,
@@ -3946,7 +3953,11 @@ export const PatchStruct = {
         "HICUT",
       ] as const)
     ),
-    delayTime: new FieldDefinition(pack7(0x0007), "Delay Time", time3413Field),
+    delayTime: new FieldDefinition(
+      pack7(0x0007),
+      "Delay Time",
+      time3413Field.forPatch
+    ),
     delayFeedback: new FieldDefinition(
       pack7(0x000a),
       "Delay Feedback",
@@ -4474,7 +4485,11 @@ export const PatchStruct = {
         "HICUT",
       ] as const)
     ),
-    delayTime: new FieldDefinition(pack7(0x0046), "DELAY Time", time3413Field),
+    delayTime: new FieldDefinition(
+      pack7(0x0046),
+      "DELAY Time",
+      time3413Field.forPatch
+    ),
     delayFeedback: new FieldDefinition(
       pack7(0x0049),
       "DELAY Feedback",

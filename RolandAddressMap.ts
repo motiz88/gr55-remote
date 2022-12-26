@@ -212,6 +212,10 @@ export class BooleanField implements FieldType<boolean> {
   readonly description: string = "Boolean";
   readonly invertedForDisplay: boolean;
   readonly emptyValue: boolean = false;
+
+  // TODO: Should these be inverted if invertedForDisplay is true?
+  readonly min: boolean = false;
+  readonly max: boolean = true;
 }
 
 export class ReservedField implements FieldType<undefined> {
@@ -344,7 +348,7 @@ export class C127Field extends NumericFieldBase implements NumericField {
   readonly description = "C127";
 
   constructor(
-    private rawField: FieldType<number> = new UByteField(0, 127),
+    private readonly rawField: FieldType<number> = new UByteField(0, 127),
     options?: { format?: (value: number) => string }
   ) {
     super(options);
@@ -570,12 +574,21 @@ export class EnumField<
 
   constructor(
     public readonly labels: Readonly<LabelsMap>,
-    private rawField: FieldType<number> = new UByteField(0, 127)
+    private readonly rawField: FieldType<number> = new UByteField(0, 127)
   ) {
     this.description = `enum ${this.rawField.description}`;
     this.size = this.rawField.size;
+    let minEncoded: number | void;
+    let maxEncoded: number | void;
     for (const encoded of Object.keys(labels)) {
-      const label = labels[encoded as any];
+      const encodedNumber = Number(encoded);
+      if (minEncoded == null || encodedNumber < minEncoded) {
+        minEncoded = encodedNumber;
+      }
+      if (maxEncoded == null || encodedNumber > maxEncoded) {
+        maxEncoded = encodedNumber;
+      }
+      const label = labels[encodedNumber];
       this.emptyValue ??= label;
       if (label in this.#labelsToEncoded) {
         throw new Error(
@@ -587,11 +600,15 @@ export class EnumField<
     if (Object.keys(labels).length === 0) {
       throw new Error("Cannot define enum type with zero labels");
     }
+    this.min = labels[minEncoded!];
+    this.max = labels[maxEncoded!];
   }
 
   description: string;
   readonly size: number;
   readonly emptyValue!: LabelsMap[number];
+  readonly min: LabelsMap[number];
+  readonly max: LabelsMap[number];
 }
 
 export class FieldDefinition<

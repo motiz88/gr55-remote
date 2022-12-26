@@ -9,12 +9,13 @@ import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { RefreshControl } from "./RefreshControl";
 import {
-  FieldDefinition,
   FieldReference,
+  isEnumFieldReference,
+  isNumericFieldReference,
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { AssignDefinition, FieldAssignDefinition } from "./RolandGR55Assigns";
+import { AssignDefinition } from "./RolandGR55Assigns";
 import {
   RolandGR55PatchAssignsMapBassMode,
   RolandGR55PatchAssignsMapGuitarMode,
@@ -169,23 +170,31 @@ function PatchAssignBoundField({
   assignDef: AssignDefinition;
   minOrMaxField: FieldReference<NumericField>;
 }) {
-  const modifiedFieldDef = useMemo(() => {
-    if (!(assignDef instanceof FieldAssignDefinition)) {
-      return minOrMaxField;
-    }
-    return {
-      ...minOrMaxField,
-      definition: new FieldDefinition(
-        minOrMaxField.definition.offset,
-        minOrMaxField.definition.description +
-          " (" +
-          assignDef.field.definition.description +
-          ")",
-        minOrMaxField.definition.type
-      ),
-    };
+  const reinterpretedField = useMemo(() => {
+    return assignDef.reinterpretAssignValueField(minOrMaxField);
   }, [assignDef, minOrMaxField]);
-  return <PatchFieldSlider field={modifiedFieldDef} />;
+  if (reinterpretedField) {
+    if (isNumericFieldReference(reinterpretedField)) {
+      return <PatchFieldSlider field={reinterpretedField} />;
+    } else if (isEnumFieldReference(reinterpretedField)) {
+      return <PatchFieldPicker field={reinterpretedField} />;
+    }
+    // TODO: Eventually we should not have this fallback
+    console.error(
+      "Could not render reinterpreted field",
+      reinterpretedField.definition.description,
+      "for",
+      assignDef.description
+    );
+  }
+  // TODO: Eventually we should not have this fallback
+  console.log(
+    "Falling back to default field rendering for",
+    assignDef.description,
+    "in",
+    minOrMaxField.definition.description
+  );
+  return <PatchFieldSlider field={minOrMaxField} />;
 }
 
 const styles = StyleSheet.create({
