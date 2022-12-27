@@ -243,4 +243,23 @@ export class AssignsMap {
       field.address - patch.address
     );
   }
+
+  reinterpretTargetField(
+    targetField: FieldReference<NumericField>
+  ): FieldReference<NumericField> {
+    return {
+      ...targetField,
+      definition: new FieldDefinition(
+        targetField.definition.offset,
+        targetField.definition.description,
+        targetField.definition.type.remapped({
+          format: (value) => {
+            return this.orderedAssigns[value].description;
+          },
+          // TODO: Test this in bass mode
+          max: this.orderedAssigns.length - 1,
+        })
+      ),
+    };
+  }
 }

@@ -7,11 +7,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { Button, ScrollView, View, StyleSheet, Text } from "react-native";
+import { Button, ScrollView, View, StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldStyles } from "./PatchFieldStyles";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { RefreshControl } from "./RefreshControl";
@@ -22,7 +21,7 @@ import {
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { AssignDefinition } from "./RolandGR55Assigns";
+import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import {
   RolandGR55PatchAssignsMapBassMode,
   RolandGR55PatchAssignsMapGuitarMode,
@@ -126,17 +125,10 @@ function useAssignTargetRangeField(
 }
 
 function useAssign(
+  assignsMap: AssignsMap,
   assign: typeof GR55.temporaryPatch.common.assign1,
   target: number
 ) {
-  // TODO: loading states for system and patch data (Suspense?)
-  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
-  const assignsMap = useMemo(() => {
-    if (guitarBassSelect === "GUITAR") {
-      return RolandGR55PatchAssignsMapGuitarMode;
-    }
-    return RolandGR55PatchAssignsMapBassMode;
-  }, [guitarBassSelect]);
   const assignDef = assignsMap.getByIndex(target);
   const { field: targetMinField, reset: resetMin } = useAssignTargetRangeField(
     assignDef,
@@ -155,6 +147,16 @@ function useAssign(
   return { targetMinField, targetMaxField, assignDef, resetRange };
 }
 
+function useAssignTargetField(
+  assignsMap: AssignsMap,
+  targetField: FieldReference<NumericField>
+) {
+  return useMemo(
+    () => assignsMap.reinterpretTargetField(targetField),
+    [assignsMap, targetField]
+  );
+}
+
 function AssignSection({
   assign,
 }: {
@@ -162,61 +164,51 @@ function AssignSection({
 }) {
   const [source, setSource] = usePatchField(assign.source);
   const [target, setTarget] = usePatchField(assign.target);
-  const { targetMinField, targetMaxField, assignDef, resetRange } = useAssign(
+  // TODO: loading states for system and patch data (Suspense?)
+  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
+  const assignsMap = useMemo(() => {
+    if (guitarBassSelect === "GUITAR") {
+      return RolandGR55PatchAssignsMapGuitarMode;
+    }
+    return RolandGR55PatchAssignsMapBassMode;
+  }, [guitarBassSelect]);
+  const targetField = useAssignTargetField(assignsMap, assign.target);
+  const { targetMinField, targetMaxField, resetRange } = useAssign(
+    assignsMap,
     assign,
     target
   );
 
-  const userIsChangingTarget = useRef(false);
+  const pendingRangeReset = useRef(false);
   const resetRangeRef = useRef(resetRange);
   useEffect(() => {
     resetRangeRef.current = resetRange;
   });
-  // TODO: Only reset the target range when the user has changed the
-  // target (not if e.g. we read a new target from patch data).
-  const handleTargetSlidingStart = useCallback(
-    (nextTarget: number) => {
-      userIsChangingTarget.current = true;
-      if (nextTarget !== target) {
-        resetRangeRef.current();
-      }
-    },
-    [target]
-  );
-  const handleTargetSlidingComplete = useCallback((nextTarget: number) => {
-    userIsChangingTarget.current = false;
-    resetRangeRef.current();
-  }, []);
   const handleTargetChange = useCallback(
     (nextTarget: number) => {
+      // NOTE: At least with Picker, this fires only for true user events, as expected.
+      pendingRangeReset.current = true;
       setTarget(nextTarget);
     },
     [setTarget]
   );
   const previousTarget = usePrevious(target);
   useEffect(() => {
-    if (previousTarget !== target && userIsChangingTarget.current) {
+    if (previousTarget !== target && pendingRangeReset.current) {
       resetRangeRef.current();
+      pendingRangeReset.current = false;
     }
   }, [previousTarget, target]);
+
   return (
     // NOTE: We use `key` to force re-rendering in order to avoid some
     // apparent bugs in the field controls.
     <>
       <PatchFieldSwitchedSection field={assign.switch} key={assign.address}>
-        {/* TODO: Useful target picker */}
-        <View style={{ flexDirection: "row" }}>
-          <View style={PatchFieldStyles.fieldDescription} />
-          <Text style={PatchFieldStyles.fieldControl}>
-            {assignDef.description}
-          </Text>
-        </View>
-        <PatchFieldSlider
-          field={assign.target}
+        <PatchFieldPicker
+          field={targetField}
           value={target}
           onValueChange={handleTargetChange}
-          onSlidingStart={handleTargetSlidingStart}
-          onSlidingComplete={handleTargetSlidingComplete}
         />
         <PatchDynamicField field={targetMinField} key={target + "min"} />
         <PatchDynamicField field={targetMaxField} key={target + "max"} />
