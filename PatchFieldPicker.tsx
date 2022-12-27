@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Text, View } from "react-native";
 
+import { FieldRow } from "./FieldRow";
 import { PatchFieldSegmentedPicker } from "./PatchFieldSegmentedPicker";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { Picker } from "./Picker";
@@ -74,17 +74,14 @@ export function PatchFieldPicker<T extends number | string>({
     );
   }
   return (
-    <View style={PatchFieldStyles.fieldRow}>
-      <Text style={PatchFieldStyles.fieldDescription}>
-        {field.definition.description}
-      </Text>
+    <FieldRow description={field.definition.description}>
       <Picker
         onValueChange={onValueChange}
         selectedValue={value}
-        style={PatchFieldStyles.fieldControl}
+        style={PatchFieldStyles.fieldControlInner}
       >
         {items}
       </Picker>
-    </View>
+    </FieldRow>
   );
 }

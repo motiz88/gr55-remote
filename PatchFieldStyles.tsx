@@ -17,4 +17,7 @@ export const PatchFieldStyles = StyleSheet.create({
     flex: 2,
     marginStart: 8,
   },
+  fieldControlInner: {
+    flex: 1,
+  },
 });

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Text, View } from "react-native";
 
+import { FieldRow } from "./FieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
 import { SegmentedPicker } from "./SegmentedPicker";
@@ -41,16 +41,13 @@ export function PatchFieldWaveShapePicker<T extends WaveShapeLabel>({
     [field]
   );
   return (
-    <View style={PatchFieldStyles.fieldRow}>
-      <Text style={PatchFieldStyles.fieldDescription}>
-        {field.definition.description}
-      </Text>
+    <FieldRow description={field.definition.description}>
       <SegmentedPicker
-        style={PatchFieldStyles.fieldControl}
+        style={PatchFieldStyles.fieldControlInner}
         values={values}
         value={value}
         onValueChange={onValueChange}
       />
-    </View>
+    </FieldRow>
   );
 }

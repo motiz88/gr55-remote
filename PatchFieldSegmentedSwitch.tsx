@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
-import { Text, View } from "react-native";
 
+import { FieldRow } from "./FieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { SegmentedPicker } from "./SegmentedPicker";
@@ -44,12 +44,9 @@ export function PatchFieldSegmentedSwitch({
     [field, invertedForDisplay]
   );
   return (
-    <View style={PatchFieldStyles.fieldRow}>
-      <Text style={PatchFieldStyles.fieldDescription}>
-        {field.definition.description}
-      </Text>
+    <FieldRow description={field.definition.description}>
       <SegmentedPicker
-        style={PatchFieldStyles.fieldControl}
+        style={PatchFieldStyles.fieldControlInner}
         onValueChange={handleLabelChange}
         value={
           (invertedForDisplay ? !value : value)
@@ -58,6 +55,6 @@ export function PatchFieldSegmentedSwitch({
         }
         values={labelsInOrder}
       />
-    </View>
+    </FieldRow>
   );
 }

@@ -2,7 +2,7 @@ import Slider from "@react-native-community/slider";
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldRow } from "./FieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
@@ -76,12 +76,9 @@ export function PatchFieldSlider({
     return inlineSlider;
   }
   return (
-    <View style={PatchFieldStyles.fieldRow}>
-      <Text style={PatchFieldStyles.fieldDescription}>
-        {field.definition.description}
-      </Text>
-      <View style={PatchFieldStyles.fieldControl}>{inlineSlider}</View>
-    </View>
+    <FieldRow description={field.definition.description}>
+      {inlineSlider}
+    </FieldRow>
   );
 }
 
