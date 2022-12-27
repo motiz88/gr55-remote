@@ -1,7 +1,9 @@
+import { enumField, USplit12Field } from "./RolandAddressMap";
 import {
   feedback98Field,
   mfx1300msecField,
   mfx2600msecField,
+  rate113Field,
   RolandGR55AddressMapAbsolute as GR55,
   time3413Field,
 } from "./RolandGR55AddressMap";
@@ -13,8 +15,9 @@ import {
 } from "./RolandGR55Assigns";
 const patch = GR55.temporaryPatch;
 
-export const RolandGR55PatchAssignsMapGuitarMode = buildAssignsMap("GUITAR");
-export const RolandGR55PatchAssignsMapBassMode = buildAssignsMap("BASS");
+const bendRangeField = new USplit12Field(-12, 12, {
+  encodedOffset: 1024,
+});
 
 function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
   return new AssignsMap([
@@ -245,9 +248,7 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "PCM1 Line Select",
       patch.patchPCMTone1.partOutputMFXSelect
     ),
-    // TODO: How to handle assign targets that aren't patch fields?
-    // (Assuming that's what this is. Ask gumtown)
-    new VirtualFieldAssignDefinition("PCM1 Tone1 Bend"),
+    new VirtualFieldAssignDefinition("PCM1 Tone1 Bend", bendRangeField),
 
     new FieldAssignDefinition(
       "PCM2 Tone Switch",
@@ -475,29 +476,13 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "PCM2 Line Select",
       patch.patchPCMTone2.partOutputMFXSelect
     ),
-    // TODO: How to handle assign targets that aren't patch fields?
-    // (Assuming that's what this is. Ask gumtown)
-    new VirtualFieldAssignDefinition("PCM2 Tone1 Bend"),
+    new VirtualFieldAssignDefinition("PCM2 Tone1 Bend", bendRangeField),
 
     new FieldAssignDefinition(
       "Modeling Tone Switch",
       patch.modelingTone.muteSwitch
     ),
-    // TODO: Combine these into one parameter
-    guitarBassSelect === "GUITAR"
-      ? new MultiFieldAssignDefinition("Modeling Tone Number", [
-          patch.modelingTone.toneCategory_guitar,
-          patch.modelingTone.toneNumberEGtr_guitar,
-          patch.modelingTone.toneNumberAc_guitar,
-          patch.modelingTone.toneNumberEBass_guitar,
-          patch.modelingTone.toneNumberSynth_guitar,
-        ])
-      : new MultiFieldAssignDefinition("Modeling Tone Number", [
-          patch.modelingTone.toneCategory_bass,
-          patch.modelingTone.toneNumberEGtr_bass,
-          patch.modelingTone.toneNumberEBass_bass,
-          patch.modelingTone.toneNumberSynth_bass,
-        ]),
+    getModelingToneAssignDefinition(guitarBassSelect),
     new FieldAssignDefinition("Modeling Tone Level", patch.modelingTone.level),
     new FieldAssignDefinition(
       "Modeling Tone String 1 Level",
@@ -1108,9 +1093,7 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       patch.common.lineSelectModel
     ),
 
-    // TODO: How to handle assign targets that aren't patch fields?
-    // (Assuming that's what this is. Ask gumtown)
-    new VirtualFieldAssignDefinition("Modeling Tone Bend"),
+    new VirtualFieldAssignDefinition("Modeling Tone Bend", bendRangeField),
 
     new FieldAssignDefinition("AMP Switch", patch.ampModNs.ampSwitch),
     new FieldAssignDefinition("AMP Gain", patch.ampModNs.ampGain),
@@ -1330,14 +1313,30 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX FILTER Modulation Wave",
       patch.mfx.superFilterModulationWave
     ),
-    new FieldAssignDefinition("MFX FILTER Rate", patch.mfx.superFilterRate),
+    new MultiFieldAssignDefinition(
+      "MFX FILTER Rate",
+      [
+        patch.mfx.superFilterRate,
+        patch.mfx.superFilterRateSyncSw,
+        patch.mfx.superFilterRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX FILTER Depth", patch.mfx.superFilterDepth),
     new FieldAssignDefinition("MFX FILTER Attack", patch.mfx.superFilterAttack),
     new FieldAssignDefinition("MFX FILTER Level", patch.mfx.superFilterLevel),
 
     new FieldAssignDefinition("MFX PHASER Mode", patch.mfx.phaserMode),
     new FieldAssignDefinition("MFX PHASER Manual", patch.mfx.phaserManual),
-    new FieldAssignDefinition("MFX PHASER Rate", patch.mfx.phaserRate),
+    new MultiFieldAssignDefinition(
+      "MFX PHASER Rate",
+      [
+        patch.mfx.phaserRate,
+        patch.mfx.phaserRateSyncSw,
+        patch.mfx.phaserRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX PHASER Depth", patch.mfx.phaserDepth),
     new FieldAssignDefinition("MFX PHASER Polarity", patch.mfx.phaserPolarity),
     new FieldAssignDefinition(
@@ -1359,7 +1358,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX STEP PHASER Manual",
       patch.mfx.stepPhaserManual
     ),
-    new FieldAssignDefinition("MFX STEP PHASER Rate", patch.mfx.stepPhaserRate),
+    new MultiFieldAssignDefinition(
+      "MFX STEP PHASER Rate",
+      [
+        patch.mfx.stepPhaserRate,
+        patch.mfx.stepPhaserRateSyncSw,
+        patch.mfx.stepPhaserRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition(
       "MFX STEP PHASER Depth",
       patch.mfx.stepPhaserDepth
@@ -1377,9 +1384,14 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       patch.mfx.stepPhaserCrossFeedback,
       feedback98Field.forAssign
     ),
-    new FieldAssignDefinition(
+    new MultiFieldAssignDefinition(
       "MFX STEP PHASER Step rate",
-      patch.mfx.stepPhaserStepRate
+      [
+        patch.mfx.stepPhaserStepRate,
+        patch.mfx.stepPhaserStepRateSyncSw,
+        patch.mfx.stepPhaserStepRateNote,
+      ],
+      rate113Field.forAssign
     ),
     new FieldAssignDefinition("MFX STEP PHASER Mix", patch.mfx.stepPhaserMix),
     new FieldAssignDefinition(
@@ -1425,7 +1437,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
 
     new FieldAssignDefinition("MFX TREMOLO Mod Wave", patch.mfx.tremoloModWave),
-    new FieldAssignDefinition("MFX TREMOLO Rate", patch.mfx.tremoloRate),
+    new MultiFieldAssignDefinition(
+      "MFX TREMOLO Rate",
+      [
+        patch.mfx.tremoloRate,
+        patch.mfx.tremoloRateSyncSw,
+        patch.mfx.tremoloRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX TREMOLO Depth", patch.mfx.tremoloDepth),
     new FieldAssignDefinition("MFX TREMOLO Low Gain", patch.mfx.tremoloLowGain),
     new FieldAssignDefinition(
@@ -1438,7 +1458,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX AUTO PAN Mod Wave",
       patch.mfx.autoPanModWave
     ),
-    new FieldAssignDefinition("MFX AUTO PAN Rate", patch.mfx.autoPanRate),
+    new MultiFieldAssignDefinition(
+      "MFX AUTO PAN Rate",
+      [
+        patch.mfx.autoPanRate,
+        patch.mfx.autoPanRateSyncSw,
+        patch.mfx.autoPanRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX AUTO PAN Depth", patch.mfx.autoPanDepth),
     new FieldAssignDefinition(
       "MFX AUTO PAN Low Gain",
@@ -1451,7 +1479,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     new FieldAssignDefinition("MFX AUTO PAN Level", patch.mfx.autoPanLevel),
 
     new FieldAssignDefinition("MFX SLICER Pattern", patch.mfx.slicerPattern),
-    new FieldAssignDefinition("MFX SLICER SLICER Rate", patch.mfx.slicerRate),
+    new MultiFieldAssignDefinition(
+      "MFX SLICER Rate",
+      [
+        patch.mfx.slicerRate,
+        patch.mfx.slicerRateSyncSw,
+        patch.mfx.slicerRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX SLICER Attack", patch.mfx.slicerAttack),
     new FieldAssignDefinition(
       "MFX SLICER Input Sync Sw",
@@ -1520,7 +1556,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX HEXA-CHORUS Pre Delay",
       patch.mfx.hexaChorusPreDelay
     ),
-    new FieldAssignDefinition("MFX HEXA-CHORUS Rate", patch.mfx.hexaChorusRate),
+    new MultiFieldAssignDefinition(
+      "MFX HEXA-CHORUS Rate",
+      [
+        patch.mfx.hexaChorusRate,
+        patch.mfx.hexaChorusRateSyncSw,
+        patch.mfx.hexaChorusRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition(
       "MFX HEXA-CHORUS Depth",
       patch.mfx.hexaChorusDepth
@@ -1550,7 +1594,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX SPACE-D Pre Delay",
       patch.mfx.spaceDPreDelay
     ),
-    new FieldAssignDefinition("MFX SPACE-D Rate", patch.mfx.spaceDRate),
+    new MultiFieldAssignDefinition(
+      "MFX SPACE-D Rate",
+      [
+        patch.mfx.spaceDRate,
+        patch.mfx.spaceDRateSyncSw,
+        patch.mfx.spaceDRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX SPACE-D Depth", patch.mfx.spaceDDepth),
     new FieldAssignDefinition("MFX SPACE-D Phase", patch.mfx.spaceDPhase),
     new FieldAssignDefinition("MFX SPACE-D Low Gain", patch.mfx.spaceDLowGain),
@@ -1573,7 +1625,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX FLANGER Pre Delay",
       patch.mfx.flangerPreDelay
     ),
-    new FieldAssignDefinition("MFX FLANGER Rate", patch.mfx.flangerRate),
+    new MultiFieldAssignDefinition(
+      "MFX FLANGER Rate",
+      [
+        patch.mfx.flangerRate,
+        patch.mfx.flangerRateSyncSw,
+        patch.mfx.flangerRateNote,
+      ],
+      rate113Field.forAssign
+    ),
     new FieldAssignDefinition("MFX FLANGER Depth", patch.mfx.flangerDepth),
     new FieldAssignDefinition("MFX FLANGER Phase", patch.mfx.flangerPhase),
     new FieldAssignDefinition(
@@ -1601,9 +1661,14 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "MFX STEP-FLANGER Pre Delay",
       patch.mfx.stepFlangerPreDelay
     ),
-    new FieldAssignDefinition(
+    new MultiFieldAssignDefinition(
       "MFX STEP-FLANGER Rate",
-      patch.mfx.stepFlangerRate
+      [
+        patch.mfx.stepFlangerRate,
+        patch.mfx.stepFlangerRateSyncSw,
+        patch.mfx.stepFlangerRateNote,
+      ],
+      rate113Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX STEP-FLANGER Depth",
@@ -1618,9 +1683,14 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       patch.mfx.stepFlangerFeedback,
       feedback98Field.forAssign
     ),
-    new FieldAssignDefinition(
+    new MultiFieldAssignDefinition(
       "MFX STEP-FLANGER Step Rate",
-      patch.mfx.stepFlangerStepRate
+      [
+        patch.mfx.stepFlangerStepRate,
+        patch.mfx.stepFlangerStepRateSyncSw,
+        patch.mfx.stepFlangerStepRateNote,
+      ],
+      rate113Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX STEP-FLANGER Low Gain",
@@ -2019,5 +2089,40 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     new FieldAssignDefinition("PATCH LEVEL", patch.common.patchLevel),
   ]);
 }
+
+function getModelingToneAssignDefinition(guitarBassSelect: "GUITAR" | "BASS") {
+  const toneNumberFields =
+    guitarBassSelect === "GUITAR"
+      ? [
+          patch.modelingTone.toneNumberEGtr_guitar,
+          patch.modelingTone.toneNumberAc_guitar,
+          patch.modelingTone.toneNumberEBass_guitar,
+          patch.modelingTone.toneNumberSynth_guitar,
+        ]
+      : [
+          patch.modelingTone.toneNumberEGtr_bass,
+          patch.modelingTone.toneNumberEBass_bass,
+          patch.modelingTone.toneNumberSynth_bass,
+        ];
+  const toneLabels = toneNumberFields.flatMap((categoryTones) =>
+    Object.values(categoryTones.definition.type.labels)
+  );
+  return new MultiFieldAssignDefinition(
+    "Modeling Tone Number",
+    [
+      guitarBassSelect === "GUITAR"
+        ? patch.modelingTone.toneCategory_guitar
+        : patch.modelingTone.toneCategory_bass,
+      ...toneNumberFields,
+    ],
+    enumField(
+      toneLabels,
+      new USplit12Field(0, toneLabels.length - 1, { encodedOffset: 1024 })
+    )
+  );
+}
+
+export const RolandGR55PatchAssignsMapGuitarMode = buildAssignsMap("GUITAR");
+export const RolandGR55PatchAssignsMapBassMode = buildAssignsMap("BASS");
 
 // TODO: Build reverse index from the above, and use it for quick navigation, showing which fields are assigned, etc.

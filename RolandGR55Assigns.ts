@@ -90,20 +90,17 @@ export class FieldAssignDefinition implements AssignDefinition {
         ),
       };
     }
-    // TODO: Eventually, we should be able to handle all cases here.
-    console.warn(
-      "Falling back to default field rendering for",
-      this.description,
-      "in",
-      minOrMaxField.definition.description
+    throw new Error(
+      `Failed to remap field rendering for ${this.description} in ${minOrMaxField.definition.description}`
     );
-    return minOrMaxField;
   }
 }
 
-// TODO: Model virtual fields (fields with no address in patch memory).
 export class VirtualFieldAssignDefinition implements AssignDefinition {
-  constructor(public readonly description: string) {}
+  constructor(
+    public readonly description: string,
+    public readonly customAssignType: AssignableFieldType<any>
+  ) {}
   withAddressOffset(offset: number): VirtualFieldAssignDefinition {
     return this;
   }
@@ -111,23 +108,23 @@ export class VirtualFieldAssignDefinition implements AssignDefinition {
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
   ): FieldReference<AssignableFieldType<any>> {
-    console.warn(
-      "Falling back to default field rendering for",
-      this.description,
-      "in",
-      minOrMaxField.definition.description
-    );
-    return minOrMaxField;
+    return {
+      ...minOrMaxField,
+
+      definition: new FieldDefinition(
+        minOrMaxField.definition.offset,
+        minOrMaxField.definition.description + " (" + this.description + ")",
+        this.customAssignType
+      ),
+    };
   }
 }
 
-// TODO: Model multi-field assigns (assigns that logically affect multiple fields).
-// This may be solved by modeling the respective patch fields as single fields to begin with,
-// and deleting this class.
 export class MultiFieldAssignDefinition implements AssignDefinition {
   constructor(
     public readonly description: string,
-    public readonly fields: readonly FieldReference[]
+    public readonly fields: readonly FieldReference[],
+    public readonly customAssignType: AssignableFieldType<any>
   ) {}
 
   withAddressOffset(offset: number): AssignDefinition {
@@ -136,21 +133,27 @@ export class MultiFieldAssignDefinition implements AssignDefinition {
       this.fields.map((field) => ({
         ...field,
         address: field.address + offset,
-      }))
+      })),
+      this.customAssignType
     );
   }
 
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
   ): FieldReference<AssignableFieldType<any>> {
-    // TODO: Do something useful here
-    console.warn(
-      "Falling back to default field rendering for",
-      this.description,
-      "in",
-      minOrMaxField.definition.description
-    );
-    return minOrMaxField;
+    if (minOrMaxField.definition.type.size !== this.customAssignType.size) {
+      throw new Error(
+        "Custom assign type must have same size as min or max field"
+      );
+    }
+    return {
+      ...minOrMaxField,
+      definition: new FieldDefinition(
+        minOrMaxField.definition.offset,
+        minOrMaxField.definition.description + " (" + this.description + ")",
+        this.customAssignType
+      ),
+    };
   }
 }
 

@@ -20,7 +20,13 @@ import { pack7 } from "./RolandSysExProtocol";
 
 // TODO: Fully implement rate field types
 // 0-100, and then 13 tempo-relative labelled values
-const rate113Field = new UByteField(0, 113);
+export const rate113Field = {
+  forPatch: new UByteField(0, 113),
+  forAssign: new USplit12Field(0, 113, {
+    encodedOffset: 1024,
+  }),
+};
+
 // 0-127, then 22 tempo-relative labelled values, then TONE
 const toneRate150Field = new USplit8Field(0, 150);
 
@@ -2581,7 +2587,7 @@ const PatchAssignStruct = {
   wavePedalRate: new FieldDefinition(
     pack7(0x011d - 0x010c),
     "ASSIGN Wave Pedal Rate",
-    rate113Field
+    rate113Field.forPatch
   ),
   wavePedalForm: new FieldDefinition(
     pack7(0x011e - 0x010c),
@@ -3955,7 +3961,11 @@ export const PatchStruct = {
       "Chorus Type",
       enumField(["MONO", "STEREO", "MONO MILD", "STEREO MILD"] as const)
     ),
-    chorusRate: new FieldDefinition(pack7(0x0002), "Chorus Rate", rate113Field),
+    chorusRate: new FieldDefinition(
+      pack7(0x0002),
+      "Chorus Rate",
+      rate113Field.forPatch
+    ),
     chorusDepth: new FieldDefinition(
       pack7(0x0003),
       "Chorus Depth",
@@ -4389,7 +4399,11 @@ export const PatchStruct = {
       "PHASER Type",
       enumField(["4STAGE", "8STAGE", "12STAGE", "BI-PHASE"] as const)
     ),
-    phaserRate: new FieldDefinition(pack7(0x002c), "PHASER Rate", rate113Field),
+    phaserRate: new FieldDefinition(
+      pack7(0x002c),
+      "PHASER Rate",
+      rate113Field.forPatch
+    ),
     phaserDepth: new FieldDefinition(
       pack7(0x002d),
       "PHASER Depth",
@@ -4408,7 +4422,7 @@ export const PatchStruct = {
     flangerRate: new FieldDefinition(
       pack7(0x0030),
       "FLANGER Rate",
-      rate113Field
+      rate113Field.forPatch
     ),
     flangerDepth: new FieldDefinition(
       pack7(0x0031),
@@ -4433,7 +4447,7 @@ export const PatchStruct = {
     tremoloRate: new FieldDefinition(
       pack7(0x0035),
       "TREMOLO Rate",
-      rate113Field
+      rate113Field.forPatch
     ),
     tremoloDepth: new FieldDefinition(
       pack7(0x0036),
@@ -4453,12 +4467,12 @@ export const PatchStruct = {
     rotaryRateSlow: new FieldDefinition(
       pack7(0x0039),
       "ROTARY Rate Slow",
-      rate113Field
+      rate113Field.forPatch
     ),
     rotaryRateFast: new FieldDefinition(
       pack7(0x003a),
       "ROTARY Rate Fast",
-      rate113Field
+      rate113Field.forPatch
     ),
     rotaryDepth: new FieldDefinition(
       pack7(0x003b),
@@ -4475,7 +4489,11 @@ export const PatchStruct = {
       "ROTARY Level",
       new UByteField(0, 100)
     ),
-    uniVRate: new FieldDefinition(pack7(0x003e), "UNI-V Rate", rate113Field),
+    uniVRate: new FieldDefinition(
+      pack7(0x003e),
+      "UNI-V Rate",
+      rate113Field.forPatch
+    ),
     uniVDepth: new FieldDefinition(
       pack7(0x003f),
       "UNI-V Depth",
@@ -4486,7 +4504,11 @@ export const PatchStruct = {
       "UNI-V Level",
       new UByteField(0, 100)
     ),
-    panRate: new FieldDefinition(pack7(0x0041), "PAN Rate", rate113Field),
+    panRate: new FieldDefinition(
+      pack7(0x0041),
+      "PAN Rate",
+      rate113Field.forPatch
+    ),
     panDepth: new FieldDefinition(
       pack7(0x0042),
       "PAN Depth",
@@ -4543,7 +4565,11 @@ export const PatchStruct = {
         "STEREO2 MILD",
       ] as const)
     ),
-    chorusRate: new FieldDefinition(pack7(0x004c), "CHORUS Rate", rate113Field),
+    chorusRate: new FieldDefinition(
+      pack7(0x004c),
+      "CHORUS Rate",
+      rate113Field.forPatch
+    ),
     chorusDepth: new FieldDefinition(
       pack7(0x004d),
       "CHORUS Depth",
