@@ -11,13 +11,18 @@ export function PatchFieldSlider({
   value: valueProp,
   onValueChange: onValueChangeProp,
   inline,
+  onSlidingStart,
+  onSlidingComplete,
 }: {
   field: FieldReference<NumericField>;
   value?: number;
-  onValueChange?: (value: number) => void;
   inline?: boolean;
+  // TODO: fix type of value param, which can be number[]
+  onValueChange?: (value: number) => void;
+  onSlidingStart?: (value: number) => void;
+  onSlidingComplete?: (value: number) => void;
 }) {
-  const [value, onValueChange] = useMaybeControlledPatchField(
+  const [value, setValue] = useMaybeControlledPatchField(
     field,
     valueProp,
     onValueChangeProp
@@ -25,12 +30,32 @@ export function PatchFieldSlider({
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
       if (typeof valueOrValues === "number") {
-        onValueChange(valueOrValues);
+        setValue(valueOrValues);
       } else {
-        onValueChange(valueOrValues[0]);
+        setValue(valueOrValues[0]);
       }
     },
-    [onValueChange]
+    [setValue]
+  );
+  const handleSlidingStart = useCallback(
+    (valueOrValues: number | number[]) => {
+      if (typeof valueOrValues === "number") {
+        onSlidingStart?.(valueOrValues);
+      } else {
+        onSlidingStart?.(valueOrValues[0]);
+      }
+    },
+    [onSlidingStart]
+  );
+  const handleSlidingComplete = useCallback(
+    (valueOrValues: number | number[]) => {
+      if (typeof valueOrValues === "number") {
+        onSlidingComplete?.(valueOrValues);
+      } else {
+        onSlidingComplete?.(valueOrValues[0]);
+      }
+    },
+    [onSlidingComplete]
   );
   const prettyValue = field.definition.type.format(value);
   const inlineSlider = (
@@ -41,6 +66,8 @@ export function PatchFieldSlider({
         maximumValue={field.definition.type.max}
         step={field.definition.type.step}
         onValueChange={handleValueChange}
+        onSlidingStart={handleSlidingStart}
+        onSlidingComplete={handleSlidingComplete}
         value={value}
       />
     </View>
