@@ -51,6 +51,7 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
       "PCM1 Tone Nuance Sw",
       patch.patchPCMTone1.nuanceSwitch
     ),
+    // TODO: Need a C64Field variant for assigns because the inferred one is wrong.
     new FieldAssignDefinition("PCM1 Tone Pan", patch.patchPCMTone1.partPan),
     new FieldAssignDefinition(
       "PCM1 Tone String Lev 1",
