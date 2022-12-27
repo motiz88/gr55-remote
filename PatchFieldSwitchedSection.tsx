@@ -12,7 +12,7 @@ export function PatchFieldSwitchedSection({
   field: FieldReference<BooleanField>;
   children?: React.ReactNode;
 }) {
-  const [value, setValue] = usePatchField(field, false);
+  const [value, setValue] = usePatchField(field);
   const isDisabled = field.definition.type.invertedForDisplay ? value : !value;
 
   const overlayOpacity = useAnimation({

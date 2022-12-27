@@ -37,18 +37,15 @@ export function PatchToneModelingScreen({
   );
 
   const [pitchShiftString1, setPitchShiftString1] = usePatchField(
-    modelingTone.pitchShiftString1,
-    0
+    modelingTone.pitchShiftString1
   );
 
   const [pitchShiftFineString1, setPitchShiftFineString1] = usePatchField(
-    modelingTone.pitchShiftFineString1,
-    0
+    modelingTone.pitchShiftFineString1
   );
 
   const [altTuneSwitch] = usePatchField(
-    GR55.temporaryPatch.common.altTuneSwitch,
-    false
+    GR55.temporaryPatch.common.altTuneSwitch
   );
 
   const hide12StringControls =

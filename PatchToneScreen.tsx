@@ -15,7 +15,7 @@ const Tab = createMaterialTopTabNavigator<PatchToneTabParamList>();
 export function PatchToneScreen({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "PatchTone">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
+  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Tone",

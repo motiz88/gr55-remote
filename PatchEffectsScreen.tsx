@@ -20,7 +20,7 @@ const Tab = createMaterialTopTabNavigator<PatchEffectsTabParamList>();
 export function PatchEffectsScreen({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "PatchEffects">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
+  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Effects",

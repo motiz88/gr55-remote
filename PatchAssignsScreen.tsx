@@ -30,7 +30,7 @@ import { usePatchField } from "./usePatchField";
 export function PatchAssignsScreen({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "PatchAssigns">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
+  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Assigns",

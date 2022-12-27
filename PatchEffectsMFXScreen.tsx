@@ -383,7 +383,7 @@ function TimeOrNoteField({
   noteField: FieldReference<EnumField<any>>;
   timeField: FieldReference<NumericField>;
 }) {
-  const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField, false);
+  const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField);
   return (
     <>
       <PatchFieldSwitch

@@ -33,7 +33,7 @@ export function PatchMainScreen({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, "PatchMain", "Root">) {
   const { selectedDevice } = useContext(RolandIoSetupContext);
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName, "");
+  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: selectedDevice && patchName ? patchName : "GR-55 Editor",
@@ -204,7 +204,7 @@ export function PatchMainScreen({
 }
 
 function FieldLabel({ field }: { field: FieldReference<FieldType<string>> }) {
-  const [value] = usePatchField(field, "");
+  const [value] = usePatchField(field);
   return <Text>{value}</Text>;
 }
 
@@ -224,8 +224,7 @@ function ModelToneLabel() {
   const [toneCategory] = usePatchField(
     guitarBassSelect === "GUITAR"
       ? modelingTone.toneCategory_guitar
-      : modelingTone.toneCategory_bass,
-    "E.GTR"
+      : modelingTone.toneCategory_bass
   );
   const [toneNumberEGtr_guitar] = usePatchField(
     modelingTone.toneNumberEGtr_guitar
@@ -275,7 +274,7 @@ function ModelToneLabel() {
 }
 
 function FieldLevelLabel({ field }: { field: FieldReference<NumericField> }) {
-  const [level] = usePatchField(field, 0);
+  const [level] = usePatchField(field);
   return <>{field.definition.type.format(level)}</>;
 }
 
