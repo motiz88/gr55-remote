@@ -1,6 +1,8 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { Switch, Text, View, Pressable, StyleSheet } from "react-native";
 
+import { FieldRowContext } from "./FieldRow";
+import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { useMaybeControlledPatchField } from "./usePatchField";
@@ -47,6 +49,34 @@ export function PatchFieldSwitch({
     [field, invertedForDisplay]
   );
 
+  return (
+    <PatchFieldRow field={field} inline={inline}>
+      <SwitchControl
+        inline={inline ?? false}
+        invertedForDisplay={invertedForDisplay}
+        value={value}
+        handleValueChange={handleValueChange}
+        labelsInOrder={labelsInOrder}
+      />
+    </PatchFieldRow>
+  );
+}
+
+function SwitchControl({
+  inline,
+  invertedForDisplay,
+  value,
+  handleValueChange,
+  labelsInOrder,
+}: {
+  inline: boolean;
+  invertedForDisplay: boolean;
+  value: boolean;
+  handleValueChange: (value: boolean) => void;
+  labelsInOrder: readonly [string, string];
+}) {
+  const { isAssigned } = useContext(FieldRowContext);
+
   const inlineSwitch = (
     // Prevent the switch from triggering any parent Pressables
     <Pressable android_disableSound>
@@ -54,24 +84,22 @@ export function PatchFieldSwitch({
         style={inline ? null : styles.switchBetweenLabels}
         onValueChange={handleValueChange}
         value={invertedForDisplay ? !value : value}
+        trackColor={
+          isAssigned ? { false: "#bccee9", true: "cornflowerblue" } : undefined
+        }
+        ios_backgroundColor={isAssigned ? "#bccee9" : undefined}
       />
     </Pressable>
   );
-  if (inline) {
-    return inlineSwitch;
-  }
-  return (
-    <View style={PatchFieldStyles.fieldRow}>
-      <Text style={PatchFieldStyles.fieldDescription}>
-        {field.definition.description}
-      </Text>
-      <View
-        style={[PatchFieldStyles.horizontal, PatchFieldStyles.fieldControl]}
-      >
-        <Text style={styles.switchLabel}>{labelsInOrder[0]}</Text>
-        {inlineSwitch}
-        <Text style={styles.switchLabel}>{labelsInOrder[1]}</Text>
-      </View>
+  return inline ? (
+    inlineSwitch
+  ) : (
+    <View
+      style={[PatchFieldStyles.horizontal, PatchFieldStyles.fieldControlInner]}
+    >
+      <Text style={styles.switchLabel}>{labelsInOrder[0]}</Text>
+      {inlineSwitch}
+      <Text style={styles.switchLabel}>{labelsInOrder[1]}</Text>
     </View>
   );
 }

@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
     bottom: 0,
-    // TODO: Vary based on theme (dark/light mode)
+    // TODO: Vary based on theme (dark/light mode) and current screen background
     backgroundColor: "#f2f2f2",
     opacity: 0.5,
   },

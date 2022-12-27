@@ -1,4 +1,5 @@
 import type { RolandAddressMap } from "./RolandAddressMap";
+import { AssignsMap } from "./RolandGR55Assigns";
 
 export interface RolandSysExConfig {
   readonly description: string;
@@ -8,6 +9,12 @@ export interface RolandSysExConfig {
   readonly familyCode: number;
   readonly modelNumber: number;
   readonly addressMap?: RolandAddressMap;
+
+  // Configuration specific to the GR-55
+  readonly gr55?: {
+    readonly assignsMapBassMode: AssignsMap;
+    readonly assignsMapGuitarMode: AssignsMap;
+  };
 }
 
 export const GAP_BETWEEN_MESSAGES_MS = 20;

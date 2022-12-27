@@ -1,8 +1,9 @@
 import Slider from "@react-native-community/slider";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { FieldRow } from "./FieldRow";
+import { FieldRowContext } from "./FieldRow";
+import { PatchFieldRow } from "./PatchFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { useMaybeControlledPatchField } from "./usePatchField";
 
@@ -58,7 +59,38 @@ export function PatchFieldSlider({
     [onSlidingComplete]
   );
   const prettyValue = field.definition.type.format(value);
-  const inlineSlider = (
+  return (
+    <PatchFieldRow field={field} inline={inline}>
+      <SliderControl
+        prettyValue={prettyValue}
+        field={field}
+        handleValueChange={handleValueChange}
+        handleSlidingStart={handleSlidingStart}
+        handleSlidingComplete={handleSlidingComplete}
+        value={value}
+      />
+    </PatchFieldRow>
+  );
+}
+
+function SliderControl({
+  prettyValue,
+  field,
+  handleValueChange,
+  handleSlidingStart,
+  handleSlidingComplete,
+  value,
+}: {
+  prettyValue: string;
+  field: FieldReference<NumericField>;
+  handleValueChange: (valueOrValues: number | number[]) => void;
+  handleSlidingStart: (valueOrValues: number | number[]) => void;
+  handleSlidingComplete: (valueOrValues: number | number[]) => void;
+  value: number;
+}) {
+  const { isAssigned } = useContext(FieldRowContext);
+
+  return (
     <View style={styles.sliderContainer}>
       <Text style={styles.sliderValueLabel}>{prettyValue}</Text>
       <Slider
@@ -69,16 +101,9 @@ export function PatchFieldSlider({
         onSlidingStart={handleSlidingStart}
         onSlidingComplete={handleSlidingComplete}
         value={value}
+        thumbTintColor={isAssigned ? "cornflowerblue" : "white"}
       />
     </View>
-  );
-  if (inline) {
-    return inlineSlider;
-  }
-  return (
-    <FieldRow description={field.definition.description}>
-      {inlineSlider}
-    </FieldRow>
   );
 }
 

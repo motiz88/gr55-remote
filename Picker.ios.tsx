@@ -3,10 +3,10 @@ import { StyleSheet, View } from "react-native";
 
 export function Picker<T>({ style, itemStyle, ...props }: PickerProps<T>) {
   return (
-    <View style={[style, styles.container]}>
+    <View style={[styles.container, style]}>
       <PickerImpl
         style={styles.picker}
-        itemStyle={[style, styles.item]}
+        itemStyle={[itemStyle, styles.item]}
         {...props}
       />
     </View>

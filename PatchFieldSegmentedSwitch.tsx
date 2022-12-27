@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { FieldRow } from "./FieldRow";
+import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { SegmentedPicker } from "./SegmentedPicker";
@@ -44,7 +44,7 @@ export function PatchFieldSegmentedSwitch({
     [field, invertedForDisplay]
   );
   return (
-    <FieldRow description={field.definition.description}>
+    <PatchFieldRow field={field}>
       <SegmentedPicker
         style={PatchFieldStyles.fieldControlInner}
         onValueChange={handleLabelChange}
@@ -55,6 +55,6 @@ export function PatchFieldSegmentedSwitch({
         }
         values={labelsInOrder}
       />
-    </FieldRow>
+    </PatchFieldRow>
   );
 }

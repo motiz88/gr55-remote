@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 
-import { FieldRow } from "./FieldRow";
+import { FieldRowContext } from "./FieldRow";
+import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
 import { SegmentedPicker } from "./SegmentedPicker";
@@ -25,13 +26,34 @@ export function PatchFieldSegmentedPicker<T extends string>({
     [field]
   );
   return (
-    <FieldRow description={field.definition.description}>
-      <SegmentedPicker
-        style={PatchFieldStyles.fieldControlInner}
-        values={values}
+    <PatchFieldRow field={field}>
+      <SegmentedPickerControl
         value={value}
         onValueChange={onValueChange}
+        values={values}
       />
-    </FieldRow>
+    </PatchFieldRow>
+  );
+}
+
+function SegmentedPickerControl<T extends string>({
+  value,
+  onValueChange,
+  values,
+}: {
+  value: T;
+  onValueChange: (value: T) => void;
+  values: readonly T[];
+}) {
+  const { isAssigned } = useContext(FieldRowContext);
+
+  return (
+    <SegmentedPicker
+      style={PatchFieldStyles.fieldControlInner}
+      onValueChange={onValueChange}
+      value={value}
+      values={values}
+      tintColor={isAssigned ? "cornflowerblue" : undefined}
+    />
   );
 }

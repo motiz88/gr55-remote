@@ -1,4 +1,8 @@
 import { RolandGR55AddressMapAbsolute } from "./RolandGR55AddressMap";
+import {
+  RolandGR55PatchAssignsMapBassMode,
+  RolandGR55PatchAssignsMapGuitarMode,
+} from "./RolandGR55AssignsMap";
 import { RolandSysExConfig } from "./RolandSysExProtocol";
 
 export const RolandGR55SysExConfig: RolandSysExConfig = {
@@ -10,6 +14,10 @@ export const RolandGR55SysExConfig: RolandSysExConfig = {
   modelNumber: 0x0000,
   addressMap: {
     temporaryPatch: RolandGR55AddressMapAbsolute.temporaryPatch,
+  },
+  gr55: {
+    assignsMapGuitarMode: RolandGR55PatchAssignsMapGuitarMode,
+    assignsMapBassMode: RolandGR55PatchAssignsMapBassMode,
   },
 };
 

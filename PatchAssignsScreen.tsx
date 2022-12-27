@@ -1,12 +1,9 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+  createMaterialTopTabNavigator,
+  MaterialTopTabScreenProps,
+} from "@react-navigation/material-top-tabs";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { Button, ScrollView, View, StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
@@ -22,17 +19,14 @@ import {
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
-import {
-  RolandGR55PatchAssignsMapBassMode,
-  RolandGR55PatchAssignsMapGuitarMode,
-} from "./RolandGR55AssignsMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
-import { SegmentedPicker } from "./SegmentedPicker";
-import { RootStackParamList } from "./navigation";
-import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
+import { PatchAssignsTabParamList, RootStackParamList } from "./navigation";
+import { useAssignsMap } from "./useAssignsMap";
 import { usePatchField } from "./usePatchField";
 import usePrevious from "./usePrevious";
+
+const Tab = createMaterialTopTabNavigator<PatchAssignsTabParamList>();
 
 export function PatchAssignsScreen({
   navigation,
@@ -49,16 +43,94 @@ export function PatchAssignsScreen({
           />
         </View>
       ),
+      headerTintColor: "cornflowerblue",
     });
   }, [navigation, patchName]);
 
+  return (
+    <Tab.Navigator
+      id="PatchAssigns"
+      backBehavior="history"
+      screenOptions={{ tabBarStyle: { backgroundColor: "#F1F5FD" } }}
+    >
+      <Tab.Screen
+        name="Assign1"
+        component={PatchAssignScreen}
+        options={{ title: "1" }}
+      />
+      <Tab.Screen
+        name="Assign2"
+        component={PatchAssignScreen}
+        options={{ title: "2" }}
+      />
+      <Tab.Screen
+        name="Assign3"
+        component={PatchAssignScreen}
+        options={{ title: "3" }}
+      />
+      <Tab.Screen
+        name="Assign4"
+        component={PatchAssignScreen}
+        options={{ title: "4" }}
+      />
+      <Tab.Screen
+        name="Assign5"
+        component={PatchAssignScreen}
+        options={{ title: "5" }}
+      />
+      <Tab.Screen
+        name="Assign6"
+        component={PatchAssignScreen}
+        options={{ title: "6" }}
+      />
+      <Tab.Screen
+        name="Assign7"
+        component={PatchAssignScreen}
+        options={{ title: "7" }}
+      />
+      <Tab.Screen
+        name="Assign8"
+        component={PatchAssignScreen}
+        options={{ title: "8" }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+const assignsByRouteName = {
+  Assign1: GR55.temporaryPatch.common.assign1,
+  Assign2: GR55.temporaryPatch.common.assign2,
+  Assign3: GR55.temporaryPatch.common.assign3,
+  Assign4: GR55.temporaryPatch.common.assign4,
+  Assign5: GR55.temporaryPatch.common.assign5,
+  Assign6: GR55.temporaryPatch.common.assign6,
+  Assign7: GR55.temporaryPatch.common.assign7,
+  Assign8: GR55.temporaryPatch.common.assign8,
+};
+
+function PatchAssignScreen({
+  navigation,
+  route,
+}: MaterialTopTabScreenProps<
+  PatchAssignsTabParamList,
+  | "Assign1"
+  | "Assign2"
+  | "Assign3"
+  | "Assign4"
+  | "Assign5"
+  | "Assign6"
+  | "Assign7"
+  | "Assign8"
+>) {
   const { reloadPatchData } = useContext(RolandRemotePatchContext);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
-  // TODO: Move to navigation
-  const [currentAssign, setCurrentAssign] = useState("1");
-
+  const assignsMap = useAssignsMap();
+  if (!assignsMap) {
+    // TODO: Throw an error? Show an error message?
+    return <></>;
+  }
   return (
     <ScrollView
       refreshControl={
@@ -67,36 +139,10 @@ export function PatchAssignsScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <SegmentedPicker
-        values={["1", "2", "3", "4", "5", "6", "7", "8"]}
-        value={currentAssign}
-        onValueChange={setCurrentAssign}
-        style={{ marginBottom: 8 }}
+      <AssignSection
+        assignsMap={assignsMap}
+        assign={assignsByRouteName[route.name]}
       />
-      {currentAssign === "1" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign1} />
-      )}
-      {currentAssign === "2" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign2} />
-      )}
-      {currentAssign === "3" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign3} />
-      )}
-      {currentAssign === "4" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign4} />
-      )}
-      {currentAssign === "5" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign5} />
-      )}
-      {currentAssign === "6" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign6} />
-      )}
-      {currentAssign === "7" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign7} />
-      )}
-      {currentAssign === "8" && (
-        <AssignSection assign={GR55.temporaryPatch.common.assign8} />
-      )}
     </ScrollView>
   );
 }
@@ -159,19 +205,13 @@ function useAssignTargetField(
 
 function AssignSection({
   assign,
+  assignsMap,
 }: {
   assign: typeof GR55.temporaryPatch.common.assign1;
+  assignsMap: AssignsMap;
 }) {
   const [source, setSource] = usePatchField(assign.source);
   const [target, setTarget] = usePatchField(assign.target);
-  // TODO: loading states for system and patch data (Suspense?)
-  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
-  const assignsMap = useMemo(() => {
-    if (guitarBassSelect === "GUITAR") {
-      return RolandGR55PatchAssignsMapGuitarMode;
-    }
-    return RolandGR55PatchAssignsMapBassMode;
-  }, [guitarBassSelect]);
   const targetField = useAssignTargetField(assignsMap, assign.target);
   const { targetMinField, targetMaxField, resetRange } = useAssign(
     assignsMap,
@@ -254,5 +294,9 @@ function PatchDynamicField({ field }: { field: FieldReference<any> }) {
 const styles = StyleSheet.create({
   container: {
     padding: 8,
+
+    // TODO: Propagate this via context so that switched sections can use the same color
+    // 10/11ths of the way from cornflowerblue to #f2f2f2
+    backgroundColor: "#E5EAF2",
   },
 });

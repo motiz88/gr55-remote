@@ -63,6 +63,8 @@ export function SegmentedPicker<T extends string>({
       values={labels}
       selectedIndex={selectedIndex}
       onChange={onChange}
+      // TODO: Fix tintColor reactivity upstream
+      key={props.tintColor}
       {...props}
     />
   );

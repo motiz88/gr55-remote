@@ -123,6 +123,9 @@ export function useRolandRemotePatchState() {
   const subscriptions = useRef<EventEmitter>();
   if (!subscriptions.current) {
     subscriptions.current = new EventEmitter();
+    // This is the max number of connected components that may be mounted at any given time.
+    // TODO: Seems high. Look into alternatives for broadcasting assign state changes (context?) and reduce this.
+    subscriptions.current.setMaxListeners(1000);
   }
   const subscribeToField = useCallback(
     <T extends FieldDefinition<any>>(

@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 
-import { FieldRow } from "./FieldRow";
+import { FieldRowContext } from "./FieldRow";
+import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { Picker } from "./Picker";
 import {
@@ -57,14 +58,41 @@ export function PatchFieldSystemPicker<T extends number | string>({
     return items;
   }, [field]);
   return (
-    <FieldRow description={field.definition.description}>
-      <Picker
+    <PatchFieldRow field={field}>
+      <PickerControl
+        value={value}
         onValueChange={onValueChange}
-        selectedValue={value}
-        style={PatchFieldStyles.fieldControlInner}
-      >
-        {items}
-      </Picker>
-    </FieldRow>
+        items={items}
+      />
+    </PatchFieldRow>
+  );
+}
+
+function PickerControl<T extends number | string>({
+  value,
+  onValueChange,
+  items,
+}: {
+  value: T;
+  onValueChange: (value: T) => void;
+  items: readonly JSX.Element[];
+}) {
+  const { isAssigned } = useContext(FieldRowContext);
+  return (
+    <Picker
+      onValueChange={onValueChange}
+      selectedValue={value}
+      style={[
+        PatchFieldStyles.fieldControlInner,
+        isAssigned && {
+          borderColor: "cornflowerblue",
+          borderWidth: 2,
+          margin: -2,
+          backgroundColor: "#6495ed22",
+        },
+      ]}
+    >
+      {items}
+    </Picker>
   );
 }
