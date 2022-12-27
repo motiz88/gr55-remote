@@ -193,12 +193,12 @@ export function PatchMainScreen({
         />
       </SectionWithHeading>
       {/* TODO: Move assigns to a hamburger menu */}
-      {/* <SectionWithHeading
+      <SectionWithHeading
         heading="Assigns (WIP)"
         onPress={() => {
           navigation.navigate("PatchAssigns", {});
         }}
-      /> */}
+      />
     </ScrollView>
   );
 }
