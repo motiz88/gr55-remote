@@ -154,17 +154,35 @@ const freqFlat800Field = enumField([
   "800",
 ] as const);
 
-const mfx2600msecField = new USplit12Field(1, 2600, {
-  format(value) {
-    return `${value} ms`;
-  },
-});
+export const mfx2600msecField = {
+  forPatch: new USplit12Field(1, 2600, {
+    format(value) {
+      return `${value} ms`;
+    },
+  }),
+  forAssign: new USplit12Field(5, 2600, {
+    format(value) {
+      return `${value} ms`;
+    },
+    decodedFactor: 5,
+    encodedOffset: 1024,
+  }),
+};
 
-const mfx1300msecField = new USplit12Field(1, 1300, {
-  format(value) {
-    return `${value} ms`;
-  },
-});
+export const mfx1300msecField = {
+  forPatch: new USplit12Field(1, 1300, {
+    format(value) {
+      return `${value} ms`;
+    },
+  }),
+  forAssign: new USplit12Field(5, 1300, {
+    format(value) {
+      return `${value} ms`;
+    },
+    decodedFactor: 5,
+    encodedOffset: 1024,
+  }),
+};
 
 const c64PanField = new C64Field({
   format(value) {
@@ -243,13 +261,22 @@ const c200Field = new UByteField(-200, 200, {
   decodedFactor: 10,
 });
 
-const feedback98Field = new UByteField(-98, 98, {
-  encodedOffset: 49,
-  decodedFactor: 2,
-  format(value) {
-    return `${value > 0 ? "+" : ""}${value}%`;
-  },
-});
+export const feedback98Field = {
+  forPatch: new UByteField(-98, 98, {
+    encodedOffset: 49,
+    decodedFactor: 2,
+    format(value) {
+      return `${value > 0 ? "+" : ""}${value}%`;
+    },
+  }),
+  forAssign: new USplit12Field(-98, 98, {
+    encodedOffset: 1024 + 49,
+    decodedFactor: 2,
+    format(value) {
+      return `${value > 0 ? "+" : ""}${value}%`;
+    },
+  }),
+};
 
 const dryWet100Field = new UByteField(0, 100, {
   format(value) {
@@ -283,6 +310,10 @@ const mfxPreDelayField = new UByteField(0, 125, {
 const toneLineSelectField = enumField(["BYPS", "AMP", "MFX"] as const);
 
 const waveSynthTypeField = enumField(["SAW", "SQU"] as const);
+
+const patchAssignTargetMinOrMaxField = new USplit12Field(-1024, 1023, {
+  encodedOffset: 1024,
+});
 
 export const PatchModelingToneStruct = {
   toneCategory_guitar: new FieldDefinition(
@@ -2419,12 +2450,12 @@ const PatchAssignStruct = {
   targetMin: new FieldDefinition(
     pack7(0x0110 - 0x010c),
     "ASSIGN Target Min",
-    new USplit12Field(-1024, 1023, { encodedOffset: 1024 })
+    patchAssignTargetMinOrMaxField
   ),
   targetMax: new FieldDefinition(
     pack7(0x0113 - 0x010c),
     "ASSIGN Target Max",
-    new USplit12Field(-1024, 1023, { encodedOffset: 1024 })
+    patchAssignTargetMinOrMaxField
   ),
   source: new FieldDefinition(
     pack7(0x0116 - 0x010c),
@@ -2909,7 +2940,7 @@ export const PatchStruct = {
     phaserCrossFeedback: new FieldDefinition(
       pack7(0x0027),
       "PHASER Cross Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     phaserMix: new FieldDefinition(
       pack7(0x0028),
@@ -2974,7 +3005,7 @@ export const PatchStruct = {
     stepPhaserCrossFeedback: new FieldDefinition(
       pack7(0x0034),
       "STEP PHASER Cross Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     stepPhaserStepRateSyncSw: new FieldDefinition(
       pack7(0x0035),
@@ -3394,7 +3425,7 @@ export const PatchStruct = {
     flangerFeedback: new FieldDefinition(
       pack7(0x0107),
       "FLANGER Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     flangerLowGain: new FieldDefinition(
       pack7(0x0108),
@@ -3459,7 +3490,7 @@ export const PatchStruct = {
     stepFlangerFeedback: new FieldDefinition(
       pack7(0x0114),
       "STEP FLANGER Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     stepFlangerStepRateSyncSw: new FieldDefinition(
       pack7(0x0115),
@@ -3687,7 +3718,7 @@ export const PatchStruct = {
     threeTapDelayDelayLeft: new FieldDefinition(
       pack7(0x013b),
       "3TAP DELAY Delay Left",
-      mfx2600msecField
+      mfx2600msecField.forPatch
     ),
     threeTapDelayDelayLeftNote: new FieldDefinition(
       pack7(0x013e),
@@ -3702,7 +3733,7 @@ export const PatchStruct = {
     threeTapDelayDelayRight: new FieldDefinition(
       pack7(0x0140),
       "3TAP DELAY Delay Right",
-      mfx2600msecField
+      mfx2600msecField.forPatch
     ),
     threeTapDelayDelayRightNote: new FieldDefinition(
       pack7(0x0143),
@@ -3717,7 +3748,7 @@ export const PatchStruct = {
     threeTapDelayDelayCenter: new FieldDefinition(
       pack7(0x0145),
       "3TAP DELAY Delay Center",
-      mfx2600msecField
+      mfx2600msecField.forPatch
     ),
     threeTapDelayDelayCenterNote: new FieldDefinition(
       pack7(0x0148),
@@ -3727,7 +3758,7 @@ export const PatchStruct = {
     threeTapDelayCenterFeedback: new FieldDefinition(
       pack7(0x0149),
       "3TAP DELAY Center Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     threeTapDelayHFDamp: new FieldDefinition(
       pack7(0x014a),
@@ -3777,7 +3808,7 @@ export const PatchStruct = {
     timeCtrlDelayDelayTime: new FieldDefinition(
       pack7(0x0153),
       "TIME CTRL DELAY Delay Time",
-      mfx1300msecField
+      mfx1300msecField.forPatch
     ),
     timeCtrlDelayDelayTimeNote: new FieldDefinition(
       pack7(0x0156),
@@ -3792,7 +3823,7 @@ export const PatchStruct = {
     timeCtrlDelayFeedback: new FieldDefinition(
       pack7(0x0158),
       "TIME CTRL DELAY Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     timeCtrlDelayHFDamp: new FieldDefinition(
       pack7(0x0159),
@@ -3880,7 +3911,7 @@ export const PatchStruct = {
     pitchShifterDelayTime: new FieldDefinition(
       pack7(0x0169),
       "PITCH SHIFTER Delay Time",
-      mfx1300msecField
+      mfx1300msecField.forPatch
     ),
     pitchShifterDelayTimeNote: new FieldDefinition(
       pack7(0x016c),
@@ -3890,7 +3921,7 @@ export const PatchStruct = {
     pitchShifterFeedback: new FieldDefinition(
       pack7(0x016d),
       "PITCH SHIFTER Feedback",
-      feedback98Field
+      feedback98Field.forPatch
     ),
     pitchShifterLowGain: new FieldDefinition(
       pack7(0x016e),

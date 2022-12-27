@@ -1,4 +1,7 @@
 import {
+  feedback98Field,
+  mfx1300msecField,
+  mfx2600msecField,
   RolandGR55AddressMapAbsolute as GR55,
   time3413Field,
 } from "./RolandGR55AddressMap";
@@ -1342,7 +1345,8 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
     new FieldAssignDefinition(
       "MFX PHASER Cross Feedback",
-      patch.mfx.phaserCrossFeedback
+      patch.mfx.phaserCrossFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition("MFX PHASER Mix", patch.mfx.phaserMix),
     new FieldAssignDefinition("MFX PHASER Low Gain", patch.mfx.phaserLowGain),
@@ -1369,7 +1373,8 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
     new FieldAssignDefinition(
       "MFX STEP PHASER Cross Feedback",
-      patch.mfx.stepPhaserCrossFeedback
+      patch.mfx.stepPhaserCrossFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX STEP PHASER Step rate",
@@ -1572,7 +1577,8 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     new FieldAssignDefinition("MFX FLANGER Phase", patch.mfx.flangerPhase),
     new FieldAssignDefinition(
       "MFX FLANGER Feedback",
-      patch.mfx.flangerFeedback
+      patch.mfx.flangerFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition("MFX FLANGER Low Gain", patch.mfx.flangerLowGain),
     new FieldAssignDefinition(
@@ -1608,7 +1614,8 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
     new FieldAssignDefinition(
       "MFX STEP-FLANGER Feedback",
-      patch.mfx.stepFlangerFeedback
+      patch.mfx.stepFlangerFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX STEP-FLANGER Step Rate",
@@ -1738,22 +1745,25 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
 
     // TODO: Figure out the relationship between this and the tempo-based field(s).
     // On the GR-55 it looks like only the time-based field is assignable.
-    // TODO: The field's representation differs from the assign min/max field's apparent representation.
     new FieldAssignDefinition(
       "MFX 3TAP DELAY Delay Left",
-      patch.mfx.threeTapDelayDelayLeft
+      patch.mfx.threeTapDelayDelayLeft,
+      mfx2600msecField.forAssign
     ),
     new FieldAssignDefinition(
       "MFX 3TAP DELAY Delay Right",
-      patch.mfx.threeTapDelayDelayRight
+      patch.mfx.threeTapDelayDelayRight,
+      mfx2600msecField.forAssign
     ),
     new FieldAssignDefinition(
       "MFX 3TAP DELAY Delay Center",
-      patch.mfx.threeTapDelayDelayCenter
+      patch.mfx.threeTapDelayDelayCenter,
+      mfx2600msecField.forAssign
     ),
     new FieldAssignDefinition(
       "MFX 3TAP DELAY Center Feedback",
-      patch.mfx.threeTapDelayCenterFeedback
+      patch.mfx.threeTapDelayCenterFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX 3TAP DELAY HF Damp",
@@ -1790,10 +1800,10 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
 
     // TODO: Figure out the relationship between this and the tempo-based field(s).
     // On the GR-55 it looks like only the time-based field is assignable.
-    // TODO: The field's representation differs from the assign min/max field's apparent representation.
     new FieldAssignDefinition(
       "MFX TIME DELAY Delay Time",
-      patch.mfx.timeCtrlDelayDelayTime
+      patch.mfx.timeCtrlDelayDelayTime,
+      mfx1300msecField.forAssign
     ),
     new FieldAssignDefinition(
       "MFX TIME DELAY Acceleration",
@@ -1801,7 +1811,8 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
     new FieldAssignDefinition(
       "MFX TIME DELAY Feedback",
-      patch.mfx.timeCtrlDelayFeedback
+      patch.mfx.timeCtrlDelayFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX TIME DELAY HF Damp",
@@ -1867,14 +1878,15 @@ function buildAssignsMap(guitarBassSelect: "GUITAR" | "BASS") {
     ),
     // TODO: Figure out the relationship between this and the tempo-based field(s).
     // On the GR-55 it looks like only the time-based field is assignable.
-    // TODO: The field's representation differs from the assign min/max field's apparent representation.
     new FieldAssignDefinition(
       "MFX PITCH-SHIFTER Delay Time",
-      patch.mfx.pitchShifterDelayTime
+      patch.mfx.pitchShifterDelayTime,
+      mfx1300msecField.forAssign
     ),
     new FieldAssignDefinition(
       "MFX PITCH-SHIFTER Feedback",
-      patch.mfx.pitchShifterFeedback
+      patch.mfx.pitchShifterFeedback,
+      feedback98Field.forAssign
     ),
     new FieldAssignDefinition(
       "MFX PITCH-SHIFTER Low Gain",

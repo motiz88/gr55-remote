@@ -110,7 +110,9 @@ export function useMaybeControlledPatchField<T>(
       if (!isControlled) {
         setUncontrolledValue(newValue);
       }
-      // Always fire the onValueChange event, even if controlled
+      // Always fire the onValueChange event, even if controlled.
+      // TODO: The component should ensure that this only fires for user-triggered changes (not in response to prop changes),
+      // or at least provide a way to distinguish between them.
       onValueChange?.(newValue);
     },
     [onValueChange, setUncontrolledValue, isControlled]

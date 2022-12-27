@@ -16,7 +16,7 @@ export interface AssignDefinition {
   withAddressOffset(offset: number): AssignDefinition;
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
-  ): FieldReference<FieldType<any>> | void;
+  ): FieldReference<AssignableFieldType<any>>;
 }
 
 // Assignable fields require a "min" and "max" value even if they're not numeric.
@@ -30,7 +30,7 @@ export class FieldAssignDefinition implements AssignDefinition {
   constructor(
     public readonly description: string,
     public readonly field: FieldReference<AssignableFieldType<any>>,
-    public readonly customAssignType?: FieldType<any>
+    public readonly customAssignType?: AssignableFieldType<any>
   ) {}
 
   withAddressOffset(offset: number): FieldAssignDefinition {
@@ -42,7 +42,7 @@ export class FieldAssignDefinition implements AssignDefinition {
 
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
-  ): FieldReference<FieldType<any>> | void {
+  ): FieldReference<AssignableFieldType<any>> {
     // The point of this function is to try to infer a useful type for the min or max field
     // without having to explicitly specify it in the assign definition. Theoretically,
     // this should work for the vast majority of fields, except where Roland implemented
@@ -90,6 +90,14 @@ export class FieldAssignDefinition implements AssignDefinition {
         ),
       };
     }
+    // TODO: Eventually, we should be able to handle all cases here.
+    console.warn(
+      "Falling back to default field rendering for",
+      this.description,
+      "in",
+      minOrMaxField.definition.description
+    );
+    return minOrMaxField;
   }
 }
 
@@ -102,8 +110,14 @@ export class VirtualFieldAssignDefinition implements AssignDefinition {
 
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
-  ): FieldReference<FieldType<any>> | void {
-    // TODO: Do something useful here, probably with a custom field type?
+  ): FieldReference<AssignableFieldType<any>> {
+    console.warn(
+      "Falling back to default field rendering for",
+      this.description,
+      "in",
+      minOrMaxField.definition.description
+    );
+    return minOrMaxField;
   }
 }
 
@@ -128,8 +142,15 @@ export class MultiFieldAssignDefinition implements AssignDefinition {
 
   reinterpretAssignValueField(
     minOrMaxField: FieldReference<NumericField>
-  ): FieldReference<FieldType<any>> | void {
+  ): FieldReference<AssignableFieldType<any>> {
     // TODO: Do something useful here
+    console.warn(
+      "Falling back to default field rendering for",
+      this.description,
+      "in",
+      minOrMaxField.definition.description
+    );
+    return minOrMaxField;
   }
 }
 
