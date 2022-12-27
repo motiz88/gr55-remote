@@ -678,6 +678,10 @@ export type ParsedDataBag = {
   [address: number]: ParsedAtom<any>;
 };
 
+export type RawDataBag = {
+  [address: number]: Uint8Array;
+};
+
 export function parse<Definition extends AtomDefinition>(
   data: Uint8Array,
   definition: Definition,
@@ -736,6 +740,63 @@ function parseImpl<Definition extends AtomDefinition>(
   );
 }
 
+export function tokenize<Definition extends AtomDefinition>(
+  data: Uint8Array,
+  definition: Definition,
+  baseAddress: number
+): RawDataBag {
+  const rawDataBag: RawDataBag = {};
+  tokenizeImpl(data, definition, baseAddress, rawDataBag, 0);
+  return rawDataBag;
+}
+
+function tokenizeImpl<Definition extends AtomDefinition>(
+  data: Uint8Array,
+  definition: Definition,
+  baseAddress: number,
+  rawDataBag: RawDataBag,
+  flatAddressOffset: number
+): void {
+  // Store self before any children so that the innermost field is returned
+  if (definition.isContiguous) {
+    if (baseAddress + definition.size > data.length) {
+      throw new Error(
+        "Data too short, tokenizing failed at address " +
+          data.length +
+          " while tokenizing " +
+          definition.description
+      );
+    }
+    rawDataBag[baseAddress + flatAddressOffset] = data.slice(
+      baseAddress,
+      baseAddress + definition.size
+    );
+  }
+  if (definition instanceof StructDefinition) {
+    const $ = definition.$ as { [key: string]: AtomDefinition };
+    for (const member of Object.values($)) {
+      tokenizeImpl(
+        data,
+        member,
+        baseAddress + member.offset,
+        rawDataBag,
+        flatAddressOffset
+      );
+    }
+    return;
+  } else if (definition instanceof FieldDefinition) {
+    // Already handled above, just here for exhaustiveness
+    return;
+  }
+  throw new Error(
+    "Unknown definition type, tokenizing failed at address " +
+      baseAddress +
+      " while tokenizing " +
+      definition.description
+  );
+}
+
+// TODO: Clean this up and update tests to use fetchAndTokenize instead
 export async function fetchAndParse<Definition extends AtomDefinition>(
   definition: Definition,
   baseAddress: number,
@@ -849,6 +910,129 @@ async function fetchAndParseImpl<Definition extends AtomDefinition>(
 
     await Promise.all(promises);
     return result;
+  } else if (definition instanceof FieldDefinition) {
+    throw new Error(
+      "Cannot fetch non-contiguous field definition " +
+        definition.description +
+        " for address " +
+        baseAddress
+    );
+  }
+  throw new Error(
+    "Unknown definition type, fetching failed at address " +
+      baseAddress +
+      " while fetching " +
+      definition.description
+  );
+}
+
+export async function fetchAndTokenize<Definition extends AtomDefinition>(
+  definition: Definition,
+  baseAddress: number,
+  fetchContiguous: (
+    absoluteAddress: number,
+    length: number
+  ) => Promise<Uint8Array>
+): Promise<RawDataBag> {
+  const rawDataBag: RawDataBag = {};
+  await fetchAndTokenizeImpl(
+    definition,
+    baseAddress,
+    fetchContiguous,
+    rawDataBag
+  );
+  return rawDataBag;
+}
+
+async function fetchAndTokenizeImpl<Definition extends AtomDefinition>(
+  definition: Definition,
+  baseAddress: number,
+  fetchContiguous: (
+    absoluteAddress: number,
+    length: number
+  ) => Promise<Uint8Array>,
+  rawDataBag: RawDataBag
+): Promise<void> {
+  if (definition.isContiguous) {
+    const data = await fetchContiguous(baseAddress, definition.size);
+    tokenizeImpl(data, definition, 0, rawDataBag, baseAddress);
+    return;
+  }
+  if (definition instanceof StructDefinition) {
+    const $ = definition.$ as { [key: string]: AtomDefinition };
+
+    // Coalesce contiguous fields into a single fetch
+    const promises = [];
+
+    type ContiguousBlock = {
+      startOffset: number;
+      endOffset: number;
+      members: {
+        [key: string]: AtomDefinition;
+      };
+    };
+
+    const fetchBlock = async (block: ContiguousBlock) => {
+      const data = await fetchContiguous(
+        baseAddress + block.startOffset,
+        block.endOffset - block.startOffset
+      );
+      for (const member of Object.values(
+        block.members as { [key: string]: AtomDefinition }
+      )) {
+        tokenizeImpl(
+          data,
+          member,
+          member.offset - block.startOffset,
+          rawDataBag,
+          baseAddress + block.startOffset
+        );
+      }
+    };
+
+    let currentBlock: ContiguousBlock = {
+      startOffset: 0,
+      endOffset: 0,
+      members: {},
+    };
+    for (const [key, member] of Object.entries($)) {
+      if (member.isContiguous && member.offset === currentBlock.endOffset) {
+        currentBlock.endOffset = member.offset + member.size;
+        currentBlock.members[key] = member;
+      } else {
+        // Flush current block
+        if (currentBlock.endOffset > currentBlock.startOffset) {
+          promises.push(fetchBlock(currentBlock));
+        }
+        if (member.isContiguous) {
+          currentBlock = {
+            startOffset: member.offset,
+            endOffset: member.offset + member.size,
+            members: { [key]: member },
+          };
+        } else {
+          promises.push(
+            fetchAndTokenizeImpl(
+              member as AtomDefinition,
+              baseAddress + member.offset,
+              fetchContiguous,
+              rawDataBag
+            )
+          );
+          currentBlock = {
+            startOffset: member.offset + member.size,
+            endOffset: member.offset + member.size,
+            members: {},
+          };
+        }
+      }
+    }
+    if (currentBlock.endOffset > currentBlock.startOffset) {
+      promises.push(fetchBlock(currentBlock));
+    }
+
+    await Promise.all(promises);
+    return;
   } else if (definition instanceof FieldDefinition) {
     throw new Error(
       "Cannot fetch non-contiguous field definition " +

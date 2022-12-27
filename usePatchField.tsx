@@ -1,36 +1,22 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { throttle } from "throttle-debounce";
 
-import {
-  AtomReference,
-  FieldDefinition,
-  FieldReference,
-  FieldType,
-} from "./RolandAddressMap";
+import { FieldReference, FieldType } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 
-export function usePatchField<T extends FieldDefinition<any>>(
-  field: AtomReference<T>,
-  defaultValue?: ReturnType<T["type"]["decode"]>
-): [
-  ReturnType<T["type"]["decode"]>,
-  (newValue: ReturnType<T["type"]["decode"]>) => void
-] {
-  return usePatchFieldImpl(field, defaultValue, /* detached */ false);
+export function usePatchField<T>(
+  field: FieldReference<FieldType<T>>
+): [T, (newValue: T) => void] {
+  return usePatchFieldImpl(field, undefined, /* detached */ false);
 }
 
-function usePatchFieldImpl<T extends FieldDefinition<any>>(
-  field: AtomReference<T>,
-  defaultValue: ReturnType<T["type"]["decode"]> | undefined,
+function usePatchFieldImpl<T>(
+  field: FieldReference<FieldType<T>>,
+  defaultValue: T | undefined,
   detached: boolean
-): [
-  ReturnType<T["type"]["decode"]>,
-  (newValue: ReturnType<T["type"]["decode"]>) => void
-] {
-  // TODO: store *encoded* data here and in RolandDataTransferContext
-  // so that fields can be aliased through multiple definitions.
+): [T, (newValue: T) => void] {
   const { setField } = useContext(RolandDataTransferContext);
   const setFieldThrottled = useMemo(() => {
     if (setField) {
@@ -41,20 +27,30 @@ function usePatchFieldImpl<T extends FieldDefinition<any>>(
   const { patchData, localOverrides, setLocalOverride, subscribeToField } =
     useContext(RolandRemotePatchContext);
 
-  const [value, setValue] = useState(
-    () =>
-      localOverrides?.[field.address]?.value ??
-      patchData?.[field.address]?.value ??
-      defaultValue ??
-      field.definition.type.emptyValue
-  );
+  const [valueBytes, setValueBytes] = useState(() => {
+    let valueBytes: Uint8Array | undefined = localOverrides?.[field.address];
+    if (valueBytes) {
+      return valueBytes;
+    }
+    valueBytes = patchData?.[field.address];
+    if (valueBytes) {
+      return valueBytes;
+    }
+    valueBytes = new Uint8Array(field.definition.size);
+    field.definition.type.encode(
+      defaultValue ?? field.definition.type.emptyValue,
+      valueBytes,
+      0,
+      field.definition.size
+    );
+    return valueBytes;
+  });
 
   useEffect(() => {
-    const newValue =
-      localOverrides?.[field.address]?.value ??
-      patchData?.[field.address]?.value;
-    if (newValue != null) {
-      setValue(newValue);
+    const newValueBytes =
+      localOverrides?.[field.address] ?? patchData?.[field.address];
+    if (newValueBytes != null) {
+      setValueBytes(newValueBytes);
     }
   }, [field.address, localOverrides, patchData]);
 
@@ -62,23 +58,39 @@ function usePatchFieldImpl<T extends FieldDefinition<any>>(
     () =>
       detached
         ? undefined
-        : subscribeToField(field, (newValue: T["type"]["decode"]) => {
-            setValue(newValue);
+        : subscribeToField(field, (newValueBytes: Uint8Array) => {
+            setValueBytes(newValueBytes);
           }),
     [field, subscribeToField, detached]
   );
 
   const setAndSendValue = useCallback(
-    (newValue: T["type"]["decode"]) => {
-      setValue(newValue);
-      setLocalOverride(field, newValue);
+    (newValue: T) => {
+      const newValueBytes = new Uint8Array(field.definition.size);
+      field.definition.type.encode(
+        newValue,
+        newValueBytes,
+        0,
+        field.definition.size
+      );
+      setValueBytes(newValueBytes);
+      setLocalOverride(field, newValueBytes);
       if (setFieldThrottled) {
-        setFieldThrottled(field, newValue);
+        setFieldThrottled(field, newValueBytes);
       }
     },
     [setFieldThrottled, field, setLocalOverride]
   );
-
+  const value = useMemo(() => {
+    try {
+      return field.definition.type.decode(valueBytes, 0, field.definition.size);
+    } catch {
+      // TODO: Is this safe? Errors can happen when interpreting the value as an enum, for example.
+      // Might be good to replace with a tryDecode method or something.
+      // Ideally we would Suspend out of this "missing value" state.
+      return defaultValue ?? field.definition.type.emptyValue;
+    }
+  }, [defaultValue, field.definition.size, field.definition.type, valueBytes]);
   return [value, setAndSendValue];
 }
 

@@ -15,7 +15,8 @@ import { MidiIoContext } from "./MidiIoContext";
 import {
   AtomReference,
   FieldDefinition,
-  ParsedDataBag,
+  FieldType,
+  RawDataBag,
 } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
@@ -50,7 +51,7 @@ export function useRolandRemotePatchState() {
     for (const address of Object.keys(oldLocalOverrides)) {
       subscriptions.current!.emit(
         address,
-        remoteData[address as unknown as number].value
+        remoteData[address as unknown as number]
       );
     }
     return remoteData;
@@ -94,15 +95,27 @@ export function useRolandRemotePatchState() {
     };
   }, [inputPort, selectedDevice, inputPort?.state, invalidatePatchData]);
 
-  const localOverrides = useRef<ParsedDataBag>({});
+  const localOverrides = useRef<RawDataBag>({});
 
   const setLocalOverride = useCallback(
-    <T extends FieldDefinition<any>>(
+    <T extends FieldDefinition<FieldType<any>>>(
       field: AtomReference<T>,
-      value: ReturnType<T["type"]["decode"]>
+      value: Uint8Array | ReturnType<T["type"]["decode"]>
     ) => {
-      localOverrides.current[field.address] = { value };
-      subscriptions.current!.emit(field.address.toString(), value);
+      let valueBytes;
+      if (value instanceof Uint8Array) {
+        valueBytes = value;
+      } else {
+        valueBytes = new Uint8Array(field.definition.size);
+        field.definition.type.encode(
+          value,
+          valueBytes,
+          0,
+          field.definition.size
+        );
+      }
+      localOverrides.current[field.address] = valueBytes;
+      subscriptions.current!.emit(field.address.toString(), valueBytes);
     },
     []
   );
@@ -114,7 +127,7 @@ export function useRolandRemotePatchState() {
   const subscribeToField = useCallback(
     <T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      listener: (value: ReturnType<T["type"]["decode"]>) => void
+      listener: (valueBytes: Uint8Array) => void
     ) => {
       subscriptions.current!.addListener(field.address.toString(), listener);
       return () => {

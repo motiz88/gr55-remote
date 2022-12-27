@@ -5,10 +5,10 @@ import { useContext, useEffect, useMemo, useRef } from "react";
 import { MidiIoContext } from "./MidiIoContext";
 import {
   AtomDefinition,
-  fetchAndParse,
   FieldDefinition,
-  ParsedDataBag,
   AtomReference,
+  fetchAndTokenize,
+  RawDataBag,
 } from "./RolandAddressMap";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
@@ -140,19 +140,31 @@ export function useRolandDataTransfer() {
     async function requestData<T extends AtomDefinition>(
       definition: T,
       baseAddress: number = 0
-    ): Promise<ParsedDataBag> {
-      const result = await fetchAndParse(definition, baseAddress, (...args) =>
-        globalQueue.add(() => fetchContiguous(...args))
+    ): Promise<RawDataBag> {
+      const result = await fetchAndTokenize(
+        definition,
+        baseAddress,
+        (...args) => globalQueue.add(() => fetchContiguous(...args))
       );
-      return result[1];
+      return result;
     }
 
     function setField<T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      newValue: ReturnType<T["type"]["decode"]>
+      newValue: Uint8Array | ReturnType<T["type"]["decode"]>
     ): void {
-      const valueBytes = new Uint8Array(field.definition.type.size);
-      field.definition.type.encode(newValue, valueBytes, 0, valueBytes.length);
+      let valueBytes;
+      if (newValue instanceof Uint8Array) {
+        valueBytes = newValue;
+      } else {
+        valueBytes = new Uint8Array(field.definition.size);
+        field.definition.type.encode(
+          newValue,
+          valueBytes,
+          0,
+          field.definition.size
+        );
+      }
       const data = makeDataSetMessage(
         sysExConfig,
         deviceId ?? ALL_DEVICES,

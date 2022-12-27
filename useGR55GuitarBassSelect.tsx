@@ -11,10 +11,14 @@ export function useGR55GuitarBassSelect() {
     if (!requestData) {
       return await new Promise(() => {}); // Never resolves
     }
-    const [{ value }] = await requestData(
+    const valueBytes = await requestData(
       GR55.system.common.guitarBassSelect.definition,
       GR55.system.common.guitarBassSelect.address
     );
-    return value as any;
+    return GR55.system.common.guitarBassSelect.definition.type.decode(
+      valueBytes[GR55.system.common.guitarBassSelect.address],
+      0,
+      GR55.system.common.guitarBassSelect.definition.type.size
+    );
   }, [requestData]);
 }

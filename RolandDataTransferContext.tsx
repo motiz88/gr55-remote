@@ -4,7 +4,7 @@ import {
   AtomDefinition,
   AtomReference,
   FieldDefinition,
-  ParsedDataBag,
+  RawDataBag,
 } from "./RolandAddressMap";
 
 export const RolandDataTransferContext = React.createContext<{
@@ -13,12 +13,12 @@ export const RolandDataTransferContext = React.createContext<{
     | (<T extends AtomDefinition>(
         block: T,
         baseAddress?: number
-      ) => Promise<ParsedDataBag>);
+      ) => Promise<RawDataBag>);
   setField:
     | undefined
     | (<T extends FieldDefinition<any>>(
         field: AtomReference<T>,
-        newValue: ReturnType<T["type"]["decode"]>
+        newValue: Uint8Array | ReturnType<T["type"]["decode"]>
       ) => void);
 }>({
   requestData: undefined,

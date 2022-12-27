@@ -8,9 +8,9 @@ import {
   FieldDefinition,
   FieldType,
   getAddresses,
-  parse,
-  ParsedDataBag,
+  RawDataBag,
   StructDefinition,
+  tokenize,
 } from "../RolandAddressMap";
 import { RolandDataTransferContext } from "../RolandDataTransferContext";
 import { RolandIoSetupContext } from "../RolandIoSetupContext";
@@ -83,16 +83,20 @@ function MockRolandDataTransferContainer({
     async function requestData<T extends AtomDefinition>(
       definition: T,
       baseAddress: number = 0
-    ): Promise<ParsedDataBag> {
-      return parse(data, definition, baseAddress)[1];
+    ): Promise<RawDataBag> {
+      return tokenize(data, definition, baseAddress);
     },
     [data]
   );
   const setField = useCallback(
     function setField<T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      newValue: ReturnType<T["type"]["decode"]>
+      newValue: Uint8Array | ReturnType<T["type"]["decode"]>
     ): void {
+      if (newValue instanceof Uint8Array) {
+        data.set(newValue, field.address);
+        return;
+      }
       field.definition.type.encode(
         newValue,
         data,
@@ -145,12 +149,10 @@ function Test({
 // Reads a patch field and renders its value as a string.
 function Reader<T extends string | number | boolean>({
   field,
-  defaultValue,
 }: {
   field: { address: number; definition: FieldDefinition<FieldType<T>> };
-  defaultValue: T;
 }) {
-  const [value] = usePatchField(field, defaultValue);
+  const [value] = usePatchField(field);
   return <>{"value: " + value.toString()}</>;
 }
 
@@ -163,22 +165,19 @@ function Reloader() {
   return <></>;
 }
 
-test("read patch field", async () => {
+test.only("read patch field", async () => {
   const data = new Uint8Array(Buffer.from("remote1".padEnd(16), "ascii"));
   let root: ReactTestRenderer;
   act(() => {
     root = create(
       <Test data={data}>
-        <Reader
-          field={mockAddressMapAbsolute.temporaryPatch.field1}
-          defaultValue="default"
-        />
+        <Reader field={mockAddressMapAbsolute.temporaryPatch.field1} />
       </Test>
     );
   });
 
   // Initial render with the default value
-  expect(root!.toJSON()).toBe("value: default");
+  expect(root!.toJSON()).toBe("value: ");
   await act(() => {});
 
   // Render with the remote value
@@ -189,10 +188,7 @@ test("read patch field", async () => {
   act(() => {
     root.update(
       <Test data={data}>
-        <Reader
-          field={mockAddressMapAbsolute.temporaryPatch.field1}
-          defaultValue="default"
-        />
+        <Reader field={mockAddressMapAbsolute.temporaryPatch.field1} />
         <Reloader />
       </Test>
     );
