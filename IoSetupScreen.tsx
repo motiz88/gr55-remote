@@ -1,9 +1,10 @@
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext } from "react";
-import { ScrollView, StyleSheet, Switch, Text } from "react-native";
+import { StyleSheet, Switch, Text } from "react-native";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
 import { Picker } from "./Picker";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { RootStackParamList } from "./navigation";
@@ -25,7 +26,10 @@ export function IoSetupScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={safeAreaStyle}>
+    <PopoverAwareScrollView
+      style={styles.container}
+      contentContainerStyle={safeAreaStyle}
+    >
       {inputs && outputs && (
         <>
           <Text>Input</Text>
@@ -79,7 +83,7 @@ export function IoSetupScreen({
           value={rolandIoSetupContext.includeFakeDevice}
         />
       </>
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

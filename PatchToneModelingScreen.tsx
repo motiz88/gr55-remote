@@ -1,6 +1,6 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldPlaceholder } from "./PatchFieldPlaceholder";
@@ -10,6 +10,7 @@ import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -93,7 +94,7 @@ export function PatchToneModelingScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
@@ -709,7 +710,7 @@ export function PatchToneModelingScreen({
           </PatchFieldSwitchedSection>
         )}
       </PatchFieldSwitchedSection>
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

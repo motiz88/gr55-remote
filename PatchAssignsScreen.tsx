@@ -3,13 +3,16 @@ import {
   MaterialTopTabScreenProps,
 } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
-import { Button, ScrollView, View, StyleSheet } from "react-native";
+import { useCallback, useContext, useEffect, useMemo } from "react";
+import { Button, View, StyleSheet, Text } from "react-native";
 
+import { ContextualStyleProvider } from "./ContextualStyle";
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
+import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
 import {
   FieldReference,
@@ -19,14 +22,17 @@ import {
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
+import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchAssignsTabParamList, RootStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
 import { usePatchField } from "./usePatchField";
-import usePrevious from "./usePrevious";
 
 const Tab = createMaterialTopTabNavigator<PatchAssignsTabParamList>();
+
+// 10/11ths of the way from cornflowerblue to #f2f2f2
+const ASSIGNS_BACKGROUND_COLOR = "#E5EAF2";
 
 export function PatchAssignsScreen({
   navigation,
@@ -47,51 +53,137 @@ export function PatchAssignsScreen({
     });
   }, [navigation, patchName]);
 
+  const { closeAllPopovers } = usePopovers();
+  const [assign1Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign1.switch
+  );
+  const [assign2Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign2.switch
+  );
+  const [assign3Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign3.switch
+  );
+  const [assign4Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign4.switch
+  );
+  const [assign5Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign5.switch
+  );
+  const [assign6Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign6.switch
+  );
+  const [assign7Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign7.switch
+  );
+  const [assign8Switch] = usePatchField(
+    GR55.temporaryPatch.common.assign8.switch
+  );
+  const renderLabel = useCallback(
+    ({
+      children,
+      focused,
+      color,
+    }: {
+      children: string;
+      focused: boolean;
+      color: string;
+    }) => {
+      const assigned =
+        (children === "1" && assign1Switch) ||
+        (children === "2" && assign2Switch) ||
+        (children === "3" && assign3Switch) ||
+        (children === "4" && assign4Switch) ||
+        (children === "5" && assign5Switch) ||
+        (children === "6" && assign6Switch) ||
+        (children === "7" && assign7Switch) ||
+        (children === "8" && assign8Switch);
+      return (
+        <AssignTabLabel focused={focused} color={color} assigned={assigned}>
+          {children}
+        </AssignTabLabel>
+      );
+    },
+    [
+      assign1Switch,
+      assign2Switch,
+      assign3Switch,
+      assign4Switch,
+      assign5Switch,
+      assign6Switch,
+      assign7Switch,
+      assign8Switch,
+    ]
+  );
+
   return (
     <Tab.Navigator
       id="PatchAssigns"
       backBehavior="history"
-      screenOptions={{ tabBarStyle: { backgroundColor: "#F1F5FD" } }}
+      screenOptions={{
+        tabBarStyle: { backgroundColor: "#F1F5FD" },
+        tabBarLabel: renderLabel,
+      }}
+      screenListeners={{
+        blur: () => {
+          closeAllPopovers();
+        },
+      }}
     >
       <Tab.Screen
         name="Assign1"
         component={PatchAssignScreen}
-        options={{ title: "1" }}
+        options={{
+          title: "1",
+        }}
       />
       <Tab.Screen
         name="Assign2"
         component={PatchAssignScreen}
-        options={{ title: "2" }}
+        options={{
+          title: "2",
+        }}
       />
       <Tab.Screen
         name="Assign3"
         component={PatchAssignScreen}
-        options={{ title: "3" }}
+        options={{
+          title: "3",
+        }}
       />
       <Tab.Screen
         name="Assign4"
         component={PatchAssignScreen}
-        options={{ title: "4" }}
+        options={{
+          title: "4",
+        }}
       />
       <Tab.Screen
         name="Assign5"
         component={PatchAssignScreen}
-        options={{ title: "5" }}
+        options={{
+          title: "5",
+        }}
       />
       <Tab.Screen
         name="Assign6"
         component={PatchAssignScreen}
-        options={{ title: "6" }}
+        options={{
+          title: "6",
+        }}
       />
       <Tab.Screen
         name="Assign7"
         component={PatchAssignScreen}
-        options={{ title: "7" }}
+        options={{
+          title: "7",
+        }}
       />
       <Tab.Screen
         name="Assign8"
         component={PatchAssignScreen}
-        options={{ title: "8" }}
+        options={{
+          title: "8",
+        }}
       />
     </Tab.Navigator>
   );
@@ -109,7 +201,6 @@ const assignsByRouteName = {
 };
 
 function PatchAssignScreen({
-  navigation,
   route,
 }: MaterialTopTabScreenProps<
   PatchAssignsTabParamList,
@@ -128,22 +219,29 @@ function PatchAssignScreen({
 
   const assignsMap = useAssignsMap();
   if (!assignsMap) {
-    // TODO: Throw an error? Show an error message?
-    return <></>;
+    throw new Error(
+      "PatchAssignScreen: Assigns map is not available. This should not be reachable."
+    );
   }
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <AssignSection
-        assignsMap={assignsMap}
-        assign={assignsByRouteName[route.name]}
-      />
-    </ScrollView>
+      <ContextualStyleProvider
+        value={{
+          backgroundColor: ASSIGNS_BACKGROUND_COLOR,
+        }}
+      >
+        <AssignSection
+          assignsMap={assignsMap}
+          assign={assignsByRouteName[route.name]}
+        />
+      </ContextualStyleProvider>
+    </PopoverAwareScrollView>
   );
 }
 
@@ -155,19 +253,7 @@ function useAssignTargetRangeField(
   const reinterpretedField = useMemo(() => {
     return assignDef.reinterpretAssignValueField(minOrMaxField);
   }, [assignDef, minOrMaxField]);
-  const [, setValue] = usePatchField(reinterpretedField);
-  const reset = useCallback(() => {
-    const nextValue = isMax
-      ? reinterpretedField.definition.type.max
-      : reinterpretedField.definition.type.min;
-    setValue(nextValue);
-  }, [
-    isMax,
-    reinterpretedField.definition.type.max,
-    reinterpretedField.definition.type.min,
-    setValue,
-  ]);
-  return { field: reinterpretedField, reset };
+  return { field: reinterpretedField };
 }
 
 function useAssign(
@@ -176,21 +262,17 @@ function useAssign(
   target: number
 ) {
   const assignDef = assignsMap.getByIndex(target);
-  const { field: targetMinField, reset: resetMin } = useAssignTargetRangeField(
+  const { field: targetMinField } = useAssignTargetRangeField(
     assignDef,
     assign.targetMin,
     false
   );
-  const { field: targetMaxField, reset: resetMax } = useAssignTargetRangeField(
+  const { field: targetMaxField } = useAssignTargetRangeField(
     assignDef,
     assign.targetMax,
     true
   );
-  const resetRange = useCallback(() => {
-    resetMin();
-    resetMax();
-  }, [resetMin, resetMax]);
-  return { targetMinField, targetMaxField, assignDef, resetRange };
+  return { targetMinField, targetMaxField, assignDef };
 }
 
 function useAssignTargetField(
@@ -210,35 +292,25 @@ function AssignSection({
   assign: typeof GR55.temporaryPatch.common.assign1;
   assignsMap: AssignsMap;
 }) {
+  const { setAssignTarget } = useRolandGR55Assigns();
   const [source, setSource] = usePatchField(assign.source);
   const [target, setTarget] = usePatchField(assign.target);
   const targetField = useAssignTargetField(assignsMap, assign.target);
-  const { targetMinField, targetMaxField, resetRange } = useAssign(
+  const { targetMinField, targetMaxField } = useAssign(
     assignsMap,
     assign,
     target
   );
 
-  const pendingRangeReset = useRef(false);
-  const resetRangeRef = useRef(resetRange);
-  useEffect(() => {
-    resetRangeRef.current = resetRange;
-  });
   const handleTargetChange = useCallback(
     (nextTarget: number) => {
       // NOTE: At least with Picker, this fires only for true user events, as expected.
-      pendingRangeReset.current = true;
+      // setAssignTarget resets the range as a side effect.
+      setAssignTarget(assign, nextTarget);
       setTarget(nextTarget);
     },
-    [setTarget]
+    [setAssignTarget, assign, setTarget]
   );
-  const previousTarget = usePrevious(target);
-  useEffect(() => {
-    if (previousTarget !== target && pendingRangeReset.current) {
-      resetRangeRef.current();
-      pendingRangeReset.current = false;
-    }
-  }, [previousTarget, target]);
 
   return (
     // NOTE: We use `key` to force re-rendering in order to avoid some
@@ -286,17 +358,45 @@ function PatchDynamicField({ field }: { field: FieldReference<any> }) {
   } else if (isEnumFieldReference(field)) {
     return <PatchFieldPicker field={field} />;
   }
-  // TODO: Eventually we should not have this fallback
-  console.error("Could not render dynamic field", field.definition.description);
-  return null;
+  throw new Error(
+    "Could not render dynamic field " + field.definition.description
+  );
+}
+
+function AssignTabLabel({
+  assigned,
+  children,
+  color,
+}: {
+  assigned: boolean;
+  children: React.ReactNode;
+  focused: boolean;
+  color: string;
+}) {
+  return (
+    <Text style={[styles.label, { color }, assigned && styles.labelAssigned]}>
+      {children}
+    </Text>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     padding: 8,
-
-    // TODO: Propagate this via context so that switched sections can use the same color
-    // 10/11ths of the way from cornflowerblue to #f2f2f2
-    backgroundColor: "#E5EAF2",
+    backgroundColor: ASSIGNS_BACKGROUND_COLOR,
+  },
+  label: {
+    textAlign: "center",
+    textTransform: "uppercase",
+    fontSize: 18,
+    margin: 4,
+    backgroundColor: "transparent",
+  },
+  labelAssigned: {
+    fontWeight: "bold",
+    textShadowColor: "lightgray",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+    fontSize: 18,
   },
 });

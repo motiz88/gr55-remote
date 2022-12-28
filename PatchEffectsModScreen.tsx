@@ -1,11 +1,12 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -25,7 +26,7 @@ export function PatchEffectsModScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
@@ -237,7 +238,7 @@ export function PatchEffectsModScreen({
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsThreshold} />
         <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsReleaseTime} />
       </PatchFieldSwitchedSection>
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

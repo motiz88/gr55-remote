@@ -1,15 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
-import { useCallback } from "react";
-import { Pressable, Text } from "react-native";
+import { useCallback, useRef } from "react";
+import { GestureResponderEvent, View } from "react-native";
+import { Rect } from "react-native-popover-view";
 
 import { FieldRow } from "./FieldRow";
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { usePopovers } from "./Popovers";
 import { FieldReference } from "./RolandAddressMap";
-import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignsMap } from "./RolandGR55Assigns";
+import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
 import { GlobalNavigationProp } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
-import { usePatchField } from "./usePatchField";
 
 export function PatchFieldRow({
   field,
@@ -55,98 +55,95 @@ function AssignablePatchFieldRow({
   assignsMap: AssignsMap;
   assignDefIndex: number;
 }) {
-  const [assign1Target] = usePatchField(
-    GR55.temporaryPatch.common.assign1.target
-  );
-  const [assign1Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign1.switch
-  );
-  const [assign2Target] = usePatchField(
-    GR55.temporaryPatch.common.assign2.target
-  );
-  const [assign2Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign2.switch
-  );
-  const [assign3Target] = usePatchField(
-    GR55.temporaryPatch.common.assign3.target
-  );
-  const [assign3Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign3.switch
-  );
-  const [assign4Target] = usePatchField(
-    GR55.temporaryPatch.common.assign4.target
-  );
-  const [assign4Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign4.switch
-  );
-  const [assign5Target] = usePatchField(
-    GR55.temporaryPatch.common.assign5.target
-  );
-  const [assign5Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign5.switch
-  );
-  const [assign6Target] = usePatchField(
-    GR55.temporaryPatch.common.assign6.target
-  );
-  const [assign6Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign6.switch
-  );
-  const [assign7Target] = usePatchField(
-    GR55.temporaryPatch.common.assign7.target
-  );
-  const [assign7Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign7.switch
-  );
-  const [assign8Target] = usePatchField(
-    GR55.temporaryPatch.common.assign8.target
-  );
-  const [assign8Switch] = usePatchField(
-    GR55.temporaryPatch.common.assign8.switch
-  );
-  const assignIndex: -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 = (
-    [
-      assign1Switch && assign1Target === assignDefIndex,
-      assign2Switch && assign2Target === assignDefIndex,
-      assign3Switch && assign3Target === assignDefIndex,
-      assign4Switch && assign4Target === assignDefIndex,
-      assign5Switch && assign5Target === assignDefIndex,
-      assign6Switch && assign6Target === assignDefIndex,
-      assign7Switch && assign7Target === assignDefIndex,
-      assign8Switch && assign8Target === assignDefIndex,
-    ] as const
-  )
-    // TODO: Any point in handling multiple assignments to one field here?
-    .indexOf(true) as any;
+  const {
+    getAssignsForAssignDef,
+    createAssign,
+    deleteAssigns,
+    firstAvailableAssignIndex,
+  } = useRolandGR55Assigns();
+  const assignsForDef = getAssignsForAssignDef(assignDefIndex);
+  const { showPopover, closeAllPopovers } = usePopovers();
 
   const navigation = useNavigation<GlobalNavigationProp>();
-  const handleAssignLinkPress = useCallback(() => {
+  const rowRef = useRef<View>(null);
+  const handleLongPress = useCallback(
+    (
+      event: GestureResponderEvent,
+      rowMeasurements: { x: number; y: number; width: number; height: number }
+    ) => {
+      showPopover({
+        props: {
+          id: "AssignFromField",
+          canCreateAssign:
+            assignsForDef.length === 0 && firstAvailableAssignIndex !== -1,
+          canDeleteAssigns: assignsForDef.length > 0,
+          editableAssigns: assignsForDef,
+          onCreateAssign: () => {
+            const createdAssignIndex = createAssign(assignDefIndex);
+            navigation.getParent("RootStack")!.navigate("PatchAssigns", {
+              screen: `Assign${createdAssignIndex + 1}`,
+            });
+          },
+          onDeleteAssigns: () => {
+            deleteAssigns(assignDefIndex);
+          },
+          onEditAssign: (assignIndex) => {
+            navigation.getParent("RootStack")!.navigate("PatchAssigns", {
+              screen: `Assign${assignIndex + 1}`,
+            });
+          },
+          showNoAssignsAvailable:
+            assignsForDef.length === 0 && firstAvailableAssignIndex === -1,
+        },
+        source: new Rect(
+          event.nativeEvent.pageX,
+          rowMeasurements.y,
+          0,
+          rowMeasurements.height
+        ),
+      });
+    },
+    [
+      assignDefIndex,
+      assignsForDef,
+      createAssign,
+      deleteAssigns,
+      firstAvailableAssignIndex,
+      navigation,
+      showPopover,
+    ]
+  );
+  const handlePress = useCallback(() => {
+    if (assignsForDef.length === 0) {
+      return;
+    }
     navigation.getParent("RootStack")!.navigate("PatchAssigns", {
-      screen: `Assign${assignIndex + 1}`,
+      screen: `Assign${assignsForDef[assignsForDef.length - 1] + 1}`,
     });
-  }, [assignIndex, navigation]);
-  if (assignIndex !== -1) {
+  }, [navigation, assignsForDef]);
+  if (assignsForDef.length > 0) {
     return (
       <FieldRow
+        ref={rowRef}
         description={field.definition.description}
-        descriptionSecondary={
-          <Pressable android_ripple={{ color: "lightgray" }}>
-            <Text
-              style={PatchFieldStyles.fieldDescriptionSecondaryLink}
-              onPress={handleAssignLinkPress}
-            >
-              Assign{assignIndex + 1}
-            </Text>
-          </Pressable>
-        }
         inline={inline}
         isAssigned
+        onPressIn={closeAllPopovers}
+        onLongPress={handleLongPress}
+        onPress={handlePress}
       >
         {children}
       </FieldRow>
     );
   }
   return (
-    <FieldRow description={field.definition.description} inline={inline}>
+    <FieldRow
+      ref={rowRef}
+      description={field.definition.description}
+      inline={inline}
+      onLongPress={handleLongPress}
+      onPressIn={closeAllPopovers}
+    >
       {children}
     </FieldRow>
   );

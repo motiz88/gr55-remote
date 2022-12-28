@@ -12,6 +12,10 @@ export const RolandRemotePatchContext = React.createContext<{
     field: AtomReference<T>,
     value: Uint8Array | ReturnType<T["type"]["decode"]>
   ) => void;
+  setPatchField: <T extends FieldDefinition<any>>(
+    field: AtomReference<T>,
+    value: Uint8Array | ReturnType<T["type"]["decode"]>
+  ) => void;
   subscribeToField: <T extends FieldDefinition<any>>(
     field: AtomReference<T>,
     listener: (valueBytes: Uint8Array) => void
@@ -23,5 +27,6 @@ export const RolandRemotePatchContext = React.createContext<{
   reloadPatchData: () => {},
   localOverrides: {},
   setLocalOverride: () => {},
+  setPatchField: () => {},
   subscribeToField: () => () => {},
 });

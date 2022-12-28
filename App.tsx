@@ -10,7 +10,9 @@ import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchToneScreen } from "./PatchToneScreen";
+import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { RootStackParamList } from "./navigation";
@@ -75,37 +77,91 @@ export default function App() {
           <RolandDataTransferContainer>
             <RolandRemotePatchStateContainer>
               <AppNavigationContainer>
-                <RootStack.Navigator
-                  initialRouteName="PatchMain"
-                  id="RootStack"
-                >
-                  <RootStack.Screen
-                    name="PatchMain"
-                    component={PatchMainScreen}
-                  />
-                  <RootStack.Screen
-                    name="PatchTone"
-                    component={PatchToneScreen}
-                  />
-                  <RootStack.Screen
-                    name="PatchEffects"
-                    component={PatchEffectsScreen}
-                  />
-                  <RootStack.Screen
-                    name="PatchAssigns"
-                    component={PatchAssignsScreen}
-                  />
-                  <RootStack.Screen
-                    name="IoSetup"
-                    component={IoSetupScreen}
-                    options={{ title: "Setup" }}
-                  />
-                </RootStack.Navigator>
+                <RolandGR55AssignsContainer>
+                  <PopoversContainer>
+                    <RootNavigator />
+                  </PopoversContainer>
+                </RolandGR55AssignsContainer>
               </AppNavigationContainer>
             </RolandRemotePatchStateContainer>
           </RolandDataTransferContainer>
         </RolandIoSetupContainer>
       </MidiIoSetupContainer>
     </SafeAreaProvider>
+  );
+}
+
+function RootNavigator() {
+  const { closeAllPopovers } = usePopovers();
+  return (
+    <RootStack.Navigator
+      initialRouteName="PatchMain"
+      id="RootStack"
+      screenListeners={{
+        transitionStart: () => {
+          closeAllPopovers();
+        },
+        blur: () => {
+          closeAllPopovers();
+        },
+      }}
+    >
+      <RootStack.Screen
+        name="PatchMain"
+        component={PatchMainScreen}
+        listeners={
+          {
+            // blur: () => {
+            //   closeAllPopovers();
+            // },
+          }
+        }
+      />
+      <RootStack.Screen
+        name="PatchTone"
+        component={PatchToneScreen}
+        listeners={
+          {
+            // blur: () => {
+            //   closeAllPopovers();
+            // },
+          }
+        }
+      />
+      <RootStack.Screen
+        name="PatchEffects"
+        component={PatchEffectsScreen}
+        listeners={
+          {
+            // blur: () => {
+            //   closeAllPopovers();
+            // },
+          }
+        }
+      />
+      <RootStack.Screen
+        name="PatchAssigns"
+        component={PatchAssignsScreen}
+        listeners={
+          {
+            // blur: () => {
+            //   closeAllPopovers();
+            // },
+          }
+        }
+      />
+      <RootStack.Screen
+        name="IoSetup"
+        component={IoSetupScreen}
+        options={{ title: "Setup" }}
+        listeners={
+          {
+            // blur: () => {
+            //   closeAllPopovers();
+            // },
+          }
+        }
+      />
+    </RootStack.Navigator>
   );
 }

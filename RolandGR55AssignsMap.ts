@@ -2124,5 +2124,3 @@ function getModelingToneAssignDefinition(guitarBassSelect: "GUITAR" | "BASS") {
 
 export const RolandGR55PatchAssignsMapGuitarMode = buildAssignsMap("GUITAR");
 export const RolandGR55PatchAssignsMapBassMode = buildAssignsMap("BASS");
-
-// TODO: Build reverse index from the above, and use it for quick navigation, showing which fields are assigned, etc.

@@ -1,6 +1,7 @@
 import { View, Animated, StyleSheet } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
+import { useContextualStyle } from "./ContextualStyle";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { usePatchField } from "./usePatchField";
@@ -22,7 +23,7 @@ export function PatchFieldSwitchedSection({
     duration: 150,
     useNativeDriver: true,
   });
-
+  const { backgroundColor } = useContextualStyle();
   return (
     <>
       <PatchFieldSwitch field={field} value={value} onValueChange={setValue} />
@@ -32,7 +33,11 @@ export function PatchFieldSwitchedSection({
                 behaviour (specifically Slider) on web. */}
         <Animated.View
           pointerEvents="none"
-          style={[styles.disabledSectionOverlay, { opacity: overlayOpacity }]}
+          style={[
+            styles.disabledSectionOverlay,
+            { backgroundColor },
+            { opacity: overlayOpacity },
+          ]}
         />
         {children}
       </View>

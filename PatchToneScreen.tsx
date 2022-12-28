@@ -6,6 +6,7 @@ import { Button, View } from "react-native";
 import { PatchToneModelingScreen } from "./PatchToneModelingScreen";
 import { PatchToneNormalScreen } from "./PatchToneNormalScreen";
 import { PatchTonePCMScreen } from "./PatchTonePCMScreen";
+import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { PatchToneTabParamList, RootStackParamList } from "./navigation";
 import { usePatchField } from "./usePatchField";
@@ -30,8 +31,24 @@ export function PatchToneScreen({
     });
   }, [navigation, patchName]);
 
+  const { closeAllPopovers } = usePopovers();
+
   return (
-    <Tab.Navigator id="PatchTone" backBehavior="history">
+    <Tab.Navigator
+      id="PatchTone"
+      backBehavior="history"
+      screenListeners={{
+        swipeStart: () => {
+          closeAllPopovers();
+        },
+        tabPress: () => {
+          closeAllPopovers();
+        },
+        blur: () => {
+          closeAllPopovers();
+        },
+      }}
+    >
       <Tab.Screen name="Normal" component={PatchToneNormalScreen} />
       <Tab.Screen name="PCM1" component={PatchTonePCMScreen} />
       <Tab.Screen name="PCM2" component={PatchTonePCMScreen} />

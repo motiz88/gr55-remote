@@ -1,10 +1,11 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -21,7 +22,7 @@ export function PatchEffectsEQScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
@@ -42,7 +43,7 @@ export function PatchEffectsEQScreen({
         <PatchFieldSlider field={sendsAndEq.eqLevel} />
         <PatchFieldSlider field={sendsAndEq.ezCharacter} />
       </PatchFieldSwitchedSection>
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

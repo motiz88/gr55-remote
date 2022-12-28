@@ -1,7 +1,8 @@
 import { useContext } from "react";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
 import { PatchFieldPicker } from "./PatchFieldPicker";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
@@ -15,7 +16,7 @@ export function PatchEffectsStructureScreen() {
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
       }
@@ -29,7 +30,7 @@ export function PatchEffectsStructureScreen() {
       <PatchFieldPicker field={patchPCMTone2.partOutputMFXSelect} />
       <PatchFieldPicker field={common.lineSelectModel} />
       <PatchFieldPicker field={common.lineSelectNormalPU} />
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

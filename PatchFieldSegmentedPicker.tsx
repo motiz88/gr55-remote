@@ -1,6 +1,5 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 
-import { FieldRowContext } from "./FieldRow";
 import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { EnumField, FieldReference } from "./RolandAddressMap";
@@ -45,7 +44,9 @@ function SegmentedPickerControl<T extends string>({
   onValueChange: (value: T) => void;
   values: readonly T[];
 }) {
-  const { isAssigned } = useContext(FieldRowContext);
+  // const { isAssigned } = useContext(FieldRowContext);
+  // TODO: Show assigned state when all controls can reliably handle long press etc
+  const isAssigned = false;
 
   return (
     <SegmentedPicker

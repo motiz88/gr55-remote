@@ -5,14 +5,15 @@ export const PatchFieldStyles = StyleSheet.create({
     flexDirection: "row",
   },
   fieldRow: {
-    marginBottom: 16,
+    paddingTop: 8,
+    paddingBottom: 16,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   fieldDescriptionColumn: {
     flex: 1,
     textAlignVertical: "center",
-    flexDirection: "column",
+    flexDirection: "row",
   },
   fieldDescription: {
     textAlignVertical: "center",
@@ -27,10 +28,7 @@ export const PatchFieldStyles = StyleSheet.create({
   fieldRowAssigned: {},
   fieldDescriptionAssigned: {},
   fieldControlAssigned: {},
-  fieldDescriptionSecondaryLink: {
-    // TODO: Move the entire color scheme for assigns to a central place
-    color: "cornflowerblue",
-    textTransform: "uppercase",
-    marginTop: 4,
+  fieldRowPressed: {
+    opacity: 0.5,
   },
 });

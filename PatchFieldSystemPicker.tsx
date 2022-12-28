@@ -1,6 +1,5 @@
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 
-import { FieldRowContext } from "./FieldRow";
 import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { Picker } from "./Picker";
@@ -77,7 +76,10 @@ function PickerControl<T extends number | string>({
   onValueChange: (value: T) => void;
   items: readonly JSX.Element[];
 }) {
-  const { isAssigned } = useContext(FieldRowContext);
+  // const { isAssigned } = useContext(FieldRowContext);
+  // TODO: Show assigned state when all controls can reliably handle long press etc
+  const isAssigned = false;
+
   return (
     <Picker
       onValueChange={onValueChange}

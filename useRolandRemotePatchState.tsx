@@ -29,7 +29,7 @@ import {
 export function useRolandRemotePatchState() {
   const { selectedDevice, selectedDeviceKey } =
     useContext(RolandIoSetupContext);
-  const { requestData } = useContext(RolandDataTransferContext);
+  const { requestData, setField } = useContext(RolandDataTransferContext);
   const sysExConfig = selectedDevice?.sysExConfig ?? RolandGR55SysExConfig;
   const addressMap = sysExConfig.addressMap;
 
@@ -143,6 +143,17 @@ export function useRolandRemotePatchState() {
     []
   );
 
+  const setPatchField = useCallback(
+    <T extends FieldDefinition<any>>(
+      field: AtomReference<T>,
+      value: Uint8Array | ReturnType<T["type"]["decode"]>
+    ) => {
+      setField?.(field, value);
+      setLocalOverride(field, value);
+    },
+    [setField, setLocalOverride]
+  );
+
   return useMemo(
     () => ({
       patchData,
@@ -152,6 +163,7 @@ export function useRolandRemotePatchState() {
       localOverrides: localOverrides.current,
       subscribeToField,
       setLocalOverride,
+      setPatchField,
     }),
     [
       patchData,
@@ -161,6 +173,7 @@ export function useRolandRemotePatchState() {
       localOverrides,
       subscribeToField,
       setLocalOverride,
+      setPatchField,
     ]
   );
 }

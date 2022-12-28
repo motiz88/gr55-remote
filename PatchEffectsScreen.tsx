@@ -11,6 +11,7 @@ import { PatchEffectsMFXScreen } from "./PatchEffectsMFXScreen";
 import { PatchEffectsModScreen } from "./PatchEffectsModScreen";
 import { PatchEffectsReverbScreen } from "./PatchEffectsReverbScreen";
 import { PatchEffectsStructureScreen } from "./PatchEffectsStructureScreen";
+import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { PatchEffectsTabParamList, RootStackParamList } from "./navigation";
 import { usePatchField } from "./usePatchField";
@@ -50,6 +51,8 @@ export function PatchEffectsScreen({
     tabsInView -= 0.5;
   }
 
+  const { closeAllPopovers } = usePopovers();
+
   return (
     <Tab.Navigator
       id="PatchEffects"
@@ -59,6 +62,18 @@ export function PatchEffectsScreen({
           tabsInView < tabCount ? { width: width / tabsInView } : {},
       }}
       backBehavior="history"
+      screenListeners={{
+        // TODO: Extract popover aware tab navigator component
+        swipeStart: () => {
+          closeAllPopovers();
+        },
+        tabPress: () => {
+          closeAllPopovers();
+        },
+        blur: () => {
+          closeAllPopovers();
+        },
+      }}
     >
       <Tab.Screen
         name="Struct"

@@ -1,8 +1,7 @@
 import Slider from "@react-native-community/slider";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { FieldRowContext } from "./FieldRow";
 import { PatchFieldRow } from "./PatchFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { useMaybeControlledPatchField } from "./usePatchField";
@@ -88,7 +87,9 @@ function SliderControl({
   handleSlidingComplete: (valueOrValues: number | number[]) => void;
   value: number;
 }) {
-  const { isAssigned } = useContext(FieldRowContext);
+  // const { isAssigned } = useContext(FieldRowContext);
+  // TODO: Show assigned state when all controls can reliably handle long press etc
+  const isAssigned = false;
 
   return (
     <View style={styles.sliderContainer}>

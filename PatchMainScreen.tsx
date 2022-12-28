@@ -5,7 +5,6 @@ import {
   Button,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -14,6 +13,7 @@ import {
 
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import {
   BooleanField,
@@ -61,7 +61,7 @@ export function PatchMainScreen({
   }
 
   return (
-    <ScrollView
+    <PopoverAwareScrollView
       refreshControl={
         // TODO: Connect this to the actual refresh state
         // TODO: Refactor to avoid duplication with all the other screens
@@ -199,7 +199,7 @@ export function PatchMainScreen({
           navigation.navigate("PatchAssigns", {});
         }}
       />
-    </ScrollView>
+    </PopoverAwareScrollView>
   );
 }
 

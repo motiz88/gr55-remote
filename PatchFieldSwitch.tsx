@@ -1,7 +1,6 @@
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Switch, Text, View, Pressable, StyleSheet } from "react-native";
 
-import { FieldRowContext } from "./FieldRow";
 import { PatchFieldRow } from "./PatchFieldRow";
 import { PatchFieldStyles } from "./PatchFieldStyles";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
@@ -75,7 +74,9 @@ function SwitchControl({
   handleValueChange: (value: boolean) => void;
   labelsInOrder: readonly [string, string];
 }) {
-  const { isAssigned } = useContext(FieldRowContext);
+  // const { isAssigned } = useContext(FieldRowContext);
+  // TODO: Show assigned state when all controls can reliably handle long press etc
+  const isAssigned = false;
 
   const inlineSwitch = (
     // Prevent the switch from triggering any parent Pressables
