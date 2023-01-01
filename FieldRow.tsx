@@ -1,13 +1,6 @@
 import { Entypo } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import {
-  createContext,
-  forwardRef,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import {
   Animated,
   GestureResponderEvent,
@@ -22,36 +15,32 @@ import {
 import { useAnimation } from "react-native-animation-hooks";
 
 import { PatchFieldStyles } from "./PatchFieldStyles";
-import { useAndForwardRef } from "./useAndForwardRef";
 
-export const FieldRow = forwardRef(function FieldRow(
-  {
-    description,
-    children,
-    inline,
-    isAssigned,
-    onPress,
-    onLongPress,
-    onPressIn,
-  }: {
-    description: React.ReactNode;
-    children?: React.ReactNode;
-    inline?: boolean;
-    isAssigned?: boolean;
-    onPress?: () => void;
-    onPressIn?: () => void;
-    onLongPress?: (
-      event: GestureResponderEvent,
-      measuredInWindow: {
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-      }
-    ) => void;
-  },
-  ref: React.ForwardedRef<View>
-) {
+export const FieldRow = function FieldRow({
+  description,
+  children,
+  inline,
+  isAssigned,
+  onPress,
+  onLongPress,
+  onPressIn,
+}: {
+  description: React.ReactNode;
+  children?: React.ReactNode;
+  inline?: boolean;
+  isAssigned?: boolean;
+  onPress?: () => void;
+  onPressIn?: () => void;
+  onLongPress?: (
+    event: GestureResponderEvent,
+    measuredInWindow: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }
+  ) => void;
+}) {
   const fieldRowContext = useMemo(
     () => ({ isAssigned: isAssigned ?? false }),
     [isAssigned]
@@ -65,7 +54,7 @@ export const FieldRow = forwardRef(function FieldRow(
     width: number;
     height: number;
   }>();
-  const viewRef = useAndForwardRef(ref);
+  const viewRef = useRef<View>(null);
   const handlePressIn = useCallback(() => {
     if (isLongPressable || isPressable) {
       setPressed(true);
@@ -154,7 +143,7 @@ export const FieldRow = forwardRef(function FieldRow(
       )}
     </FieldRowContext.Provider>
   );
-});
+};
 
 function NotPressable(
   props: PressableProps & {

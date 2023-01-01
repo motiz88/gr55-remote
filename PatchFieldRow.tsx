@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import { useCallback, useRef } from "react";
-import { GestureResponderEvent, View } from "react-native";
+import { useCallback } from "react";
+import { GestureResponderEvent } from "react-native";
 import { Rect } from "react-native-popover-view";
 
 import { FieldRow } from "./FieldRow";
@@ -65,7 +65,6 @@ function AssignablePatchFieldRow({
   const { showPopover, closeAllPopovers } = usePopovers();
 
   const navigation = useNavigation<GlobalNavigationProp>();
-  const rowRef = useRef<View>(null);
   const handleLongPress = useCallback(
     (
       event: GestureResponderEvent,
@@ -124,7 +123,6 @@ function AssignablePatchFieldRow({
   if (assignsForDef.length > 0) {
     return (
       <FieldRow
-        ref={rowRef}
         description={field.definition.description}
         inline={inline}
         isAssigned
@@ -138,7 +136,6 @@ function AssignablePatchFieldRow({
   }
   return (
     <FieldRow
-      ref={rowRef}
       description={field.definition.description}
       inline={inline}
       onLongPress={handleLongPress}

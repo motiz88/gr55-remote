@@ -106,61 +106,14 @@ function RootNavigator() {
         },
       }}
     >
-      <RootStack.Screen
-        name="PatchMain"
-        component={PatchMainScreen}
-        listeners={
-          {
-            // blur: () => {
-            //   closeAllPopovers();
-            // },
-          }
-        }
-      />
-      <RootStack.Screen
-        name="PatchTone"
-        component={PatchToneScreen}
-        listeners={
-          {
-            // blur: () => {
-            //   closeAllPopovers();
-            // },
-          }
-        }
-      />
-      <RootStack.Screen
-        name="PatchEffects"
-        component={PatchEffectsScreen}
-        listeners={
-          {
-            // blur: () => {
-            //   closeAllPopovers();
-            // },
-          }
-        }
-      />
-      <RootStack.Screen
-        name="PatchAssigns"
-        component={PatchAssignsScreen}
-        listeners={
-          {
-            // blur: () => {
-            //   closeAllPopovers();
-            // },
-          }
-        }
-      />
+      <RootStack.Screen name="PatchMain" component={PatchMainScreen} />
+      <RootStack.Screen name="PatchTone" component={PatchToneScreen} />
+      <RootStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
+      <RootStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
       <RootStack.Screen
         name="IoSetup"
         component={IoSetupScreen}
         options={{ title: "Setup" }}
-        listeners={
-          {
-            // blur: () => {
-            //   closeAllPopovers();
-            // },
-          }
-        }
       />
     </RootStack.Navigator>
   );
