@@ -14,6 +14,7 @@ export type PatchStackParamList = {
   PatchTone: object;
   PatchAssigns: object;
   PatchMasterOther: object;
+  PatchMasterPedalGkCtl: object;
 };
 
 export type PatchEffectsTabParamList = {
@@ -32,6 +33,16 @@ export type PatchToneTabParamList = {
   PCM1: object;
   PCM2: object;
   Modeling: object;
+};
+
+export type PatchMasterPedalGkCtlTabParamList = {
+  Ctl: object;
+  Exp: object;
+  ExpOn: object;
+  ExpSw: object;
+  GkS1: object;
+  GkS2: object;
+  GkVol: object;
 };
 
 export type PatchAssignsTabParamList = {

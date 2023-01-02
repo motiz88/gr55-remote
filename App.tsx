@@ -20,6 +20,7 @@ import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
+import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
@@ -175,6 +176,11 @@ function PatchDrawerContent(
       /> */}
       <DrawerItem
         style={{ paddingLeft: 0 }}
+        label="Pedal / GK Control"
+        onPress={() => props.navigation.navigate("PatchMasterPedalGkCtl")}
+      />
+      <DrawerItem
+        style={{ paddingLeft: 0 }}
         label="Assigns"
         onPress={() => props.navigation.navigate("PatchAssigns")}
       />
@@ -250,6 +256,11 @@ function PatchStackNavigator() {
         name="PatchMasterOther"
         component={PatchMasterOtherScreen}
         options={{ title: "Other" }}
+      />
+      <PatchStack.Screen
+        name="PatchMasterPedalGkCtl"
+        component={PatchMasterPedalGkCtlScreen}
+        options={{ title: "Pedal / GK CTL" }}
       />
     </PatchStack.Navigator>
   );
