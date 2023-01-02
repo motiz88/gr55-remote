@@ -2,6 +2,7 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 
+import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PatchToneModelingScreen } from "./PatchToneModelingScreen";
 import { PatchToneNormalScreen } from "./PatchToneNormalScreen";
 import { PatchTonePCMScreen } from "./PatchTonePCMScreen";
@@ -43,6 +44,7 @@ export function PatchToneScreen({
           closeAllPopovers();
         },
       }}
+      tabBar={renderAdjustingMaterialTopTabBar}
     >
       <Tab.Screen name="Normal" component={PatchToneNormalScreen} />
       <Tab.Screen name="PCM1" component={PatchTonePCMScreen} />

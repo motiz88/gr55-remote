@@ -3,6 +3,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 
+import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PatchEffectsAmpScreen } from "./PatchEffectsAmpScreen";
 import { PatchEffectsChorusScreen } from "./PatchEffectsChorusScreen";
 import { PatchEffectsDelayScreen } from "./PatchEffectsDelayScreen";
@@ -70,6 +71,7 @@ export function PatchEffectsScreen({
           closeAllPopovers();
         },
       }}
+      tabBar={renderAdjustingMaterialTopTabBar}
     >
       <Tab.Screen
         name="Struct"
