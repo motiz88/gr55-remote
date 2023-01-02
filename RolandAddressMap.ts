@@ -1,3 +1,5 @@
+import { pack7 } from "./RolandSysExProtocol";
+
 export interface RolandAddressMap {
   readonly temporaryPatch: AtomReference;
   readonly system: AtomReference;
@@ -308,8 +310,8 @@ export class UByteField extends UIntBEField {
 
 export class UWordField extends UIntBEField {
   constructor(
-    public readonly min: number,
-    public readonly max: number,
+    public readonly min: number = 0,
+    public readonly max: number = pack7(0x7f7f),
     options?: {
       encodedOffset?: number;
       decodedFactor?: number;
@@ -318,6 +320,22 @@ export class UWordField extends UIntBEField {
   ) {
     super(min, max, 2, options);
     this.description = `unsigned word [${this.min}, ${this.max}]`;
+  }
+  readonly description: string;
+}
+
+export class U3BytesField extends UIntBEField {
+  constructor(
+    public readonly min: number = 0,
+    public readonly max: number = pack7(0x7f7f7f),
+    options?: {
+      encodedOffset?: number;
+      decodedFactor?: number;
+      format?: (value: number) => string;
+    }
+  ) {
+    super(min, max, 3, options);
+    this.description = `unsigned 3-byte int [${this.min}, ${this.max}]`;
   }
   readonly description: string;
 }
@@ -530,7 +548,7 @@ export class USplit12Field extends NumericFieldBase implements NumericField {
   readonly description: string;
 }
 
-export function enumField<Labels extends readonly string[]>(
+export function enumField<Labels extends readonly (string | number)[]>(
   labels: Labels,
   rawField?: FieldType<number>
 ): EnumField<{ [encoded: number]: Labels[number] }> {
