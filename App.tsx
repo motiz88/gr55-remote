@@ -19,6 +19,7 @@ import { MidiIoSetupContext } from "./MidiIoSetupContext";
 import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
+import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
@@ -167,10 +168,20 @@ function PatchDrawerContent(
         label="Effects"
         onPress={() => props.navigation.navigate("PatchEffects")}
       />
+      {/* <DrawerItem
+        style={{ paddingLeft: 0 }}
+        label="Master"
+        onPress={() => props.navigation.navigate("PatchAssigns")}
+      /> */}
       <DrawerItem
         style={{ paddingLeft: 0 }}
         label="Assigns"
         onPress={() => props.navigation.navigate("PatchAssigns")}
+      />
+      <DrawerItem
+        style={{ paddingLeft: 0 }}
+        label="Other"
+        onPress={() => props.navigation.navigate("PatchMasterOther")}
       />
     </DrawerContentScrollView>
   );
@@ -235,6 +246,11 @@ function PatchStackNavigator() {
       <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
       <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
       <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
+      <PatchStack.Screen
+        name="PatchMasterOther"
+        component={PatchMasterOtherScreen}
+        options={{ title: "Other" }}
+      />
     </PatchStack.Navigator>
   );
 }

@@ -13,6 +13,7 @@ export type PatchStackParamList = {
   PatchEffects: object;
   PatchTone: object;
   PatchAssigns: object;
+  PatchMasterOther: object;
 };
 
 export type PatchEffectsTabParamList = {
