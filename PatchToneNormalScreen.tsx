@@ -2,35 +2,39 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchToneTabParamList } from "./navigation";
 
 export function PatchToneNormalScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchToneTabParamList, "Normal">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection
+      <RemoteFieldSwitchedSection
+        page={PATCH}
         field={GR55.temporaryPatch.common.normalPuMute}
       >
-        <PatchFieldSlider field={GR55.temporaryPatch.common.normalPuLevel} />
-      </PatchFieldSwitchedSection>
+        <RemoteFieldSlider
+          page={PATCH}
+          field={GR55.temporaryPatch.common.normalPuLevel}
+        />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }

@@ -2,18 +2,21 @@ import { View, Animated, StyleSheet } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
 import { useContextualStyle } from "./ContextualStyle";
-import { PatchFieldSwitch } from "./PatchFieldSwitch";
+import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
-import { usePatchField } from "./usePatchField";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useRemoteField } from "./useRemoteField";
 
-export function PatchFieldSwitchedSection({
+export function RemoteFieldSwitchedSection({
+  page,
   field,
   children,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference<BooleanField>;
   children?: React.ReactNode;
 }) {
-  const [value, setValue] = usePatchField(field);
+  const [value, setValue] = useRemoteField(page, field);
   const isDisabled = field.definition.type.invertedForDisplay ? value : !value;
 
   const overlayOpacity = useAnimation({
@@ -26,7 +29,12 @@ export function PatchFieldSwitchedSection({
   const { backgroundColor } = useContextualStyle();
   return (
     <>
-      <PatchFieldSwitch field={field} value={value} onValueChange={setValue} />
+      <RemoteFieldSwitch
+        page={page}
+        field={field}
+        value={value}
+        onValueChange={setValue}
+      />
       <View>
         {/* NOTE: This is first with a custom zIndex, because placing this last
                 with a "natural" zIndex breaks some overlaid components' touch

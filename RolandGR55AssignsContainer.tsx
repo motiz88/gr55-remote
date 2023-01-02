@@ -1,64 +1,80 @@
 import { createContext, useCallback, useContext, useMemo } from "react";
 
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useAssignsMap } from "./useAssignsMap";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 export function RolandGR55AssignsContainer({
   children,
 }: {
   children?: React.ReactNode;
 }) {
-  const [assign1Target] = usePatchField(
+  const [assign1Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign1.target
   );
-  const [assign1Switch, setAssign1Switch] = usePatchField(
+  const [assign1Switch, setAssign1Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign1.switch
   );
-  const [assign2Target] = usePatchField(
+  const [assign2Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign2.target
   );
-  const [assign2Switch, setAssign2Switch] = usePatchField(
+  const [assign2Switch, setAssign2Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign2.switch
   );
-  const [assign3Target] = usePatchField(
+  const [assign3Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign3.target
   );
-  const [assign3Switch, setAssign3Switch] = usePatchField(
+  const [assign3Switch, setAssign3Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign3.switch
   );
-  const [assign4Target] = usePatchField(
+  const [assign4Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign4.target
   );
-  const [assign4Switch, setAssign4Switch] = usePatchField(
+  const [assign4Switch, setAssign4Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign4.switch
   );
-  const [assign5Target] = usePatchField(
+  const [assign5Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign5.target
   );
-  const [assign5Switch, setAssign5Switch] = usePatchField(
+  const [assign5Switch, setAssign5Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign5.switch
   );
-  const [assign6Target] = usePatchField(
+  const [assign6Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign6.target
   );
-  const [assign6Switch, setAssign6Switch] = usePatchField(
+  const [assign6Switch, setAssign6Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign6.switch
   );
-  const [assign7Target] = usePatchField(
+  const [assign7Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign7.target
   );
-  const [assign7Switch, setAssign7Switch] = usePatchField(
+  const [assign7Switch, setAssign7Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign7.switch
   );
-  const [assign8Target] = usePatchField(
+  const [assign8Target] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign8.target
   );
-  const [assign8Switch, setAssign8Switch] = usePatchField(
+  const [assign8Switch, setAssign8Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign8.switch
   );
-  const { setPatchField } = useContext(RolandRemotePatchContext);
+  const { setRemoteField } = useContext(PATCH);
   const firstAvailableAssignIndex = [
     assign1Switch,
     assign2Switch,
@@ -127,7 +143,7 @@ export function RolandGR55AssignsContainer({
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
       const assignDef = assignsMap.getByIndex(assignDefIndex);
-      setPatchField(assign.target, assignDefIndex);
+      setRemoteField(assign.target, assignDefIndex);
 
       const reinterpretedMin = assignDef.reinterpretAssignValueField(
         assign.targetMin
@@ -135,10 +151,10 @@ export function RolandGR55AssignsContainer({
       const reinterpretedMax = assignDef.reinterpretAssignValueField(
         assign.targetMax
       );
-      setPatchField(reinterpretedMin, reinterpretedMin.definition.type.min);
-      setPatchField(reinterpretedMax, reinterpretedMax.definition.type.max);
+      setRemoteField(reinterpretedMin, reinterpretedMin.definition.type.min);
+      setRemoteField(reinterpretedMax, reinterpretedMax.definition.type.max);
     },
-    [assignsMap, setPatchField]
+    [assignsMap, setRemoteField]
   );
   const createAssign = useCallback(
     (assignDefIndex: number): number => {

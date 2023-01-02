@@ -2,14 +2,14 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitch } from "./PatchFieldSwitch";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchToneTabParamList } from "./navigation";
 
@@ -17,7 +17,7 @@ export function PatchTonePCMScreen({
   navigation,
   route,
 }: MaterialTopTabScreenProps<PatchToneTabParamList, "PCM1" | "PCM2">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const pcmTonePage =
     route.name === "PCM1"
@@ -34,82 +34,181 @@ export function PatchTonePCMScreen({
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection field={pcmTonePage.muteSwitch}>
-        <PatchFieldPicker field={pcmTonePage.toneSelect} />
-        <PatchFieldSlider field={pcmTonePage.partLevel} />
-        <PatchFieldSlider field={pcmTonePage.partOctaveShift} />
-        <PatchFieldSwitch field={pcmTonePage.chromatic} />
-        <PatchFieldSwitch field={pcmTonePage.legatoSwitch} />
-        <PatchFieldSlider
+      <RemoteFieldSwitchedSection page={PATCH} field={pcmTonePage.muteSwitch}>
+        <RemoteFieldPicker page={PATCH} field={pcmTonePage.toneSelect} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.partLevel} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.partOctaveShift} />
+        <RemoteFieldSwitch page={PATCH} field={pcmTonePage.chromatic} />
+        <RemoteFieldSwitch page={PATCH} field={pcmTonePage.legatoSwitch} />
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.tvaLevelVelocitySensOffset}
         />
-        <PatchFieldPicker field={pcmToneOffsetPage.tvaLevelVelocityCurve} />
-        <PatchFieldSwitch field={pcmTonePage.nuanceSwitch} />
-        <PatchFieldSlider field={pcmTonePage.partPan} />
-        <PatchFieldSlider field={pcmTonePage.string1Level} />
-        <PatchFieldSlider field={pcmTonePage.string2Level} />
-        <PatchFieldSlider field={pcmTonePage.string3Level} />
-        <PatchFieldSlider field={pcmTonePage.string4Level} />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={pcmToneOffsetPage.tvaLevelVelocityCurve}
+        />
+        <RemoteFieldSwitch page={PATCH} field={pcmTonePage.nuanceSwitch} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.partPan} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string1Level} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string2Level} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string3Level} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string4Level} />
         {/* TODO: What does this look like in bass mode? */}
-        <PatchFieldSlider field={pcmTonePage.string5Level} />
-        <PatchFieldSlider field={pcmTonePage.string6Level} />
-        <PatchFieldSlider field={pcmTonePage.partCoarseTune} />
-        <PatchFieldSlider field={pcmTonePage.partFineTune} />
-        <PatchFieldPicker field={pcmTonePage.partPortamentoSwitch} />
-        <PatchFieldPicker field={pcmToneOffsetPage.partPortamentoType} />
-        <PatchFieldSlider field={pcmTonePage.portamentoTime} />
-        <PatchFieldPicker field={pcmToneOffsetPage.tvfFilterType} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfCutoffFrequencyOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfResonanceOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfCutoffVelocitySens} />
-        <PatchFieldSlider field={pcmToneOffsetPage.nuanceCutoffSens} />
-        <PatchFieldPicker field={pcmToneOffsetPage.tvfCutoffVelocityCurve} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfCutoffKeyfollowOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfEnvDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfEnvTime1Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfEnvTime2Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfEnvLevel3Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvfEnvTime4Offset} />
-        <PatchFieldSlider
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string5Level} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.string6Level} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.partCoarseTune} />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.partFineTune} />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={pcmTonePage.partPortamentoSwitch}
+        />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={pcmToneOffsetPage.partPortamentoType}
+        />
+        <RemoteFieldSlider page={PATCH} field={pcmTonePage.portamentoTime} />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfFilterType}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfCutoffFrequencyOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfResonanceOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfCutoffVelocitySens}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.nuanceCutoffSens}
+        />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfCutoffVelocityCurve}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfCutoffKeyfollowOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfEnvDepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfEnvTime1Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfEnvTime2Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfEnvLevel3Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvfEnvTime4Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.tvfEnvTime1VelocitySensOffset}
         />
-        <PatchFieldSlider
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.tvfEnvTime1NuanceSensOffset}
         />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvaEnvTime1Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvaEnvTime2Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvaEnvLevel3Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.tvaEnvTime4Offset} />
-        <PatchFieldSlider
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvaEnvTime1Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvaEnvTime2Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvaEnvLevel3Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.tvaEnvTime4Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.tvaEnvTime1VelocitySensOffset}
         />
-        <PatchFieldSlider
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.tvaEnvTime1NuanceSensOffset}
         />
-        <PatchFieldSlider field={pcmToneOffsetPage.nuanceLevelSens} />
-        <PatchFieldPicker field={pcmTonePage.releaseMode} />
-        <PatchFieldSlider
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.nuanceLevelSens}
+        />
+        <RemoteFieldPicker page={PATCH} field={pcmTonePage.releaseMode} />
+        <RemoteFieldSlider
+          page={PATCH}
           field={pcmToneOffsetPage.pitchEnvVelocitySensOffset}
         />
-        <PatchFieldSlider field={pcmToneOffsetPage.pitchEnvOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.pitchEnvTime1Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.pitchEnvTime2Offset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo1Rate} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo1PitchDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo1TVFDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo1TVADepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo1PanDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo2Rate} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo2PitchDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo2TVFDepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo2TVADepthOffset} />
-        <PatchFieldSlider field={pcmToneOffsetPage.lfo2PanDepthOffset} />
-      </PatchFieldSwitchedSection>
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.pitchEnvOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.pitchEnvTime1Offset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.pitchEnvTime2Offset}
+        />
+        <RemoteFieldSlider page={PATCH} field={pcmToneOffsetPage.lfo1Rate} />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo1PitchDepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo1TVFDepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo1TVADepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo1PanDepthOffset}
+        />
+        <RemoteFieldSlider page={PATCH} field={pcmToneOffsetPage.lfo2Rate} />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo2PitchDepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo2TVFDepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo2TVADepthOffset}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={pcmToneOffsetPage.lfo2PanDepthOffset}
+        />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }

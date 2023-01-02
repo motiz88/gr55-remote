@@ -24,12 +24,16 @@ import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import {
+  RolandRemotePatchContext,
+  RolandRemoteSystemContext,
+} from "./RolandRemotePageContext";
 import { PatchStackParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
 import { useRolandDataTransfer } from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
+import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
 
 const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
@@ -69,6 +73,19 @@ function RolandRemotePatchStateContainer({
   );
 }
 
+function RolandRemoteSystemStateContainer({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const rolandRemoteSystemState = useRolandRemoteSystemState();
+  return (
+    <RolandRemoteSystemContext.Provider value={rolandRemoteSystemState}>
+      {children}
+    </RolandRemoteSystemContext.Provider>
+  );
+}
+
 function RolandDataTransferContainer({
   children,
 }: {
@@ -88,15 +105,17 @@ export default function App() {
       <MidiIoSetupContainer>
         <RolandIoSetupContainer>
           <RolandDataTransferContainer>
-            <RolandRemotePatchStateContainer>
-              <AppNavigationContainer>
-                <RolandGR55AssignsContainer>
-                  <PopoversContainer>
-                    <RootTabNavigator />
-                  </PopoversContainer>
-                </RolandGR55AssignsContainer>
-              </AppNavigationContainer>
-            </RolandRemotePatchStateContainer>
+            <RolandRemoteSystemStateContainer>
+              <RolandRemotePatchStateContainer>
+                <AppNavigationContainer>
+                  <RolandGR55AssignsContainer>
+                    <PopoversContainer>
+                      <RootTabNavigator />
+                    </PopoversContainer>
+                  </RolandGR55AssignsContainer>
+                </AppNavigationContainer>
+              </RolandRemotePatchStateContainer>
+            </RolandRemoteSystemStateContainer>
           </RolandDataTransferContainer>
         </RolandIoSetupContainer>
       </MidiIoSetupContainer>

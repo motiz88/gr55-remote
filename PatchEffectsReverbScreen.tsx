@@ -2,13 +2,13 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 
@@ -17,30 +17,30 @@ const { sendsAndEq, mfx, ampModNs, common } = GR55.temporaryPatch;
 export function PatchEffectsReverbScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "REV">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection field={sendsAndEq.reverbSwitch}>
-        <PatchFieldPicker field={sendsAndEq.reverbType} />
-        <PatchFieldSlider field={sendsAndEq.reverbTime} />
-        <PatchFieldPicker field={sendsAndEq.reverbHighCut} />
-        <PatchFieldSlider field={sendsAndEq.reverbEffectLevel} />
+      <RemoteFieldSwitchedSection page={PATCH} field={sendsAndEq.reverbSwitch}>
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.reverbType} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.reverbTime} />
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.reverbHighCut} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.reverbEffectLevel} />
 
         {/* TODO: send levels should be replicated next to the sources too. */}
         {/* TODO: maybe also a mixer view? */}
-        <PatchFieldSlider field={mfx.mfxReverbSendLevel} />
-        <PatchFieldSlider field={ampModNs.modReverbSendLevel} />
-        <PatchFieldSlider field={common.bypassReverbSendLevel} />
-      </PatchFieldSwitchedSection>
+        <RemoteFieldSlider page={PATCH} field={mfx.mfxReverbSendLevel} />
+        <RemoteFieldSlider page={PATCH} field={ampModNs.modReverbSendLevel} />
+        <RemoteFieldSlider page={PATCH} field={common.bypassReverbSendLevel} />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }

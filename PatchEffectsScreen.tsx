@@ -13,15 +13,19 @@ import { PatchEffectsReverbScreen } from "./PatchEffectsReverbScreen";
 import { PatchEffectsStructureScreen } from "./PatchEffectsStructureScreen";
 import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { PatchEffectsTabParamList, PatchStackParamList } from "./navigation";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 const Tab = createMaterialTopTabNavigator<PatchEffectsTabParamList>();
 
 export function PatchEffectsScreen({
   navigation,
 }: NativeStackScreenProps<PatchStackParamList, "PatchEffects">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
+  const [patchName] = useRemoteField(
+    PATCH,
+    GR55.temporaryPatch.common.patchName
+  );
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Effects",

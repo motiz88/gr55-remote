@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-export const PatchFieldStyles = StyleSheet.create({
+export const FieldStyles = StyleSheet.create({
   horizontal: {
     flexDirection: "row",
   },

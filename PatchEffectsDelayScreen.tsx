@@ -2,13 +2,13 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 
@@ -17,27 +17,27 @@ const { sendsAndEq, mfx, ampModNs, common } = GR55.temporaryPatch;
 export function PatchEffectsDelayScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "DLY">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection field={sendsAndEq.delaySwitch}>
-        <PatchFieldPicker field={sendsAndEq.delayType} />
-        <PatchFieldSlider field={sendsAndEq.delayTime} />
-        <PatchFieldSlider field={sendsAndEq.delayFeedback} />
-        <PatchFieldSlider field={sendsAndEq.delayEffectLevel} />
-        <PatchFieldSlider field={mfx.mfxDelaySendLevel} />
-        <PatchFieldSlider field={ampModNs.modDelaySendLevel} />
-        <PatchFieldSlider field={common.bypassDelaySendLevel} />
-      </PatchFieldSwitchedSection>
+      <RemoteFieldSwitchedSection page={PATCH} field={sendsAndEq.delaySwitch}>
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.delayType} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.delayTime} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.delayFeedback} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.delayEffectLevel} />
+        <RemoteFieldSlider page={PATCH} field={mfx.mfxDelaySendLevel} />
+        <RemoteFieldSlider page={PATCH} field={ampModNs.modDelaySendLevel} />
+        <RemoteFieldSlider page={PATCH} field={common.bypassDelaySendLevel} />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }

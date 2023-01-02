@@ -2,24 +2,25 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSegmentedSwitch } from "./RemoteFieldSegmentedSwitch";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 export function PatchEffectsModScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "Mod">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
-  const [modType, setModType] = usePatchField(
+  const [modType, setModType] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.ampModNs.modType
   );
 
@@ -28,72 +29,112 @@ export function PatchEffectsModScreen({
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
       {/* "The PAN parameter is valid even if SWITCH is OFF." - GR-55 Owner's Manual */}
-      <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.modPan} />
-      <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.modSwitch}>
-        <PatchFieldPicker
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.modPan}
+      />
+      <RemoteFieldSwitchedSection
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.modSwitch}
+      >
+        <RemoteFieldPicker
+          page={PATCH}
           field={GR55.temporaryPatch.ampModNs.modType}
           value={modType}
           onValueChange={setModType}
         />
         {modType === "OD/DS" && (
           <>
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.odDsType} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.odDsDrive} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.odDsTone} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.odDsLevel} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.odDsType}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.odDsDrive}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.odDsTone}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.odDsLevel}
+            />
           </>
         )}
         {modType === "WAH" && <WahSection />}
         {modType === "COMP" && (
           <>
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.compSustain}
             />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.compAttack} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.compLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.compAttack}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.compLevel}
+            />
           </>
         )}
         {modType === "LIMITER" && (
           <>
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.limiterThreshold}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.limiterRelease}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.limiterLevel}
             />
           </>
         )}
         {modType === "OCTAVE" && (
           <>
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.octaveOctLevel}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.octaveDryLevel}
             />
           </>
         )}
         {modType === "PHASER" && (
           <>
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.phaserType} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.phaserType}
+            />
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.phaserRate} />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.phaserRate}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.phaserDepth}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.phaserResonance}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.phaserLevel}
             />
           </>
@@ -101,19 +142,24 @@ export function PatchEffectsModScreen({
         {modType === "FLANGER" && (
           <>
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.flangerRate}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.flangerDepth}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.flangerManual}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.flangerResonance}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.flangerLevel}
             />
           </>
@@ -121,17 +167,21 @@ export function PatchEffectsModScreen({
         {modType === "TREMOLO" && (
           <>
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.tremoloRate}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.tremoloDepth}
             />
             {/* TODO: Render wave shape? */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.tremoloWaveShape}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.tremoloLevel}
             />
           </>
@@ -139,20 +189,25 @@ export function PatchEffectsModScreen({
         {modType === "ROTARY" && (
           <>
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.rotaryRateSlow}
             />
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.rotaryRateFast}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.rotaryDepth}
             />
-            <PatchFieldSegmentedSwitch
+            <RemoteFieldSegmentedSwitch
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.rotarySelect}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.rotaryLevel}
             />
           </>
@@ -160,45 +215,80 @@ export function PatchEffectsModScreen({
         {modType === "UNI-V" && (
           <>
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.uniVRate} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.uniVDepth} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.uniVLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.uniVRate}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.uniVDepth}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.uniVLevel}
+            />
           </>
         )}
         {modType === "PAN" && (
           <>
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.panRate} />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.panDepth} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.panRate}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.panDepth}
+            />
             {/* TODO: Render wave shape? */}
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.panWaveShape}
             />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.panLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.panLevel}
+            />
           </>
         )}
         {modType === "DELAY" && (
           <>
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.delayType} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.delayType}
+            />
             {/* TODO: Time field has labels at the end of the range */}
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.delayTime} />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.delayTime}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.delayFeedback}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.delayEffectLevel}
             />
           </>
         )}
         {modType === "CHORUS" && (
           <>
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.chorusType} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.chorusType}
+            />
             {/* TODO: Rate field has labels at the end of the range */}
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.chorusRate} />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.chorusRate}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.chorusDepth}
             />
-            <PatchFieldSlider
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.chorusEffectLevel}
             />
           </>
@@ -206,69 +296,117 @@ export function PatchEffectsModScreen({
         {modType === "EQ" && (
           /* TODO: Graphical EQ! */
           <>
-            <PatchFieldPicker
+            <RemoteFieldPicker
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqLowCutoffFreq}
             />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqLowGain} />
-            <PatchFieldPicker
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.eqLowGain}
+            />
+            <RemoteFieldPicker
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqLowMidCutoffFreq}
             />
             {/* TODO: Slider with nonlinear stops */}
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.eqLowMidQ} />
-            <PatchFieldSlider
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.eqLowMidQ}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqLowMidGain}
             />
-            <PatchFieldPicker
+            <RemoteFieldPicker
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqHighMidCutoffFreq}
             />
             {/* TODO: Slider with nonlinear stops */}
-            <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.eqHighMidQ} />
-            <PatchFieldSlider
+            <RemoteFieldPicker
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.eqHighMidQ}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqHighMidGain}
             />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqHighGain} />
-            <PatchFieldPicker
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.eqHighGain}
+            />
+            <RemoteFieldPicker
+              page={PATCH}
               field={GR55.temporaryPatch.ampModNs.eqHighCutoffFreq}
             />
-            <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.eqLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.eqLevel}
+            />
           </>
         )}
-      </PatchFieldSwitchedSection>
-      <PatchFieldSwitchedSection field={GR55.temporaryPatch.ampModNs.nsSwitch}>
-        <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsThreshold} />
-        <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.nsReleaseTime} />
-      </PatchFieldSwitchedSection>
+      </RemoteFieldSwitchedSection>
+      <RemoteFieldSwitchedSection
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.nsSwitch}
+      >
+        <RemoteFieldSlider
+          page={PATCH}
+          field={GR55.temporaryPatch.ampModNs.nsThreshold}
+        />
+        <RemoteFieldSlider
+          page={PATCH}
+          field={GR55.temporaryPatch.ampModNs.nsReleaseTime}
+        />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }
 
 function WahSection() {
-  const [wahMode, setWahMode] = usePatchField(
+  const [wahMode, setWahMode] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.ampModNs.wahMode
   );
   return (
     <>
-      <PatchFieldPicker
+      <RemoteFieldPicker
+        page={PATCH}
         field={GR55.temporaryPatch.ampModNs.wahMode}
         value={wahMode}
         onValueChange={setWahMode}
       />
       {wahMode === "MANUAL" && (
         <>
-          <PatchFieldPicker field={GR55.temporaryPatch.ampModNs.wahType} />
-          <PatchFieldSlider
+          <RemoteFieldPicker
+            page={PATCH}
+            field={GR55.temporaryPatch.ampModNs.wahType}
+          />
+          <RemoteFieldSlider
+            page={PATCH}
             field={GR55.temporaryPatch.ampModNs.wahPedalPosition}
           />
         </>
       )}
       {(wahMode === "T.UP" || wahMode === "T.DOWN") && (
         <>
-          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahSens} />
-          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahFreq} />
-          <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahPeak} />
+          <RemoteFieldSlider
+            page={PATCH}
+            field={GR55.temporaryPatch.ampModNs.wahSens}
+          />
+          <RemoteFieldSlider
+            page={PATCH}
+            field={GR55.temporaryPatch.ampModNs.wahFreq}
+          />
+          <RemoteFieldSlider
+            page={PATCH}
+            field={GR55.temporaryPatch.ampModNs.wahPeak}
+          />
         </>
       )}
-      <PatchFieldSlider field={GR55.temporaryPatch.ampModNs.wahLevel} />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.wahLevel}
+      />
     </>
   );
 }

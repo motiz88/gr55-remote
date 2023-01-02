@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldStyles } from "./FieldStyles";
 
 export const FieldRow = function FieldRow({
   description,
@@ -99,8 +99,8 @@ export const FieldRow = function FieldRow({
           collapsable={false}
           ref={viewRef}
           style={[
-            PatchFieldStyles.fieldRow,
-            isAssigned && PatchFieldStyles.fieldRowAssigned,
+            FieldStyles.fieldRow,
+            isAssigned && FieldStyles.fieldRowAssigned,
           ]}
         >
           <MaybePressable
@@ -108,12 +108,12 @@ export const FieldRow = function FieldRow({
             onLongPress={handleLongPress}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            style={PatchFieldStyles.fieldDescriptionColumn}
+            style={FieldStyles.fieldDescriptionColumn}
           >
             <Animated.Text
               style={[
-                PatchFieldStyles.fieldDescription,
-                isAssigned && PatchFieldStyles.fieldDescriptionAssigned,
+                FieldStyles.fieldDescription,
+                isAssigned && FieldStyles.fieldDescriptionAssigned,
                 { opacity: touchOpacity },
               ]}
             >
@@ -132,8 +132,8 @@ export const FieldRow = function FieldRow({
           {children && (
             <View
               style={[
-                PatchFieldStyles.fieldControl,
-                isAssigned && PatchFieldStyles.fieldControlAssigned,
+                FieldStyles.fieldControl,
+                isAssigned && FieldStyles.fieldControlAssigned,
               ]}
             >
               {children}

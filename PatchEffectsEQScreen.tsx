@@ -2,13 +2,13 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
 
@@ -17,32 +17,35 @@ const { sendsAndEq } = GR55.temporaryPatch;
 export function PatchEffectsEQScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "EQ">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection field={sendsAndEq.eqSwitch}>
-        <PatchFieldPicker field={sendsAndEq.eqLowCutoffFreq} />
-        <PatchFieldSlider field={sendsAndEq.eqLowGain} />
-        <PatchFieldPicker field={sendsAndEq.eqLowMidCutoffFreq} />
-        <PatchFieldPicker field={sendsAndEq.eqLowMidQ} />
-        <PatchFieldSlider field={sendsAndEq.eqLowMidGain} />
-        <PatchFieldPicker field={sendsAndEq.eqHighMidCutoffFreq} />
-        <PatchFieldPicker field={sendsAndEq.eqHighMidQ} />
-        <PatchFieldSlider field={sendsAndEq.eqHighMidGain} />
-        <PatchFieldSlider field={sendsAndEq.eqHighGain} />
-        <PatchFieldPicker field={sendsAndEq.eqHighCutoffFreq} />
-        <PatchFieldSlider field={sendsAndEq.eqLevel} />
-        <PatchFieldSlider field={sendsAndEq.ezCharacter} />
-      </PatchFieldSwitchedSection>
+      <RemoteFieldSwitchedSection page={PATCH} field={sendsAndEq.eqSwitch}>
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.eqLowCutoffFreq} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.eqLowGain} />
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.eqLowMidCutoffFreq} />
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.eqLowMidQ} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.eqLowMidGain} />
+        <RemoteFieldPicker
+          page={PATCH}
+          field={sendsAndEq.eqHighMidCutoffFreq}
+        />
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.eqHighMidQ} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.eqHighMidGain} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.eqHighGain} />
+        <RemoteFieldPicker page={PATCH} field={sendsAndEq.eqHighCutoffFreq} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.eqLevel} />
+        <RemoteFieldSlider page={PATCH} field={sendsAndEq.ezCharacter} />
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }

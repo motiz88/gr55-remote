@@ -1,5 +1,6 @@
 export interface RolandAddressMap {
   readonly temporaryPatch: AtomReference;
+  readonly system: AtomReference;
 }
 
 export type AtomReference<Definition extends AtomDefinition = AtomDefinition> =

@@ -2,14 +2,14 @@ import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
 import { useContext } from "react";
 import { StyleSheet } from "react-native";
 
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSegmentedSwitch } from "./PatchFieldSegmentedSwitch";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitch } from "./PatchFieldSwitch";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
-import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSegmentedSwitch } from "./RemoteFieldSegmentedSwitch";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
+import { RemoteFieldWaveShapePicker } from "./RemoteFieldWaveShapePicker";
 import {
   BooleanField,
   EnumField,
@@ -17,285 +17,359 @@ import {
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchEffectsTabParamList } from "./navigation";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 const { mfx } = GR55.temporaryPatch;
 
 export function PatchEffectsMFXScreen({
   navigation,
 }: MaterialTopTabScreenProps<PatchEffectsTabParamList, "MFX">) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
-  const [mfxType, setMfxType] = usePatchField(mfx.mfxType);
+  const [mfxType, setMfxType] = useRemoteField(PATCH, mfx.mfxType);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
-      <PatchFieldSwitchedSection field={mfx.mfxSwitch}>
-        <PatchFieldSlider field={mfx.mfxPan} />
-        <PatchFieldPicker
+      <RemoteFieldSwitchedSection page={PATCH} field={mfx.mfxSwitch}>
+        <RemoteFieldSlider page={PATCH} field={mfx.mfxPan} />
+        <RemoteFieldPicker
+          page={PATCH}
           field={mfx.mfxType}
           value={mfxType}
           onValueChange={setMfxType}
         />
         {mfxType === "EQ" && (
           <>
-            <PatchFieldPicker field={mfx.eqLowFreq} />
-            <PatchFieldSlider field={mfx.eqLowGain} />
-            <PatchFieldPicker field={mfx.eqMid1Freq} />
-            <PatchFieldSlider field={mfx.eqMid1Gain} />
-            <PatchFieldPicker field={mfx.eqMid1Q} />
-            <PatchFieldPicker field={mfx.eqMid2Freq} />
-            <PatchFieldSlider field={mfx.eqMid2Gain} />
-            <PatchFieldPicker field={mfx.eqMid2Q} />
-            <PatchFieldPicker field={mfx.eqHighFreq} />
-            <PatchFieldSlider field={mfx.eqHighGain} />
-            <PatchFieldSlider field={mfx.eqLevel} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqLowFreq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.eqLowGain} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqMid1Freq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.eqMid1Gain} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqMid1Q} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqMid2Freq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.eqMid2Gain} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqMid2Q} />
+            <RemoteFieldPicker page={PATCH} field={mfx.eqHighFreq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.eqHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.eqLevel} />
           </>
         )}
         {mfxType === "SUPER FILTER" && (
           <>
-            <PatchFieldPicker field={mfx.superFilterFilterType} />
-            <PatchFieldPicker field={mfx.superFilterFilterSlope} />
-            <PatchFieldSlider field={mfx.superFilterFilterCutoff} />
-            <PatchFieldSlider field={mfx.superFilterFilterResonance} />
-            <PatchFieldSlider field={mfx.superFilterFilterGain} />
-            <PatchFieldSwitchedSection field={mfx.superFilterModulationSw}>
-              <PatchFieldWaveShapePicker
+            <RemoteFieldPicker page={PATCH} field={mfx.superFilterFilterType} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={mfx.superFilterFilterSlope}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.superFilterFilterCutoff}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.superFilterFilterResonance}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.superFilterFilterGain} />
+            <RemoteFieldSwitchedSection
+              page={PATCH}
+              field={mfx.superFilterModulationSw}
+            >
+              <RemoteFieldWaveShapePicker
+                page={PATCH}
                 field={mfx.superFilterModulationWave}
               />
-            </PatchFieldSwitchedSection>
+            </RemoteFieldSwitchedSection>
             <TimeOrNoteField
               syncSwitchField={mfx.superFilterRateSyncSw}
               noteField={mfx.superFilterRateNote}
               timeField={mfx.superFilterRate}
             />
-            <PatchFieldSlider field={mfx.superFilterDepth} />
-            <PatchFieldSlider field={mfx.superFilterAttack} />
-            <PatchFieldSlider field={mfx.superFilterLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.superFilterDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.superFilterAttack} />
+            <RemoteFieldSlider page={PATCH} field={mfx.superFilterLevel} />
           </>
         )}
         {mfxType === "PHASER" && (
           <>
-            <PatchFieldPicker field={mfx.phaserMode} />
-            <PatchFieldSlider field={mfx.phaserManual} />
+            <RemoteFieldPicker page={PATCH} field={mfx.phaserMode} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserManual} />
             <TimeOrNoteField
               syncSwitchField={mfx.phaserRateSyncSw}
               noteField={mfx.phaserRateNote}
               timeField={mfx.phaserRate}
             />
-            <PatchFieldSlider field={mfx.phaserDepth} />
-            <PatchFieldSegmentedSwitch field={mfx.phaserPolarity} />
-            <PatchFieldSlider field={mfx.phaserResonance} />
-            <PatchFieldSlider field={mfx.phaserCrossFeedback} />
-            <PatchFieldSlider field={mfx.phaserMix} />
-            <PatchFieldSlider field={mfx.phaserLowGain} />
-            <PatchFieldSlider field={mfx.phaserHighGain} />
-            <PatchFieldSlider field={mfx.phaserLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserDepth} />
+            <RemoteFieldSegmentedSwitch
+              page={PATCH}
+              field={mfx.phaserPolarity}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserResonance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserCrossFeedback} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserMix} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.phaserLevel} />
           </>
         )}
         {mfxType === "STEP PHASER" && (
           <>
-            <PatchFieldPicker field={mfx.stepPhaserMode} />
-            <PatchFieldSlider field={mfx.stepPhaserManual} />
+            <RemoteFieldPicker page={PATCH} field={mfx.stepPhaserMode} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserManual} />
             <TimeOrNoteField
               syncSwitchField={mfx.stepPhaserRateSyncSw}
               noteField={mfx.stepPhaserRateNote}
               timeField={mfx.stepPhaserRate}
             />
-            <PatchFieldSlider field={mfx.stepPhaserDepth} />
-            <PatchFieldSegmentedSwitch field={mfx.stepPhaserPolarity} />
-            <PatchFieldSlider field={mfx.stepPhaserResonance} />
-            <PatchFieldSlider field={mfx.stepPhaserCrossFeedback} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserDepth} />
+            <RemoteFieldSegmentedSwitch
+              page={PATCH}
+              field={mfx.stepPhaserPolarity}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserResonance} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.stepPhaserCrossFeedback}
+            />
             <TimeOrNoteField
               syncSwitchField={mfx.stepPhaserStepRateSyncSw}
               noteField={mfx.stepPhaserStepRateNote}
               timeField={mfx.stepPhaserStepRate}
             />
-            <PatchFieldSlider field={mfx.stepPhaserMix} />
-            <PatchFieldSlider field={mfx.stepPhaserLowGain} />
-            <PatchFieldSlider field={mfx.stepPhaserHighGain} />
-            <PatchFieldSlider field={mfx.stepPhaserLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserMix} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepPhaserLevel} />
           </>
         )}
         {mfxType === "RING MODULATOR" && (
           <>
-            <PatchFieldSlider field={mfx.ringModulatorFrequency} />
-            <PatchFieldSlider field={mfx.ringModulatorSens} />
-            <PatchFieldSegmentedSwitch field={mfx.ringModulatorPolarity} />
-            <PatchFieldSlider field={mfx.ringModulatorLowGain} />
-            <PatchFieldSlider field={mfx.ringModulatorHighGain} />
-            <PatchFieldSlider field={mfx.ringModulatorBalance} />
-            <PatchFieldSlider field={mfx.ringModulatorLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.ringModulatorFrequency}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.ringModulatorSens} />
+            <RemoteFieldSegmentedSwitch
+              page={PATCH}
+              field={mfx.ringModulatorPolarity}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.ringModulatorLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.ringModulatorHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.ringModulatorBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.ringModulatorLevel} />
           </>
         )}
         {mfxType === "TREMOLO" && (
           <>
-            <PatchFieldWaveShapePicker field={mfx.tremoloModWave} />
+            <RemoteFieldWaveShapePicker
+              page={PATCH}
+              field={mfx.tremoloModWave}
+            />
             <TimeOrNoteField
               syncSwitchField={mfx.tremoloRateSyncSw}
               noteField={mfx.tremoloRateNote}
               timeField={mfx.tremoloRate}
             />
-            <PatchFieldSlider field={mfx.tremoloDepth} />
-            <PatchFieldSlider field={mfx.tremoloLowGain} />
-            <PatchFieldSlider field={mfx.tremoloHighGain} />
-            <PatchFieldSlider field={mfx.tremoloLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.tremoloDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.tremoloLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.tremoloHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.tremoloLevel} />
           </>
         )}
         {mfxType === "AUTO PAN" && (
           <>
-            <PatchFieldWaveShapePicker field={mfx.autoPanModWave} />
+            <RemoteFieldWaveShapePicker
+              page={PATCH}
+              field={mfx.autoPanModWave}
+            />
             <TimeOrNoteField
               syncSwitchField={mfx.autoPanRateSyncSw}
               noteField={mfx.autoPanRateNote}
               timeField={mfx.autoPanRate}
             />
-            <PatchFieldSlider field={mfx.autoPanDepth} />
-            <PatchFieldSlider field={mfx.autoPanLowGain} />
-            <PatchFieldSlider field={mfx.autoPanHighGain} />
-            <PatchFieldSlider field={mfx.autoPanLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.autoPanDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.autoPanLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.autoPanHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.autoPanLevel} />
           </>
         )}
         {mfxType === "SLICER" && (
           <>
-            <PatchFieldSlider field={mfx.slicerPattern} />
+            <RemoteFieldSlider page={PATCH} field={mfx.slicerPattern} />
             <TimeOrNoteField
               syncSwitchField={mfx.slicerRateSyncSw}
               noteField={mfx.slicerRateNote}
               timeField={mfx.slicerRate}
             />
-            <PatchFieldSlider field={mfx.slicerAttack} />
-            <PatchFieldSwitchedSection field={mfx.slicerInputSyncSw}>
-              <PatchFieldSlider field={mfx.slicerInputSyncThreshold} />
-            </PatchFieldSwitchedSection>
-            <PatchFieldSlider field={mfx.slicerLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.slicerAttack} />
+            <RemoteFieldSwitchedSection
+              page={PATCH}
+              field={mfx.slicerInputSyncSw}
+            >
+              <RemoteFieldSlider
+                page={PATCH}
+                field={mfx.slicerInputSyncThreshold}
+              />
+            </RemoteFieldSwitchedSection>
+            <RemoteFieldSlider page={PATCH} field={mfx.slicerLevel} />
           </>
         )}
         {mfxType === "VK ROTARY" && (
           <>
-            <PatchFieldSegmentedSwitch field={mfx.vkRotarySpeed} />
-            <PatchFieldSwitch field={mfx.vkRotaryBrake} />
-            <PatchFieldSlider field={mfx.vkRotaryWooferSlowSpeed} />
-            <PatchFieldSlider field={mfx.vkRotaryWooferFastSpeed} />
-            <PatchFieldSlider field={mfx.vkRotaryWooferTransUp} />
-            <PatchFieldSlider field={mfx.vkRotaryWooferTransDown} />
-            <PatchFieldSlider field={mfx.vkRotaryWooferLevel} />
-            <PatchFieldSlider field={mfx.vkRotaryTweeterSlowSpeed} />
-            <PatchFieldSlider field={mfx.vkRotaryTweeterFastSpeed} />
-            <PatchFieldSlider field={mfx.vkRotaryTweeterTransUp} />
-            <PatchFieldSlider field={mfx.vkRotaryTweeterTransDown} />
-            <PatchFieldSlider field={mfx.vkRotaryTweeterLevel} />
-            <PatchFieldSlider field={mfx.vkRotarySpread} />
-            <PatchFieldSlider field={mfx.vkRotaryLowGain} />
-            <PatchFieldSlider field={mfx.vkRotaryHighGain} />
-            <PatchFieldSlider field={mfx.vkRotaryLevel} />
+            <RemoteFieldSegmentedSwitch
+              page={PATCH}
+              field={mfx.vkRotarySpeed}
+            />
+            <RemoteFieldSwitch page={PATCH} field={mfx.vkRotaryBrake} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryWooferSlowSpeed}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryWooferFastSpeed}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryWooferTransUp} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryWooferTransDown}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryWooferLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryTweeterSlowSpeed}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryTweeterFastSpeed}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryTweeterTransUp}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.vkRotaryTweeterTransDown}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryTweeterLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotarySpread} />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.vkRotaryLevel} />
           </>
         )}
         {mfxType === "HEXA-CHORUS" && (
           <>
-            <PatchFieldSlider field={mfx.hexaChorusPreDelay} />
+            <RemoteFieldSlider page={PATCH} field={mfx.hexaChorusPreDelay} />
             <TimeOrNoteField
               syncSwitchField={mfx.hexaChorusRateSyncSw}
               noteField={mfx.hexaChorusRateNote}
               timeField={mfx.hexaChorusRate}
             />
-            <PatchFieldSlider field={mfx.hexaChorusDepth} />
-            <PatchFieldSlider field={mfx.hexaChorusPreDelayDeviation} />
-            <PatchFieldSlider field={mfx.hexaChorusDepthDeviation} />
-            <PatchFieldSlider field={mfx.hexaChorusPanDeviation} />
-            <PatchFieldSlider field={mfx.hexaChorusLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.hexaChorusDepth} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.hexaChorusPreDelayDeviation}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.hexaChorusDepthDeviation}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.hexaChorusPanDeviation}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.hexaChorusLevel} />
           </>
         )}
         {mfxType === "SPACE-D" && (
           <>
-            <PatchFieldSlider field={mfx.spaceDPreDelay} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDPreDelay} />
             <TimeOrNoteField
               syncSwitchField={mfx.spaceDRateSyncSw}
               noteField={mfx.spaceDRateNote}
               timeField={mfx.spaceDRate}
             />
-            <PatchFieldSlider field={mfx.spaceDDepth} />
-            <PatchFieldSlider field={mfx.spaceDPhase} />
-            <PatchFieldSlider field={mfx.spaceDLowGain} />
-            <PatchFieldSlider field={mfx.spaceDHighGain} />
-            <PatchFieldSlider field={mfx.spaceDBalance} />
-            <PatchFieldSlider field={mfx.spaceDLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDPhase} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.spaceDLevel} />
           </>
         )}
         {mfxType === "FLANGER" && (
           <>
-            <PatchFieldPicker field={mfx.flangerFilterType} />
-            <PatchFieldPicker field={mfx.flangerCutoffFreq} />
-            <PatchFieldSlider field={mfx.flangerPreDelay} />
+            <RemoteFieldPicker page={PATCH} field={mfx.flangerFilterType} />
+            <RemoteFieldPicker page={PATCH} field={mfx.flangerCutoffFreq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerPreDelay} />
             <TimeOrNoteField
               syncSwitchField={mfx.flangerRateSyncSw}
               noteField={mfx.flangerRateNote}
               timeField={mfx.flangerRate}
             />
-            <PatchFieldSlider field={mfx.flangerDepth} />
-            <PatchFieldSlider field={mfx.flangerPhase} />
-            <PatchFieldSlider field={mfx.flangerFeedback} />
-            <PatchFieldSlider field={mfx.flangerLowGain} />
-            <PatchFieldSlider field={mfx.flangerHighGain} />
-            <PatchFieldSlider field={mfx.flangerBalance} />
-            <PatchFieldSlider field={mfx.flangerLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerPhase} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerFeedback} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.flangerLevel} />
           </>
         )}
         {mfxType === "STEP FLANGER" && (
           <>
-            <PatchFieldPicker field={mfx.stepFlangerFilterType} />
-            <PatchFieldPicker field={mfx.stepFlangerCutoffFreq} />
-            <PatchFieldSlider field={mfx.stepFlangerPreDelay} />
+            <RemoteFieldPicker page={PATCH} field={mfx.stepFlangerFilterType} />
+            <RemoteFieldPicker page={PATCH} field={mfx.stepFlangerCutoffFreq} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerPreDelay} />
             <TimeOrNoteField
               syncSwitchField={mfx.stepFlangerRateSyncSw}
               noteField={mfx.stepFlangerRateNote}
               timeField={mfx.stepFlangerRate}
             />
-            <PatchFieldSlider field={mfx.stepFlangerDepth} />
-            <PatchFieldSlider field={mfx.stepFlangerPhase} />
-            <PatchFieldSlider field={mfx.stepFlangerFeedback} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerDepth} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerPhase} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerFeedback} />
             <TimeOrNoteField
               syncSwitchField={mfx.stepFlangerStepRateSyncSw}
               noteField={mfx.stepFlangerStepRateNote}
               timeField={mfx.stepFlangerStepRate}
             />
-            <PatchFieldSlider field={mfx.stepFlangerLowGain} />
-            <PatchFieldSlider field={mfx.stepFlangerHighGain} />
-            <PatchFieldSlider field={mfx.stepFlangerBalance} />
-            <PatchFieldSlider field={mfx.stepFlangerLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.stepFlangerLevel} />
           </>
         )}
         {mfxType === "GUITAR AMP SIM" && <GuitarAmpSimSection />}
         {mfxType === "COMPRESSOR" && (
           <>
-            <PatchFieldSlider field={mfx.compressorAttack} />
-            <PatchFieldSlider field={mfx.compressorThreshold} />
-            <PatchFieldSlider field={mfx.compressorPostGain} />
-            <PatchFieldSlider field={mfx.compressorLowGain} />
-            <PatchFieldSlider field={mfx.compressorHighGain} />
-            <PatchFieldSlider field={mfx.compressorLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorAttack} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorThreshold} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorPostGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.compressorLevel} />
           </>
         )}
         {mfxType === "LIMITER" && (
           <>
-            <PatchFieldSlider field={mfx.limiterRelease} />
-            <PatchFieldSlider field={mfx.limiterThreshold} />
-            <PatchFieldPicker field={mfx.limiterRatio} />
-            <PatchFieldSlider field={mfx.limiterPostGain} />
-            <PatchFieldSlider field={mfx.limiterLowGain} />
-            <PatchFieldSlider field={mfx.limiterHighGain} />
-            <PatchFieldSlider field={mfx.limiterLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterRelease} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterThreshold} />
+            <RemoteFieldPicker page={PATCH} field={mfx.limiterRatio} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterPostGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.limiterLevel} />
           </>
         )}
         {mfxType === "3TAP PAN DELAY" && (
@@ -315,15 +389,27 @@ export function PatchEffectsMFXScreen({
               noteField={mfx.threeTapDelayDelayCenterNote}
               timeField={mfx.threeTapDelayDelayCenter}
             />
-            <PatchFieldSlider field={mfx.threeTapDelayCenterFeedback} />
-            <PatchFieldPicker field={mfx.threeTapDelayHFDamp} />
-            <PatchFieldSlider field={mfx.threeTapDelayLeftLevel} />
-            <PatchFieldSlider field={mfx.threeTapDelayRightLevel} />
-            <PatchFieldSlider field={mfx.threeTapDelayCenterLevel} />
-            <PatchFieldSlider field={mfx.threeTapDelayLowGain} />
-            <PatchFieldSlider field={mfx.threeTapDelayHighGain} />
-            <PatchFieldSlider field={mfx.threeTapDelayBalance} />
-            <PatchFieldSlider field={mfx.threeTapDelayLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.threeTapDelayCenterFeedback}
+            />
+            <RemoteFieldPicker page={PATCH} field={mfx.threeTapDelayHFDamp} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.threeTapDelayLeftLevel}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.threeTapDelayRightLevel}
+            />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.threeTapDelayCenterLevel}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.threeTapDelayLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.threeTapDelayHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.threeTapDelayBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.threeTapDelayLevel} />
           </>
         )}
         {mfxType === "TIME CTRL DELAY" && (
@@ -333,44 +419,56 @@ export function PatchEffectsMFXScreen({
               noteField={mfx.timeCtrlDelayDelayTimeNote}
               timeField={mfx.timeCtrlDelayDelayTime}
             />
-            <PatchFieldSlider field={mfx.timeCtrlDelayAcceleration} />
-            <PatchFieldSlider field={mfx.timeCtrlDelayFeedback} />
-            <PatchFieldPicker field={mfx.timeCtrlDelayHFDamp} />
-            <PatchFieldSlider field={mfx.timeCtrlDelayLowGain} />
-            <PatchFieldSlider field={mfx.timeCtrlDelayHighGain} />
-            <PatchFieldSlider field={mfx.timeCtrlDelayBalance} />
-            <PatchFieldSlider field={mfx.timeCtrlDelayLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.timeCtrlDelayAcceleration}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.timeCtrlDelayFeedback} />
+            <RemoteFieldPicker page={PATCH} field={mfx.timeCtrlDelayHFDamp} />
+            <RemoteFieldSlider page={PATCH} field={mfx.timeCtrlDelayLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.timeCtrlDelayHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.timeCtrlDelayBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.timeCtrlDelayLevel} />
           </>
         )}
         {mfxType === "LOFI COMPRESS" && (
           <>
-            <PatchFieldSlider field={mfx.lofiCompressPreFilterType} />
-            <PatchFieldSlider field={mfx.lofiCompressLoFiType} />
-            <PatchFieldPicker field={mfx.lofiCompressPostFilterType} />
-            <PatchFieldPicker field={mfx.lofiCompressPostFilterCutoff} />
-            <PatchFieldSlider field={mfx.lofiCompressLowGain} />
-            <PatchFieldSlider field={mfx.lofiCompressHighGain} />
-            <PatchFieldSlider field={mfx.lofiCompressBalance} />
-            <PatchFieldSlider field={mfx.lofiCompressLevel} />
+            <RemoteFieldSlider
+              page={PATCH}
+              field={mfx.lofiCompressPreFilterType}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.lofiCompressLoFiType} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={mfx.lofiCompressPostFilterType}
+            />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={mfx.lofiCompressPostFilterCutoff}
+            />
+            <RemoteFieldSlider page={PATCH} field={mfx.lofiCompressLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.lofiCompressHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.lofiCompressBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.lofiCompressLevel} />
           </>
         )}
         {mfxType === "PITCH SHIFTER" && (
           <>
-            <PatchFieldSlider field={mfx.pitchShifterCoarse} />
-            <PatchFieldSlider field={mfx.pitchShifterFine} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterCoarse} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterFine} />
             <TimeOrNoteField
               syncSwitchField={mfx.pitchShifterDelayTimeSyncSw}
               noteField={mfx.pitchShifterDelayTimeNote}
               timeField={mfx.pitchShifterDelayTime}
             />
-            <PatchFieldSlider field={mfx.pitchShifterFeedback} />
-            <PatchFieldSlider field={mfx.pitchShifterLowGain} />
-            <PatchFieldSlider field={mfx.pitchShifterHighGain} />
-            <PatchFieldSlider field={mfx.pitchShifterBalance} />
-            <PatchFieldSlider field={mfx.pitchShifterLevel} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterFeedback} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterLowGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterHighGain} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterBalance} />
+            <RemoteFieldSlider page={PATCH} field={mfx.pitchShifterLevel} />
           </>
         )}
-      </PatchFieldSwitchedSection>
+      </RemoteFieldSwitchedSection>
     </PopoverAwareScrollView>
   );
 }
@@ -384,56 +482,59 @@ function TimeOrNoteField({
   noteField: FieldReference<EnumField<any>>;
   timeField: FieldReference<NumericField>;
 }) {
-  const [syncSwitch, setSyncSwitch] = usePatchField(syncSwitchField);
+  const [syncSwitch, setSyncSwitch] = useRemoteField(PATCH, syncSwitchField);
   return (
     <>
-      <PatchFieldSwitch
+      <RemoteFieldSwitch
+        page={PATCH}
         field={syncSwitchField}
         value={syncSwitch}
         onValueChange={setSyncSwitch}
       />
       {syncSwitch ? (
-        <PatchFieldPicker field={noteField} />
+        <RemoteFieldPicker page={PATCH} field={noteField} />
       ) : (
-        <PatchFieldSlider field={timeField} />
+        <RemoteFieldSlider page={PATCH} field={timeField} />
       )}
     </>
   );
 }
 
 function GuitarAmpSimSection() {
-  const [gtrAmpSimPreAmpType, setGtrAmpSimPreAmpType] = usePatchField(
+  const [gtrAmpSimPreAmpType, setGtrAmpSimPreAmpType] = useRemoteField(
+    PATCH,
     mfx.gtrAmpSimPreAmpType
   );
   return (
     <>
-      <PatchFieldSwitchedSection field={mfx.gtrAmpSimPreAmpSw}>
-        <PatchFieldPicker
+      <RemoteFieldSwitchedSection page={PATCH} field={mfx.gtrAmpSimPreAmpSw}>
+        <RemoteFieldPicker
+          page={PATCH}
           field={mfx.gtrAmpSimPreAmpType}
           value={gtrAmpSimPreAmpType}
           onValueChange={setGtrAmpSimPreAmpType}
         />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpVolume} />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMaster} />
-        <PatchFieldPicker field={mfx.gtrAmpSimPreAmpGain} />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpBass} />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpMiddle} />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpTreble} />
-        <PatchFieldSlider field={mfx.gtrAmpSimPreAmpPresence} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpVolume} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpMaster} />
+        <RemoteFieldPicker page={PATCH} field={mfx.gtrAmpSimPreAmpGain} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpBass} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpMiddle} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpTreble} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPreAmpPresence} />
         {(gtrAmpSimPreAmpType === "JC-120" ||
           gtrAmpSimPreAmpType === "CLEAN TWIN" ||
           gtrAmpSimPreAmpType === "BG LEAD") && (
-          <PatchFieldSwitch field={mfx.gtrAmpSimPreAmpBright} />
+          <RemoteFieldSwitch page={PATCH} field={mfx.gtrAmpSimPreAmpBright} />
         )}
-      </PatchFieldSwitchedSection>
-      <PatchFieldSwitchedSection field={mfx.gtrAmpSimSpeakerSw}>
-        <PatchFieldPicker field={mfx.gtrAmpSimSpeakerType} />
-        <PatchFieldPicker field={mfx.gtrAmpSimMicSetting} />
-        <PatchFieldSlider field={mfx.gtrAmpSimMicLevel} />
-      </PatchFieldSwitchedSection>
-      <PatchFieldSlider field={mfx.gtrAmpSimDirectLevel} />
-      <PatchFieldSlider field={mfx.gtrAmpSimPan} />
-      <PatchFieldSlider field={mfx.gtrAmpSimLevel} />
+      </RemoteFieldSwitchedSection>
+      <RemoteFieldSwitchedSection page={PATCH} field={mfx.gtrAmpSimSpeakerSw}>
+        <RemoteFieldPicker page={PATCH} field={mfx.gtrAmpSimSpeakerType} />
+        <RemoteFieldPicker page={PATCH} field={mfx.gtrAmpSimMicSetting} />
+        <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimMicLevel} />
+      </RemoteFieldSwitchedSection>
+      <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimDirectLevel} />
+      <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimPan} />
+      <RemoteFieldSlider page={PATCH} field={mfx.gtrAmpSimLevel} />
     </>
   );
 }

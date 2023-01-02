@@ -6,29 +6,35 @@ import { Rect } from "react-native-popover-view";
 import { FieldRow } from "./FieldRow";
 import { usePopovers } from "./Popovers";
 import { FieldReference } from "./RolandAddressMap";
-import { AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
+import {
+  RolandRemotePageContext,
+  RolandRemotePatchContext as PATCH,
+} from "./RolandRemotePageContext";
 import { GlobalNavigationProp } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
 
-export function PatchFieldRow({
+export function RemoteFieldRow({
+  page,
   field,
   children,
   inline,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference;
   children: React.ReactNode;
   inline?: boolean;
 }) {
   const assignsMap = useAssignsMap();
-  const assignDefIndex = assignsMap?.getIndexByField(field);
-  const isAssignable = assignsMap != null && assignDefIndex != null;
+  // TODO: Maybe store an isAssignable bit in the page definition instead of hardcoding page === PATCH?
+  const assignDefIndex =
+    page === PATCH ? assignsMap?.getIndexByField(field) : undefined;
+  const isAssignable = page === PATCH && assignDefIndex != null;
   if (isAssignable) {
     return (
       <AssignablePatchFieldRow
         field={field}
         inline={inline}
-        assignsMap={assignsMap}
         assignDefIndex={assignDefIndex}
       >
         {children}
@@ -46,13 +52,11 @@ function AssignablePatchFieldRow({
   field,
   children,
   inline,
-  assignsMap,
   assignDefIndex,
 }: {
   field: FieldReference;
   children: React.ReactNode;
   inline?: boolean;
-  assignsMap: AssignsMap;
   assignDefIndex: number;
 }) {
   const {

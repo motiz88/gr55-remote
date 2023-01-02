@@ -7,13 +7,13 @@ import { useCallback, useContext, useEffect, useMemo } from "react";
 import { StyleSheet, Text } from "react-native";
 
 import { ContextualStyleProvider } from "./ContextualStyle";
-import { PatchFieldPicker } from "./PatchFieldPicker";
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitchedSection } from "./PatchFieldSwitchedSection";
-import { PatchFieldWaveShapePicker } from "./PatchFieldWaveShapePicker";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
+import { RemoteFieldWaveShapePicker } from "./RemoteFieldWaveShapePicker";
 import {
   FieldReference,
   isEnumFieldReference,
@@ -23,11 +23,14 @@ import {
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import {
+  RolandRemotePageContext,
+  RolandRemotePatchContext as PATCH,
+} from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchAssignsTabParamList, PatchStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 const Tab = createMaterialTopTabNavigator<PatchAssignsTabParamList>();
 
@@ -37,7 +40,10 @@ const ASSIGNS_BACKGROUND_COLOR = "#E5EAF2";
 export function PatchAssignsScreen({
   navigation,
 }: NativeStackScreenProps<PatchStackParamList, "PatchAssigns">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
+  const [patchName] = useRemoteField(
+    PATCH,
+    GR55.temporaryPatch.common.patchName
+  );
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Assigns",
@@ -46,28 +52,36 @@ export function PatchAssignsScreen({
   }, [navigation, patchName]);
 
   const { closeAllPopovers } = usePopovers();
-  const [assign1Switch] = usePatchField(
+  const [assign1Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign1.switch
   );
-  const [assign2Switch] = usePatchField(
+  const [assign2Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign2.switch
   );
-  const [assign3Switch] = usePatchField(
+  const [assign3Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign3.switch
   );
-  const [assign4Switch] = usePatchField(
+  const [assign4Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign4.switch
   );
-  const [assign5Switch] = usePatchField(
+  const [assign5Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign5.switch
   );
-  const [assign6Switch] = usePatchField(
+  const [assign6Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign6.switch
   );
-  const [assign7Switch] = usePatchField(
+  const [assign7Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign7.switch
   );
-  const [assign8Switch] = usePatchField(
+  const [assign8Switch] = useRemoteField(
+    PATCH,
     GR55.temporaryPatch.common.assign8.switch
   );
   const renderLabel = useCallback(
@@ -205,7 +219,7 @@ function PatchAssignScreen({
   | "Assign7"
   | "Assign8"
 >) {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
@@ -218,7 +232,7 @@ function PatchAssignScreen({
   return (
     <PopoverAwareScrollView
       refreshControl={
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
@@ -285,8 +299,8 @@ function AssignSection({
   assignsMap: AssignsMap;
 }) {
   const { setAssignTarget } = useRolandGR55Assigns();
-  const [source, setSource] = usePatchField(assign.source);
-  const [target, setTarget] = usePatchField(assign.target);
+  const [source, setSource] = useRemoteField(PATCH, assign.source);
+  const [target, setTarget] = useRemoteField(PATCH, assign.target);
   const targetField = useAssignTargetField(assignsMap, assign.target);
   const { targetMinField, targetMaxField } = useAssign(
     assignsMap,
@@ -308,47 +322,73 @@ function AssignSection({
     // NOTE: We use `key` to force re-rendering in order to avoid some
     // apparent bugs in the field controls.
     <>
-      <PatchFieldSwitchedSection field={assign.switch} key={assign.address}>
-        <PatchFieldPicker
+      <RemoteFieldSwitchedSection
+        page={PATCH}
+        field={assign.switch}
+        key={assign.address}
+      >
+        <RemoteFieldPicker
+          page={PATCH}
           field={targetField}
           value={target}
           onValueChange={handleTargetChange}
         />
-        <PatchDynamicField field={targetMinField} key={target + "min"} />
-        <PatchDynamicField field={targetMaxField} key={target + "max"} />
-        <PatchFieldPicker
+        <PatchDynamicField
+          page={PATCH}
+          field={targetMinField}
+          key={target + "min"}
+        />
+        <PatchDynamicField
+          page={PATCH}
+          field={targetMaxField}
+          key={target + "max"}
+        />
+        <RemoteFieldPicker
+          page={PATCH}
           field={assign.source}
           value={source}
           onValueChange={setSource}
         />
-        <PatchFieldPicker field={assign.sourceMode} />
+        <RemoteFieldPicker page={PATCH} field={assign.sourceMode} />
         {/* TODO: Range slider? But what about inverted ranges? */}
-        <PatchFieldSlider field={assign.activeRangeLo} />
-        <PatchFieldSlider field={assign.activeRangeHi} />
+        <RemoteFieldSlider page={PATCH} field={assign.activeRangeLo} />
+        <RemoteFieldSlider page={PATCH} field={assign.activeRangeHi} />
         {source === "INT PDL" && (
           <>
-            <PatchFieldPicker field={assign.internalPedalTrigger} />
-            <PatchFieldSlider field={assign.internalPedalTime} />
+            <RemoteFieldPicker
+              page={PATCH}
+              field={assign.internalPedalTrigger}
+            />
+            <RemoteFieldSlider page={PATCH} field={assign.internalPedalTime} />
             {/* TODO: Curve icons */}
-            <PatchFieldPicker field={assign.internalPedalCurve} />
+            <RemoteFieldPicker page={PATCH} field={assign.internalPedalCurve} />
           </>
         )}
         {source === "WAVE PDL" && (
           <>
-            <PatchFieldSlider field={assign.wavePedalRate} />
-            <PatchFieldWaveShapePicker field={assign.wavePedalForm} />
+            <RemoteFieldSlider page={PATCH} field={assign.wavePedalRate} />
+            <RemoteFieldWaveShapePicker
+              page={PATCH}
+              field={assign.wavePedalForm}
+            />
           </>
         )}
-      </PatchFieldSwitchedSection>
+      </RemoteFieldSwitchedSection>
     </>
   );
 }
 
-function PatchDynamicField({ field }: { field: FieldReference<any> }) {
+function PatchDynamicField({
+  page,
+  field,
+}: {
+  page: RolandRemotePageContext;
+  field: FieldReference<any>;
+}) {
   if (isNumericFieldReference(field)) {
-    return <PatchFieldSlider field={field} />;
+    return <RemoteFieldSlider page={page} field={field} />;
   } else if (isEnumFieldReference(field)) {
-    return <PatchFieldPicker field={field} />;
+    return <RemoteFieldPicker page={page} field={field} />;
   }
   throw new Error(
     "Could not render dynamic field " + field.definition.description

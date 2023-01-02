@@ -14,8 +14,8 @@ import {
 } from "../RolandAddressMap";
 import { RolandDataTransferContext } from "../RolandDataTransferContext";
 import { RolandIoSetupContext } from "../RolandIoSetupContext";
-import { RolandRemotePatchContext } from "../RolandRemotePatchContext";
-import { usePatchField } from "../usePatchField";
+import { RolandRemotePatchContext } from "../RolandRemotePageContext";
+import { useRemoteField } from "../useRemoteField";
 import { useRolandRemotePatchState } from "../useRolandRemotePatchState";
 
 function RolandRemotePatchStateContainer({
@@ -124,6 +124,7 @@ export const mockAddressMap = new StructDefinition(0, "Mock Address Map", {
   temporaryPatch: new StructDefinition(0, "Temporary Patch", {
     field1: new FieldDefinition(0, "Field 1", new AsciiStringField(16)),
   }),
+  system: new StructDefinition(2000, "System", {}),
 });
 
 export const mockAddressMapAbsolute = getAddresses(mockAddressMap, 0);
@@ -152,16 +153,16 @@ function Reader<T extends string | number | boolean>({
 }: {
   field: { address: number; definition: FieldDefinition<FieldType<T>> };
 }) {
-  const [value] = usePatchField(field);
+  const [value] = useRemoteField(RolandRemotePatchContext, field);
   return <>{"value: " + value.toString()}</>;
 }
 
 // Reloads patch data as soon as it is mounted.
 function Reloader() {
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  const { reloadData } = useContext(RolandRemotePatchContext);
   useEffect(() => {
-    reloadPatchData();
-  }, [reloadPatchData]);
+    reloadData();
+  }, [reloadData]);
   return <></>;
 }
 

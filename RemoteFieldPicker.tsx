@@ -1,5 +1,5 @@
-import { PatchFieldSegmentedPicker } from "./PatchFieldSegmentedPicker";
-import { PatchFieldSystemPicker } from "./PatchFieldSystemPicker";
+import { RemoteFieldSegmentedPicker } from "./RemoteFieldSegmentedPicker";
+import { RemoteFieldSystemPicker } from "./RemoteFieldSystemPicker";
 import {
   EnumField,
   FieldReference,
@@ -7,12 +7,15 @@ import {
   isEnumFieldReference,
   NumericField,
 } from "./RolandAddressMap";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
 
-export function PatchFieldPicker<T extends number | string>({
+export function RemoteFieldPicker<T extends number | string>({
+  page,
   field,
   value,
   onValueChange,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference<
     FieldType<T> & (EnumField<{ [encoded: number]: string }> | NumericField)
   >;
@@ -26,7 +29,8 @@ export function PatchFieldPicker<T extends number | string>({
     Object.keys(field.definition.type.labels).length <= 3
   ) {
     return (
-      <PatchFieldSegmentedPicker
+      <RemoteFieldSegmentedPicker
+        page={page}
         field={field}
         value={value as string}
         onValueChange={
@@ -36,7 +40,8 @@ export function PatchFieldPicker<T extends number | string>({
     );
   }
   return (
-    <PatchFieldSystemPicker
+    <RemoteFieldSystemPicker
+      page={page}
       field={field}
       value={value}
       onValueChange={onValueChange}

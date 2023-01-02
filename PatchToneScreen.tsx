@@ -7,15 +7,19 @@ import { PatchToneNormalScreen } from "./PatchToneNormalScreen";
 import { PatchTonePCMScreen } from "./PatchTonePCMScreen";
 import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { PatchToneTabParamList, PatchStackParamList } from "./navigation";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 const Tab = createMaterialTopTabNavigator<PatchToneTabParamList>();
 
 export function PatchToneScreen({
   navigation,
 }: NativeStackScreenProps<PatchStackParamList, "PatchTone">) {
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
+  const [patchName] = useRemoteField(
+    PATCH,
+    GR55.temporaryPatch.common.patchName
+  );
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Tone",

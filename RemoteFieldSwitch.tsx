@@ -1,23 +1,27 @@
 import { useCallback, useMemo } from "react";
 import { Switch, Text, View, Pressable, StyleSheet } from "react-native";
 
-import { PatchFieldRow } from "./PatchFieldRow";
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldStyles } from "./FieldStyles";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
-import { useMaybeControlledPatchField } from "./usePatchField";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useMaybeControlledRemoteField } from "./useRemoteField";
 
-export function PatchFieldSwitch({
+export function RemoteFieldSwitch({
+  page,
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
   inline,
 }: {
+  page: RolandRemotePageContext;
   value?: boolean;
   onValueChange?: (value: boolean) => void;
   field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
-  const [value, onValueChange] = useMaybeControlledPatchField(
+  const [value, onValueChange] = useMaybeControlledRemoteField(
+    page,
     field,
     valueProp,
     onValueChangeProp
@@ -49,7 +53,7 @@ export function PatchFieldSwitch({
   );
 
   return (
-    <PatchFieldRow field={field} inline={inline}>
+    <RemoteFieldRow page={page} field={field} inline={inline}>
       <SwitchControl
         inline={inline ?? false}
         invertedForDisplay={invertedForDisplay}
@@ -57,7 +61,7 @@ export function PatchFieldSwitch({
         handleValueChange={handleValueChange}
         labelsInOrder={labelsInOrder}
       />
-    </PatchFieldRow>
+    </RemoteFieldRow>
   );
 }
 
@@ -95,9 +99,7 @@ function SwitchControl({
   return inline ? (
     inlineSwitch
   ) : (
-    <View
-      style={[PatchFieldStyles.horizontal, PatchFieldStyles.fieldControlInner]}
-    >
+    <View style={[FieldStyles.horizontal, FieldStyles.fieldControlInner]}>
       <Text style={styles.switchLabel}>{labelsInOrder[0]}</Text>
       {inlineSwitch}
       <Text style={styles.switchLabel}>{labelsInOrder[1]}</Text>

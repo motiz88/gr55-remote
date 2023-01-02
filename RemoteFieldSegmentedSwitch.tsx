@@ -1,12 +1,14 @@
 import { useCallback, useMemo } from "react";
 
-import { PatchFieldRow } from "./PatchFieldRow";
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldStyles } from "./FieldStyles";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
 import { SegmentedPicker } from "./SegmentedPicker";
-import { useMaybeControlledPatchField } from "./usePatchField";
+import { useMaybeControlledRemoteField } from "./useRemoteField";
 
-export function PatchFieldSegmentedSwitch({
+export function RemoteFieldSegmentedSwitch({
+  page,
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
@@ -16,8 +18,10 @@ export function PatchFieldSegmentedSwitch({
   field: FieldReference<BooleanField>;
   inline?: boolean;
   segmented?: boolean;
+  page: RolandRemotePageContext;
 }) {
-  const [value, onValueChange] = useMaybeControlledPatchField(
+  const [value, onValueChange] = useMaybeControlledRemoteField(
+    page,
     field,
     valueProp,
     onValueChangeProp
@@ -44,9 +48,9 @@ export function PatchFieldSegmentedSwitch({
     [field, invertedForDisplay]
   );
   return (
-    <PatchFieldRow field={field}>
+    <RemoteFieldRow page={page} field={field}>
       <SegmentedPicker
-        style={PatchFieldStyles.fieldControlInner}
+        style={FieldStyles.fieldControlInner}
         onValueChange={handleLabelChange}
         value={
           (invertedForDisplay ? !value : value)
@@ -55,6 +59,6 @@ export function PatchFieldSegmentedSwitch({
         }
         values={labelsInOrder}
       />
-    </PatchFieldRow>
+    </RemoteFieldRow>
   );
 }

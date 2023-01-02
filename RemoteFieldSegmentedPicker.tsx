@@ -1,53 +1,41 @@
 import { useMemo } from "react";
 
-import { PatchFieldRow } from "./PatchFieldRow";
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldStyles } from "./FieldStyles";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import { EnumField, FieldReference } from "./RolandAddressMap";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
 import { SegmentedPicker } from "./SegmentedPicker";
-import { useMaybeControlledPatchField } from "./usePatchField";
+import { useMaybeControlledRemoteField } from "./useRemoteField";
 
-const iconsByShapeLabel = {
-  SAW: require("./assets/icon-rising-sawtooth-wave.png"),
-  SQU: require("./assets/icon-square-wave.png"),
-  SQR: require("./assets/icon-square-wave.png"),
-  TRI: require("./assets/icon-triangle-wave.png"),
-  SIN: require("./assets/icon-sine-wave.png"),
-  SAW1: require("./assets/icon-rising-sawtooth-wave.png"),
-  SAW2: require("./assets/icon-falling-sawtooth-wave.png"),
-};
-
-type WaveShapeLabel = keyof typeof iconsByShapeLabel;
-
-export function PatchFieldWaveShapePicker<T extends WaveShapeLabel>({
+export function RemoteFieldSegmentedPicker<T extends string>({
+  page,
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference<EnumField<{ [encoded: number]: T }>>;
   value?: T;
   onValueChange?: (value: T) => void;
 }) {
-  const [value, onValueChange] = useMaybeControlledPatchField(
+  const [value, onValueChange] = useMaybeControlledRemoteField(
+    page,
     field,
     valueProp,
     onValueChangeProp
   );
   const values = useMemo(
-    () =>
-      Object.values(field.definition.type.labels).map((label) => ({
-        value: label,
-        icon: iconsByShapeLabel[label],
-      })),
+    () => Object.values(field.definition.type.labels),
     [field]
   );
   return (
-    <PatchFieldRow field={field}>
+    <RemoteFieldRow page={page} field={field}>
       <SegmentedPickerControl
         value={value}
         onValueChange={onValueChange}
         values={values}
       />
-    </PatchFieldRow>
+    </RemoteFieldRow>
   );
 }
 
@@ -58,7 +46,7 @@ function SegmentedPickerControl<T extends string>({
 }: {
   value: T;
   onValueChange: (value: T) => void;
-  values: readonly { value: T; icon: any }[];
+  values: readonly T[];
 }) {
   // const { isAssigned } = useContext(FieldRowContext);
   // TODO: Show assigned state when all controls can reliably handle long press etc
@@ -66,7 +54,7 @@ function SegmentedPickerControl<T extends string>({
 
   return (
     <SegmentedPicker
-      style={PatchFieldStyles.fieldControlInner}
+      style={FieldStyles.fieldControlInner}
       onValueChange={onValueChange}
       value={value}
       values={values}

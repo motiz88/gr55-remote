@@ -3,16 +3,18 @@ import { throttle } from "throttle-debounce";
 
 import { FieldReference, FieldType } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
 import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 
-export function usePatchField<T>(
+export function useRemoteField<T>(
+  page: RolandRemotePageContext,
   field: FieldReference<FieldType<T>>
 ): [T, (newValue: T) => void] {
-  return usePatchFieldImpl(field, undefined, /* detached */ false);
+  return useRemoteFieldImpl(page, field, undefined, /* detached */ false);
 }
 
-function usePatchFieldImpl<T>(
+function useRemoteFieldImpl<T>(
+  page: RolandRemotePageContext,
   field: FieldReference<FieldType<T>>,
   defaultValue: T | undefined,
   detached: boolean
@@ -24,15 +26,15 @@ function usePatchFieldImpl<T>(
     }
   }, [setField]);
 
-  const { patchData, localOverrides, setLocalOverride, subscribeToField } =
-    useContext(RolandRemotePatchContext);
+  const { pageData, localOverrides, setLocalOverride, subscribeToField } =
+    useContext(page);
 
   const [valueBytes, setValueBytes] = useState(() => {
     let valueBytes: Uint8Array | undefined = localOverrides?.[field.address];
     if (valueBytes) {
       return valueBytes;
     }
-    valueBytes = patchData?.[field.address];
+    valueBytes = pageData?.[field.address];
     if (valueBytes) {
       return valueBytes;
     }
@@ -48,11 +50,11 @@ function usePatchFieldImpl<T>(
 
   useEffect(() => {
     const newValueBytes =
-      localOverrides?.[field.address] ?? patchData?.[field.address];
+      localOverrides?.[field.address] ?? pageData?.[field.address];
     if (newValueBytes != null) {
       setValueBytes(newValueBytes);
     }
-  }, [field.address, localOverrides, patchData]);
+  }, [field.address, localOverrides, pageData]);
 
   useEffect(
     () =>
@@ -94,13 +96,15 @@ function usePatchFieldImpl<T>(
   return [value, setAndSendValue];
 }
 
-export function useMaybeControlledPatchField<T>(
+export function useMaybeControlledRemoteField<T>(
+  page: RolandRemotePageContext,
   field: FieldReference<FieldType<T>>,
   value: T | undefined,
   onValueChange: ((value: T) => void) | undefined
 ) {
   const isControlled = value != null;
-  const [uncontrolledValue, setUncontrolledValue] = usePatchFieldImpl(
+  const [uncontrolledValue, setUncontrolledValue] = useRemoteFieldImpl(
+    page,
     field,
     undefined,
     isControlled

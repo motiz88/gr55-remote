@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 
-import { PatchFieldRow } from "./PatchFieldRow";
-import { PatchFieldStyles } from "./PatchFieldStyles";
+import { FieldStyles } from "./FieldStyles";
 import { Picker } from "./Picker";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import {
   EnumField,
   FieldReference,
@@ -11,20 +11,24 @@ import {
   isNumericFieldReference,
   NumericField,
 } from "./RolandAddressMap";
-import { useMaybeControlledPatchField } from "./usePatchField";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useMaybeControlledRemoteField } from "./useRemoteField";
 
-export function PatchFieldSystemPicker<T extends number | string>({
+export function RemoteFieldSystemPicker<T extends number | string>({
+  page,
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference<
     FieldType<T> & (EnumField<{ [encoded: number]: string }> | NumericField)
   >;
   value?: T;
   onValueChange?: (value: T) => void;
 }) {
-  const [value, onValueChange] = useMaybeControlledPatchField(
+  const [value, onValueChange] = useMaybeControlledRemoteField(
+    page,
     field,
     valueProp,
     onValueChangeProp
@@ -57,13 +61,13 @@ export function PatchFieldSystemPicker<T extends number | string>({
     return items;
   }, [field]);
   return (
-    <PatchFieldRow field={field}>
+    <RemoteFieldRow page={page} field={field}>
       <PickerControl
         value={value}
         onValueChange={onValueChange}
         items={items}
       />
-    </PatchFieldRow>
+    </RemoteFieldRow>
   );
 }
 
@@ -85,7 +89,7 @@ function PickerControl<T extends number | string>({
       onValueChange={onValueChange}
       selectedValue={value}
       style={[
-        PatchFieldStyles.fieldControlInner,
+        FieldStyles.fieldControlInner,
         isAssigned && {
           borderColor: "cornflowerblue",
           borderWidth: 2,

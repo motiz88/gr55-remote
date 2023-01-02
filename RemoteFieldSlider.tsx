@@ -2,11 +2,13 @@ import Slider from "@react-native-community/slider";
 import { useCallback } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
-import { PatchFieldRow } from "./PatchFieldRow";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
-import { useMaybeControlledPatchField } from "./usePatchField";
+import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useMaybeControlledRemoteField } from "./useRemoteField";
 
-export function PatchFieldSlider({
+export function RemoteFieldSlider({
+  page,
   field,
   value: valueProp,
   onValueChange: onValueChangeProp,
@@ -14,6 +16,7 @@ export function PatchFieldSlider({
   onSlidingStart,
   onSlidingComplete,
 }: {
+  page: RolandRemotePageContext;
   field: FieldReference<NumericField>;
   value?: number;
   inline?: boolean;
@@ -22,7 +25,8 @@ export function PatchFieldSlider({
   onSlidingStart?: (value: number) => void;
   onSlidingComplete?: (value: number) => void;
 }) {
-  const [value, setValue] = useMaybeControlledPatchField(
+  const [value, setValue] = useMaybeControlledRemoteField(
+    page,
     field,
     valueProp,
     onValueChangeProp
@@ -59,7 +63,7 @@ export function PatchFieldSlider({
   );
   const prettyValue = field.definition.type.format(value);
   return (
-    <PatchFieldRow field={field} inline={inline}>
+    <RemoteFieldRow page={page} field={field} inline={inline}>
       <SliderControl
         prettyValue={prettyValue}
         field={field}
@@ -68,7 +72,7 @@ export function PatchFieldSlider({
         handleSlidingComplete={handleSlidingComplete}
         value={value}
       />
-    </PatchFieldRow>
+    </RemoteFieldRow>
   );
 }
 

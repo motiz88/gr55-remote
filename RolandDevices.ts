@@ -14,6 +14,7 @@ export const RolandGR55SysExConfig: RolandSysExConfig = {
   modelNumber: 0x0000,
   addressMap: {
     temporaryPatch: RolandGR55AddressMapAbsolute.temporaryPatch,
+    system: RolandGR55AddressMapAbsolute.system,
   },
   gr55: {
     assignsMapGuitarMode: RolandGR55PatchAssignsMapGuitarMode,

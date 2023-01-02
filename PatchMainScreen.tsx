@@ -14,11 +14,11 @@ import {
   View,
 } from "react-native";
 
-import { PatchFieldSlider } from "./PatchFieldSlider";
-import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldSlider } from "./RemoteFieldSlider";
+import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
 import {
   BooleanField,
   FieldReference,
@@ -27,15 +27,18 @@ import {
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
-import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
+import {
+  RolandRemotePatchContext as PATCH,
+  RolandRemoteSystemContext as SYSTEM,
+  RolandRemotePageContext,
+} from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import {
   GlobalNavigationProp,
   PatchStackParamList,
   RootTabParamList,
 } from "./navigation";
-import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
-import { usePatchField } from "./usePatchField";
+import { useRemoteField } from "./useRemoteField";
 
 export function PatchMainScreen({
   navigation,
@@ -45,7 +48,10 @@ export function PatchMainScreen({
   "RootTab" | "PatchDrawer" | "PatchStack"
 >) {
   const { selectedDevice } = useContext(RolandIoSetupContext);
-  const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
+  const [patchName] = useRemoteField(
+    PATCH,
+    GR55.temporaryPatch.common.patchName
+  );
   useEffect(() => {
     navigation.setOptions({
       title: selectedDevice && patchName ? patchName : "GR-55 Editor",
@@ -62,7 +68,8 @@ export function PatchMainScreen({
     });
   }, [navigation, patchName, selectedDevice]);
 
-  const { reloadPatchData } = useContext(RolandRemotePatchContext);
+  // TODO: Also reload SYSTEM page on manual refresh
+  const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
@@ -75,19 +82,23 @@ export function PatchMainScreen({
       refreshControl={
         // TODO: Connect this to the actual refresh state
         // TODO: Refactor to avoid duplication with all the other screens
-        <RefreshControl refreshing={false} onRefresh={reloadPatchData} />
+        <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
       <PopStackToTopOnTabPress />
-      <PatchFieldSlider field={GR55.temporaryPatch.common.patchLevel} />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.common.patchLevel}
+      />
       <SectionWithHeading heading="Tone">
         <ToneSummaryView
           label="PCM1"
           muteField={GR55.temporaryPatch.patchPCMTone1.muteSwitch}
           levelLabel={
             <FieldLevelLabel
+              page={PATCH}
               field={GR55.temporaryPatch.patchPCMTone1.partLevel}
             />
           }
@@ -99,6 +110,7 @@ export function PatchMainScreen({
           muteField={GR55.temporaryPatch.patchPCMTone2.muteSwitch}
           levelLabel={
             <FieldLevelLabel
+              page={PATCH}
               field={GR55.temporaryPatch.patchPCMTone2.partLevel}
             />
           }
@@ -109,7 +121,10 @@ export function PatchMainScreen({
           label="MODEL"
           muteField={GR55.temporaryPatch.modelingTone.muteSwitch}
           levelLabel={
-            <FieldLevelLabel field={GR55.temporaryPatch.modelingTone.level} />
+            <FieldLevelLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.modelingTone.level}
+            />
           }
           toneLabel={<ModelToneLabel />}
           onPress={() =>
@@ -120,7 +135,10 @@ export function PatchMainScreen({
           label="NORMAL PICKUP"
           muteField={GR55.temporaryPatch.common.normalPuMute}
           levelLabel={
-            <FieldLevelLabel field={GR55.temporaryPatch.common.normalPuLevel} />
+            <FieldLevelLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.common.normalPuLevel}
+            />
           }
           toneLabel={undefined}
           onPress={() => navigation.navigate("PatchTone", { screen: "Normal" })}
@@ -131,10 +149,16 @@ export function PatchMainScreen({
           label="AMP"
           muteField={GR55.temporaryPatch.ampModNs.ampSwitch}
           levelLabel={
-            <FieldLevelLabel field={GR55.temporaryPatch.ampModNs.ampLevel} />
+            <FieldLevelLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.ampLevel}
+            />
           }
           toneLabel={
-            <FieldLabel field={GR55.temporaryPatch.ampModNs.ampType} />
+            <FieldLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.ampType}
+            />
           }
           onPress={() => navigation.navigate("PatchEffects", { screen: "Amp" })}
         />
@@ -143,7 +167,10 @@ export function PatchMainScreen({
           muteField={GR55.temporaryPatch.ampModNs.modSwitch}
           levelLabel={<ModLevelLabel />}
           toneLabel={
-            <FieldLabel field={GR55.temporaryPatch.ampModNs.modType} />
+            <FieldLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.ampModNs.modType}
+            />
           }
           onPress={() => navigation.navigate("PatchEffects", { screen: "Mod" })}
         />
@@ -151,7 +178,9 @@ export function PatchMainScreen({
           label="MFX"
           muteField={GR55.temporaryPatch.mfx.mfxSwitch}
           levelLabel={<MFXLevelLabel />}
-          toneLabel={<FieldLabel field={GR55.temporaryPatch.mfx.mfxType} />}
+          toneLabel={
+            <FieldLabel page={PATCH} field={GR55.temporaryPatch.mfx.mfxType} />
+          }
           onPress={() => navigation.navigate("PatchEffects", { screen: "MFX" })}
         />
         <ToneSummaryView
@@ -159,11 +188,15 @@ export function PatchMainScreen({
           muteField={GR55.temporaryPatch.sendsAndEq.delaySwitch}
           levelLabel={
             <FieldLevelLabel
+              page={PATCH}
               field={GR55.temporaryPatch.sendsAndEq.delayEffectLevel}
             />
           }
           toneLabel={
-            <FieldLabel field={GR55.temporaryPatch.sendsAndEq.delayType} />
+            <FieldLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.sendsAndEq.delayType}
+            />
           }
           onPress={() => navigation.navigate("PatchEffects", { screen: "DLY" })}
         />
@@ -172,11 +205,15 @@ export function PatchMainScreen({
           muteField={GR55.temporaryPatch.sendsAndEq.reverbSwitch}
           levelLabel={
             <FieldLevelLabel
+              page={PATCH}
               field={GR55.temporaryPatch.sendsAndEq.reverbEffectLevel}
             />
           }
           toneLabel={
-            <FieldLabel field={GR55.temporaryPatch.sendsAndEq.reverbType} />
+            <FieldLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.sendsAndEq.reverbType}
+            />
           }
           onPress={() => navigation.navigate("PatchEffects", { screen: "REV" })}
         />
@@ -185,11 +222,15 @@ export function PatchMainScreen({
           muteField={GR55.temporaryPatch.sendsAndEq.chorusSwitch}
           levelLabel={
             <FieldLevelLabel
+              page={PATCH}
               field={GR55.temporaryPatch.sendsAndEq.chorusEffectLevel}
             />
           }
           toneLabel={
-            <FieldLabel field={GR55.temporaryPatch.sendsAndEq.chorusType} />
+            <FieldLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.sendsAndEq.chorusType}
+            />
           }
           onPress={() => navigation.navigate("PatchEffects", { screen: "CHO" })}
         />
@@ -197,7 +238,10 @@ export function PatchMainScreen({
           label="EQ"
           muteField={GR55.temporaryPatch.sendsAndEq.eqSwitch}
           levelLabel={
-            <FieldLevelLabel field={GR55.temporaryPatch.sendsAndEq.eqLevel} />
+            <FieldLevelLabel
+              page={PATCH}
+              field={GR55.temporaryPatch.sendsAndEq.eqLevel}
+            />
           }
           toneLabel={undefined}
           onPress={() => navigation.navigate("PatchEffects", { screen: "EQ" })}
@@ -207,8 +251,14 @@ export function PatchMainScreen({
   );
 }
 
-function FieldLabel({ field }: { field: FieldReference<FieldType<string>> }) {
-  const [value] = usePatchField(field);
+function FieldLabel({
+  page,
+  field,
+}: {
+  page: RolandRemotePageContext;
+  field: FieldReference<FieldType<string>>;
+}) {
+  const [value] = useRemoteField(page, field);
   return <Text>{value}</Text>;
 }
 
@@ -217,40 +267,56 @@ function PCMToneLabel({
 }: {
   tone: typeof GR55.temporaryPatch.patchPCMTone1;
 }) {
-  return <FieldLabel field={tone.toneSelect} />;
+  return <FieldLabel page={PATCH} field={tone.toneSelect} />;
 }
 
 function ModelToneLabel() {
   const modelingTone = GR55.temporaryPatch.modelingTone;
 
-  // TODO: loading states for system and patch data (Suspense?)
-  const [guitarBassSelect = "GUITAR"] = useGR55GuitarBassSelect();
-  const [toneCategory] = usePatchField(
+  // TODO: Check whether we need to read the bass mode switch from the patch or system page.
+  // It's possible that the system setting is "mode on next restart" and the patch setting is the actual current mode.
+  const [guitarBassSelect] = useRemoteField(
+    SYSTEM,
+    GR55.system.common.guitarBassSelect
+  );
+  const [toneCategory] = useRemoteField(
+    PATCH,
     guitarBassSelect === "GUITAR"
       ? modelingTone.toneCategory_guitar
       : modelingTone.toneCategory_bass
   );
-  const [toneNumberEGtr_guitar] = usePatchField(
+  const [toneNumberEGtr_guitar] = useRemoteField(
+    PATCH,
     modelingTone.toneNumberEGtr_guitar
   );
 
-  const [toneNumberAc_guitar] = usePatchField(modelingTone.toneNumberAc_guitar);
+  const [toneNumberAc_guitar] = useRemoteField(
+    PATCH,
+    modelingTone.toneNumberAc_guitar
+  );
 
-  const [toneNumberEBass_guitar] = usePatchField(
+  const [toneNumberEBass_guitar] = useRemoteField(
+    PATCH,
     modelingTone.toneNumberEBass_guitar
   );
 
-  const [toneNumberSynth_guitar] = usePatchField(
+  const [toneNumberSynth_guitar] = useRemoteField(
+    PATCH,
     modelingTone.toneNumberSynth_guitar
   );
 
-  const [toneNumberEBass_bass] = usePatchField(
+  const [toneNumberEBass_bass] = useRemoteField(
+    PATCH,
     modelingTone.toneNumberEBass_bass
   );
 
-  const [toneNumberEGtr_bass] = usePatchField(modelingTone.toneNumberEGtr_bass);
+  const [toneNumberEGtr_bass] = useRemoteField(
+    PATCH,
+    modelingTone.toneNumberEGtr_bass
+  );
 
-  const [toneNumberSynth_bass] = usePatchField(
+  const [toneNumberSynth_bass] = useRemoteField(
+    PATCH,
     modelingTone.toneNumberSynth_bass
   );
 
@@ -277,13 +343,19 @@ function ModelToneLabel() {
   );
 }
 
-function FieldLevelLabel({ field }: { field: FieldReference<NumericField> }) {
-  const [level] = usePatchField(field);
+function FieldLevelLabel({
+  page,
+  field,
+}: {
+  page: RolandRemotePageContext;
+  field: FieldReference<NumericField>;
+}) {
+  const [level] = useRemoteField(page, field);
   return <>{field.definition.type.format(level)}</>;
 }
 
 function ModLevelLabel() {
-  const [modType] = usePatchField(GR55.temporaryPatch.ampModNs.modType);
+  const [modType] = useRemoteField(PATCH, GR55.temporaryPatch.ampModNs.modType);
   let field;
   switch (modType) {
     case "OD/DS":
@@ -331,11 +403,11 @@ function ModLevelLabel() {
     default:
       throw new Error("Unhandled mod type: " + modType);
   }
-  return <FieldLevelLabel field={field} />;
+  return <FieldLevelLabel page={PATCH} field={field} />;
 }
 
 function MFXLevelLabel() {
-  const [mfxType] = usePatchField(GR55.temporaryPatch.mfx.mfxType);
+  const [mfxType] = useRemoteField(PATCH, GR55.temporaryPatch.mfx.mfxType);
   let field;
   switch (mfxType) {
     case "EQ":
@@ -401,7 +473,7 @@ function MFXLevelLabel() {
     default:
       throw new Error("Unhandled mfx type: " + mfxType);
   }
-  return <FieldLevelLabel field={field} />;
+  return <FieldLevelLabel page={PATCH} field={field} />;
 }
 
 function ToneSummaryView({
@@ -431,7 +503,7 @@ function ToneSummaryView({
       >
         <View style={{ flex: 1, flexDirection: "row" }}>
           <View style={{ marginEnd: 8 }}>
-            <PatchFieldSwitch field={muteField} inline />
+            <RemoteFieldSwitch page={PATCH} field={muteField} inline />
           </View>
           <Text style={{ textAlignVertical: "center" }}>{label}</Text>
           <Text style={{ textAlignVertical: "center" }}>
