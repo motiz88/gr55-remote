@@ -1,10 +1,11 @@
 import {
   createMaterialTopTabNavigator,
+  MaterialTopTabNavigationProp,
   MaterialTopTabScreenProps,
 } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext, useEffect, useMemo } from "react";
-import { StyleSheet } from "react-native";
+import { Button, StyleSheet, View } from "react-native";
 
 import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
@@ -383,6 +384,7 @@ function PedalOrKnobConfigScreen({
       )}
       {function_ === "MOD CONTROL" && (
         <ModControlSection
+          navigation={navigation}
           modControlMinField={modControlMinField}
           modControlMaxField={modControlMaxField}
         />
@@ -394,14 +396,21 @@ function PedalOrKnobConfigScreen({
 function ModControlSection({
   modControlMinField,
   modControlMaxField,
+  navigation,
 }: {
   modControlMinField: FieldReference<NumericField>;
   modControlMaxField: FieldReference<NumericField>;
+  navigation: MaterialTopTabNavigationProp<
+    PatchMasterPedalGkCtlTabParamList,
+    keyof PatchMasterPedalGkCtlTabParamList,
+    "PatchDrawer" | "PatchStack" | "PatchMasterPedalGkCtl"
+  >;
 }) {
   const reinterpretedModControlMinField =
     useModControlField(modControlMinField);
   const reinterpretedModControlMaxField =
     useModControlField(modControlMaxField);
+  const [modType] = useRemoteField(PATCH, GR55.temporaryPatch.ampModNs.modType);
 
   return (
     <>
@@ -413,7 +422,17 @@ function ModControlSection({
         page={PATCH}
         field={reinterpretedModControlMaxField}
       />
-      {/* TODO: Quick navigation to MOD from here? */}
+      {/* TODO: Make this look nicer + generalise to other quick nav actions here */}
+      <View style={{ flex: 0, alignSelf: "flex-end" }}>
+        <Button
+          title={`MOD: ${modType} › `}
+          onPress={() =>
+            navigation
+              .getParent("PatchStack")!
+              .navigate("PatchEffects", { screen: "Mod" })
+          }
+        />
+      </View>
     </>
   );
 }
