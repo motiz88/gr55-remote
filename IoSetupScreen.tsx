@@ -1,4 +1,3 @@
-import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext } from "react";
 import { StyleSheet, Switch, Text } from "react-native";
 
@@ -7,11 +6,8 @@ import { Picker } from "./Picker";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
-import { RootStackParamList } from "./navigation";
 
-export function IoSetupScreen({
-  navigation,
-}: NativeStackScreenProps<RootStackParamList, "IoSetup">) {
+export function IoSetupScreen() {
   const {
     inputs,
     outputs,

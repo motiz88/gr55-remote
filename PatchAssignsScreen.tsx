@@ -4,7 +4,7 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useContext, useEffect, useMemo } from "react";
-import { Button, View, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
 
 import { ContextualStyleProvider } from "./ContextualStyle";
 import { PatchFieldPicker } from "./PatchFieldPicker";
@@ -25,7 +25,7 @@ import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
-import { PatchAssignsTabParamList, RootStackParamList } from "./navigation";
+import { PatchAssignsTabParamList, PatchStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
 import { usePatchField } from "./usePatchField";
 
@@ -36,19 +36,11 @@ const ASSIGNS_BACKGROUND_COLOR = "#E5EAF2";
 
 export function PatchAssignsScreen({
   navigation,
-}: NativeStackScreenProps<RootStackParamList, "PatchAssigns">) {
+}: NativeStackScreenProps<PatchStackParamList, "PatchAssigns">) {
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Assigns",
-      headerRight: () => (
-        <View style={{ marginRight: 8 }}>
-          <Button
-            onPress={() => navigation.navigate("IoSetup", {})}
-            title="Setup"
-          />
-        </View>
-      ),
       headerTintColor: "cornflowerblue",
     });
   }, [navigation, patchName]);

@@ -79,7 +79,7 @@ function AssignablePatchFieldRow({
           editableAssigns: assignsForDef,
           onCreateAssign: () => {
             const createdAssignIndex = createAssign(assignDefIndex);
-            navigation.getParent("RootStack")!.navigate("PatchAssigns", {
+            navigation.getParent("PatchStack")!.navigate("PatchAssigns", {
               screen: `Assign${createdAssignIndex + 1}`,
             });
           },
@@ -87,7 +87,7 @@ function AssignablePatchFieldRow({
             deleteAssigns(assignDefIndex);
           },
           onEditAssign: (assignIndex) => {
-            navigation.getParent("RootStack")!.navigate("PatchAssigns", {
+            navigation.getParent("PatchStack")!.navigate("PatchAssigns", {
               screen: `Assign${assignIndex + 1}`,
             });
           },
@@ -116,7 +116,7 @@ function AssignablePatchFieldRow({
     if (assignsForDef.length === 0) {
       return;
     }
-    navigation.getParent("RootStack")!.navigate("PatchAssigns", {
+    navigation.getParent("PatchStack")!.navigate("PatchAssigns", {
       screen: `Assign${assignsForDef[assignsForDef.length - 1] + 1}`,
     });
   }, [navigation, assignsForDef]);

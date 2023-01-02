@@ -49,6 +49,9 @@ export default function AppNavigationContainer({
       onStateChange={(state) =>
         AsyncStorage.setItem(PERSISTENCE_KEY, JSON.stringify(state))
       }
+      onUnhandledAction={(action) => {
+        // Silence errors because of unhandled POP_TO_TOP actions. They're fine.
+      }}
     >
       {children}
     </NavigationContainer>

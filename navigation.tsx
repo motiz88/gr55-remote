@@ -1,11 +1,18 @@
 import { NavigationProp } from "@react-navigation/native";
 
-export type RootStackParamList = {
+export type RootTabParamList = {
+  IoSetup: object;
+};
+
+export type PatchDrawerParamList = {
+  PatchStack: object;
+};
+
+export type PatchStackParamList = {
   PatchMain: object;
   PatchEffects: object;
   PatchTone: object;
   PatchAssigns: object;
-  IoSetup: object;
 };
 
 export type PatchEffectsTabParamList = {
@@ -38,7 +45,17 @@ export type PatchAssignsTabParamList = {
 };
 
 export type GlobalNavigationProp = NavigationProp<
-  RootStackParamList | PatchToneTabParamList | PatchEffectsTabParamList,
-  keyof (RootStackParamList | PatchToneTabParamList | PatchEffectsTabParamList),
-  "RootStack" | "PatchTone" | "PatchEffects"
+  | RootTabParamList
+  | PatchDrawerParamList
+  | PatchStackParamList
+  | PatchToneTabParamList
+  | PatchEffectsTabParamList,
+  keyof (
+    | RootTabParamList
+    | PatchDrawerParamList
+    | PatchStackParamList
+    | PatchToneTabParamList
+    | PatchEffectsTabParamList
+  ),
+  "RootTab" | "PatchDrawer" | "PatchStack" | "PatchTone" | "PatchEffects"
 >;

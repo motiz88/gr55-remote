@@ -1,4 +1,7 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { DrawerToggleButton } from "@react-navigation/drawer";
+import { StackActions, useNavigation } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
 import {
@@ -14,6 +17,7 @@ import {
 import { PatchFieldSlider } from "./PatchFieldSlider";
 import { PatchFieldSwitch } from "./PatchFieldSwitch";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
+import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
 import {
   BooleanField,
@@ -25,30 +29,36 @@ import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
-import { RootStackParamList } from "./navigation";
+import {
+  GlobalNavigationProp,
+  PatchStackParamList,
+  RootTabParamList,
+} from "./navigation";
 import { useGR55GuitarBassSelect } from "./useGR55GuitarBassSelect";
 import { usePatchField } from "./usePatchField";
 
 export function PatchMainScreen({
   navigation,
-}: NativeStackScreenProps<RootStackParamList, "PatchMain", "Root">) {
+}: NativeStackScreenProps<
+  PatchStackParamList,
+  "PatchMain",
+  "RootTab" | "PatchDrawer" | "PatchStack"
+>) {
   const { selectedDevice } = useContext(RolandIoSetupContext);
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: selectedDevice && patchName ? patchName : "GR-55 Editor",
-      headerRight: () => (
-        <>
-          {selectedDevice && (
-            <View style={{ marginRight: 8 }}>
-              <Button
-                onPress={() => navigation.navigate("IoSetup", {})}
-                title="Setup"
-              />
-            </View>
-          )}
-        </>
-      ),
+      headerLeft: () =>
+        selectedDevice ? (
+          <DrawerToggleButton />
+        ) : (
+          <DrawerToggleButton
+            // @ts-expect-error DrawerToggleButton passes props to Pressable which supports `disabled`
+            disabled
+            tintColor="lightgray"
+          />
+        ),
     });
   }, [navigation, patchName, selectedDevice]);
 
@@ -70,6 +80,7 @@ export function PatchMainScreen({
       style={[styles.container]}
       contentContainerStyle={safeAreaStyle}
     >
+      <PopStackToTopOnTabPress />
       <PatchFieldSlider field={GR55.temporaryPatch.common.patchLevel} />
       <SectionWithHeading heading="Tone">
         <ToneSummaryView
@@ -192,13 +203,6 @@ export function PatchMainScreen({
           onPress={() => navigation.navigate("PatchEffects", { screen: "EQ" })}
         />
       </SectionWithHeading>
-      {/* TODO: Move assigns to a hamburger menu */}
-      <SectionWithHeading
-        heading="Assigns"
-        onPress={() => {
-          navigation.navigate("PatchAssigns", {});
-        }}
-      />
     </PopoverAwareScrollView>
   );
 }
@@ -524,8 +528,9 @@ function NotConnectedView({
   navigation,
 }: {
   navigation: NativeStackScreenProps<
-    RootStackParamList,
-    "PatchMain"
+    PatchStackParamList,
+    "PatchMain",
+    "RootTab" | "PatchDrawer" | "PatchStack"
   >["navigation"];
 }) {
   const dimensions = useWindowDimensions();
@@ -543,9 +548,33 @@ function NotConnectedView({
       />
       <Text style={styles.errorText}>Not currently connected to a GR-55!</Text>
       <Button
-        onPress={() => navigation.navigate("IoSetup", {})}
+        onPress={() =>
+          (
+            navigation.getParent(
+              "RootTab"
+            ) as BottomTabNavigationProp<RootTabParamList>
+          ).navigate("IoSetup", {})
+        }
         title="Go to setup"
       />
     </View>
   );
+}
+
+function PopStackToTopOnTabPress() {
+  const navigation = useNavigation<GlobalNavigationProp>();
+  const { closeAllPopovers } = usePopovers();
+  React.useEffect(() => {
+    const unsubscribe = (
+      navigation!.getParent(
+        "RootTab"
+      )! as BottomTabNavigationProp<RootTabParamList>
+    ).addListener("tabPress", () => {
+      closeAllPopovers();
+      navigation.dispatch(StackActions.popToTop());
+    });
+    return unsubscribe;
+  }, [closeAllPopovers, navigation]);
+
+  return null;
 }

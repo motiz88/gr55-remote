@@ -1,7 +1,7 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
-import { Button, Platform, useWindowDimensions, View } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 
 import { PatchEffectsAmpScreen } from "./PatchEffectsAmpScreen";
 import { PatchEffectsChorusScreen } from "./PatchEffectsChorusScreen";
@@ -13,26 +13,18 @@ import { PatchEffectsReverbScreen } from "./PatchEffectsReverbScreen";
 import { PatchEffectsStructureScreen } from "./PatchEffectsStructureScreen";
 import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
-import { PatchEffectsTabParamList, RootStackParamList } from "./navigation";
+import { PatchEffectsTabParamList, PatchStackParamList } from "./navigation";
 import { usePatchField } from "./usePatchField";
 
 const Tab = createMaterialTopTabNavigator<PatchEffectsTabParamList>();
 
 export function PatchEffectsScreen({
   navigation,
-}: NativeStackScreenProps<RootStackParamList, "PatchEffects">) {
+}: NativeStackScreenProps<PatchStackParamList, "PatchEffects">) {
   const [patchName] = usePatchField(GR55.temporaryPatch.common.patchName);
   useEffect(() => {
     navigation.setOptions({
       title: patchName + " > Effects",
-      headerRight: () => (
-        <View style={{ marginRight: 8 }}>
-          <Button
-            onPress={() => navigation.navigate("IoSetup", {})}
-            title="Setup"
-          />
-        </View>
-      ),
     });
   }, [navigation, patchName]);
 

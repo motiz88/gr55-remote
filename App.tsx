@@ -1,3 +1,13 @@
+// import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Entypo, Ionicons } from "@expo/vector-icons";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import {
+  createDrawerNavigator,
+  DrawerContentComponentProps,
+  DrawerContentScrollView,
+  DrawerItem,
+  DrawerItemList,
+} from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -15,13 +25,16 @@ import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { RolandRemotePatchContext } from "./RolandRemotePatchContext";
-import { RootStackParamList } from "./navigation";
+import { PatchStackParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
 import { useRolandDataTransfer } from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 
-const RootStack = createNativeStackNavigator<RootStackParamList>();
+const PatchStack = createNativeStackNavigator<PatchStackParamList>();
+
+const PatchDrawer = createDrawerNavigator();
+const RootTab = createBottomTabNavigator();
 
 function MidiIoSetupContainer({ children }: { children?: React.ReactNode }) {
   const midiIoSetupState = useMidiIoSetup();
@@ -79,7 +92,7 @@ export default function App() {
               <AppNavigationContainer>
                 <RolandGR55AssignsContainer>
                   <PopoversContainer>
-                    <RootNavigator />
+                    <RootTabNavigator />
                   </PopoversContainer>
                 </RolandGR55AssignsContainer>
               </AppNavigationContainer>
@@ -91,12 +104,105 @@ export default function App() {
   );
 }
 
-function RootNavigator() {
+function PatchDrawerContent(
+  props: DrawerContentComponentProps
+): React.ReactNode {
+  return (
+    <DrawerContentScrollView {...props}>
+      <DrawerItemList {...props} />
+      <DrawerItem
+        style={{ paddingLeft: 0 }}
+        label="Tone"
+        onPress={() => props.navigation.navigate("PatchTone")}
+      />
+      <DrawerItem
+        style={{ paddingLeft: 20 }}
+        label="Normal Pickup"
+        onPress={() =>
+          props.navigation.navigate("PatchTone", { screen: "Normal" })
+        }
+      />
+      <DrawerItem
+        style={{ paddingLeft: 20 }}
+        label="PCM1"
+        onPress={() =>
+          props.navigation.navigate("PatchTone", { screen: "PCM1" })
+        }
+      />
+      <DrawerItem
+        style={{ paddingLeft: 20 }}
+        label="PCM2"
+        onPress={() =>
+          props.navigation.navigate("PatchTone", { screen: "PCM2" })
+        }
+      />
+      <DrawerItem
+        style={{ paddingLeft: 20 }}
+        label="Modeling"
+        onPress={() =>
+          props.navigation.navigate("PatchTone", { screen: "Modeling" })
+        }
+      />
+      <DrawerItem
+        style={{ paddingLeft: 0 }}
+        label="Effects"
+        onPress={() => props.navigation.navigate("PatchEffects")}
+      />
+      <DrawerItem
+        style={{ paddingLeft: 0 }}
+        label="Assigns"
+        onPress={() => props.navigation.navigate("PatchAssigns")}
+      />
+    </DrawerContentScrollView>
+  );
+}
+
+function PatchDrawerNavigator() {
+  return (
+    <PatchDrawer.Navigator drawerContent={PatchDrawerContent} id="PatchDrawer">
+      <PatchDrawer.Screen
+        name="PatchStack"
+        component={PatchStackNavigator}
+        options={{ headerShown: false, title: "Home" }}
+      />
+    </PatchDrawer.Navigator>
+  );
+}
+
+function RootTabNavigator() {
+  return (
+    <RootTab.Navigator id="RootTab">
+      <RootTab.Screen
+        name="PatchDrawer"
+        component={PatchDrawerNavigator}
+        options={{
+          headerShown: false,
+          title: "Patch",
+          tabBarIcon: ({ color }) => (
+            <Entypo name="sound-mix" size={24} color={color} />
+          ),
+        }}
+      />
+      <RootTab.Screen
+        name="IoSetup"
+        component={IoSetupScreen}
+        options={{
+          title: "Setup",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={24} color={color} />
+          ),
+        }}
+      />
+    </RootTab.Navigator>
+  );
+}
+
+function PatchStackNavigator() {
   const { closeAllPopovers } = usePopovers();
   return (
-    <RootStack.Navigator
+    <PatchStack.Navigator
       initialRouteName="PatchMain"
-      id="RootStack"
+      id="PatchStack"
       screenListeners={{
         transitionStart: () => {
           closeAllPopovers();
@@ -106,15 +212,10 @@ function RootNavigator() {
         },
       }}
     >
-      <RootStack.Screen name="PatchMain" component={PatchMainScreen} />
-      <RootStack.Screen name="PatchTone" component={PatchToneScreen} />
-      <RootStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
-      <RootStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
-      <RootStack.Screen
-        name="IoSetup"
-        component={IoSetupScreen}
-        options={{ title: "Setup" }}
-      />
-    </RootStack.Navigator>
+      <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
+      <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
+      <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
+      <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
+    </PatchStack.Navigator>
   );
 }
