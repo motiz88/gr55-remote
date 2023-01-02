@@ -2440,6 +2440,264 @@ export const PatchPCMToneOffsetStruct = {
   ),
 };
 
+const pedalGkPolarityField = enumField(["OFF", "TOE", "HEEL"] as const);
+const pedalGkSwitchFunctionField = enumField([
+  "OFF",
+  "TAP TEMPO",
+  "TONE SW",
+  "AMP SW",
+  "MOD SW",
+  "MFX SW",
+  "DELAY SW",
+  "REVERB SW",
+  "CHORUS SW",
+  "AUDIO PLAYER PLAY/STOP",
+  "AUDIO PLAYER SONG INC",
+  "AUDIO PLAYER SONG DEC",
+  "AUDIO PLAYER SW",
+  "V-LINK SW",
+] as const);
+
+const PatchExpPedalGkContinuousControlStruct = {
+  function: new FieldDefinition(
+    pack7(0x001f - 0x001f),
+    "Function",
+    enumField([
+      "OFF",
+      "PATCH VOLUME",
+      "TONE VOLUME",
+      "PITCH BEND",
+      "MODULATION",
+      "CROSS FADER",
+      "DELAY LEVEL",
+      "REVERB LEVEL",
+      "CHORUS LEVEL",
+      "MOD CONTROL",
+    ] as const)
+  ),
+  volumeSwitchPCMTone1: new FieldDefinition(
+    pack7(0x0020 - 0x001f),
+    "Volume Switch PCM Tone1",
+    booleanField
+  ),
+  volumeSwitchPCMTone2: new FieldDefinition(
+    pack7(0x0021 - 0x001f),
+    "Volume Switch PCM Tone2",
+    booleanField
+  ),
+  volumeSwitchModelingTone: new FieldDefinition(
+    pack7(0x0022 - 0x001f),
+    "Volume Switch Modeling Tone",
+    booleanField
+  ),
+  volumeSwitchNormalPU: new FieldDefinition(
+    pack7(0x0023 - 0x001f),
+    "Volume Switch Normal PU",
+    booleanField
+  ),
+  bendRange: new FieldDefinition(
+    pack7(0x0024 - 0x001f),
+    "Bend Range",
+    new UByteField(-12, 12, { encodedOffset: 24 })
+  ),
+  bendSwitchPCMTone1: new FieldDefinition(
+    pack7(0x0025 - 0x001f),
+    "Bend Switch PCM Tone1",
+    booleanField
+  ),
+  bendSwitchPCMTone2: new FieldDefinition(
+    pack7(0x0026 - 0x001f),
+    "Bend Switch PCM Tone2",
+    booleanField
+  ),
+  bendSwitchModelingTone: new FieldDefinition(
+    pack7(0x0027 - 0x001f),
+    "Bend Switch Modeling Tone",
+    booleanField
+  ),
+  modulationMin: new FieldDefinition(
+    pack7(0x0028 - 0x001f),
+    "Modulation Min",
+    new C127Field()
+  ),
+  modulationMax: new FieldDefinition(
+    pack7(0x0029 - 0x001f),
+    "Modulation Max",
+    new C127Field()
+  ),
+  modulationSwitchPCMTone1: new FieldDefinition(
+    pack7(0x002a - 0x001f),
+    "Modulation Switch PCM Tone1",
+    booleanField
+  ),
+  modulationSwitchPCMTone2: new FieldDefinition(
+    pack7(0x002b - 0x001f),
+    "Modulation Switch PCM Tone2",
+    booleanField
+  ),
+  xfadePolarityPCMTone1: new FieldDefinition(
+    pack7(0x002c - 0x001f),
+    "X-Fade Polarity PCM Tone1",
+    pedalGkPolarityField
+  ),
+  xfadePolarityPCMTone2: new FieldDefinition(
+    pack7(0x002d - 0x001f),
+    "X-Fade Polarity PCM Tone2",
+    pedalGkPolarityField
+  ),
+  xfadePolarityModelingTone: new FieldDefinition(
+    pack7(0x002e - 0x001f),
+    "X-Fade Polarity Modeling Tone",
+    pedalGkPolarityField
+  ),
+  xfadePolarityNormalPU: new FieldDefinition(
+    pack7(0x002f - 0x001f),
+    "X-Fade Polarity Normal PU",
+    pedalGkPolarityField
+  ),
+  delayLevelMin: new FieldDefinition(
+    pack7(0x0030 - 0x001f),
+    "Delay Level Min",
+    new UByteField(0, 120)
+  ),
+  delayLevelMax: new FieldDefinition(
+    pack7(0x0031 - 0x001f),
+    "Delay Level Max",
+    new UByteField(0, 120)
+  ),
+  reverbLevelMin: new FieldDefinition(
+    pack7(0x0032 - 0x001f),
+    "Reverb Level Min",
+    new UByteField(0, 100)
+  ),
+  reverbLevelMax: new FieldDefinition(
+    pack7(0x0033 - 0x001f),
+    "Reverb Level Max",
+    new UByteField(0, 100)
+  ),
+  chorusLevelMin: new FieldDefinition(
+    pack7(0x0034 - 0x001f),
+    "Chorus Level Min",
+    new UByteField(0, 100)
+  ),
+  chorusLevelMax: new FieldDefinition(
+    pack7(0x0035 - 0x001f),
+    "Chorus Level Max",
+    new UByteField(0, 100)
+  ),
+};
+
+const PatchExpSwStruct = {
+  status: new FieldDefinition(
+    pack7(0x004d - 0x004d),
+    "EXP SW Status",
+    booleanField
+  ),
+  function: new FieldDefinition(
+    pack7(0x004e - 0x004d),
+    "EXP SW Function",
+    pedalGkSwitchFunctionField
+  ),
+  reserved0002: new FieldDefinition(
+    pack7(0x004f - 0x004d),
+    "(Reserved)",
+    new ReservedField(4)
+  ),
+  offPcmTone1Switch: new FieldDefinition(
+    pack7(0x0053 - 0x004d),
+    "EXP SW=OFF PCM Tone1 Switch",
+    booleanField
+  ),
+  offPcmTone2Switch: new FieldDefinition(
+    pack7(0x0054 - 0x004d),
+    "EXP SW=OFF PCM Tone2 Switch",
+    booleanField
+  ),
+  offModelingToneSwitch: new FieldDefinition(
+    pack7(0x0055 - 0x004d),
+    "EXP SW=OFF Modeling Tone Switch",
+    booleanField
+  ),
+  offNormalPuSwitch: new FieldDefinition(
+    pack7(0x0056 - 0x004d),
+    "EXP SW=OFF Normal PU Switch",
+    booleanField
+  ),
+  onPcmTone1Switch: new FieldDefinition(
+    pack7(0x0057 - 0x004d),
+    "EXP SW=ON PCM Tone1 Switch",
+    booleanField
+  ),
+  onPcmTone2Switch: new FieldDefinition(
+    pack7(0x0058 - 0x004d),
+    "EXP SW=ON PCM Tone2 Switch",
+    booleanField
+  ),
+  onModelingToneSwitch: new FieldDefinition(
+    pack7(0x0059 - 0x004d),
+    "EXP SW=ON Modeling Tone Switch",
+    booleanField
+  ),
+  onNormalPuSwitch: new FieldDefinition(
+    pack7(0x005a - 0x004d),
+    "EXP SW=ON Normal PU Switch",
+    booleanField
+  ),
+};
+
+const PatchGkSwStruct = {
+  function: new FieldDefinition(
+    pack7(0x0072 - 0x0072),
+    "GK SW Function",
+    pedalGkSwitchFunctionField
+  ),
+  reserved0001: new FieldDefinition(
+    pack7(0x0073 - 0x0072),
+    "(Reserved)",
+    new ReservedField(4)
+  ),
+  offPcmTone1Switch: new FieldDefinition(
+    pack7(0x0077 - 0x0072),
+    "GK SW=OFF PCM Tone1 Switch",
+    booleanField
+  ),
+  offPcmTone2Switch: new FieldDefinition(
+    pack7(0x0078 - 0x0072),
+    "GK SW=OFF PCM Tone2 Switch",
+    booleanField
+  ),
+  offModelingToneSwitch: new FieldDefinition(
+    pack7(0x0079 - 0x0072),
+    "GK SW=OFF Modeling Tone Switch",
+    booleanField
+  ),
+  offNormalPuSwitch: new FieldDefinition(
+    pack7(0x007a - 0x0072),
+    "GK SW=OFF Normal PU Switch",
+    booleanField
+  ),
+  onPcmTone1Switch: new FieldDefinition(
+    pack7(0x007b - 0x0072),
+    "GK SW=ON PCM Tone1 Switch",
+    booleanField
+  ),
+  onPcmTone2Switch: new FieldDefinition(
+    pack7(0x007c - 0x0072),
+    "GK SW=ON PCM Tone2 Switch",
+    booleanField
+  ),
+  onModelingToneSwitch: new FieldDefinition(
+    pack7(0x007d - 0x0072),
+    "GK SW=ON Modeling Tone Switch",
+    booleanField
+  ),
+  onNormalPuSwitch: new FieldDefinition(
+    pack7(0x007e - 0x0072),
+    "GK SW=ON Normal PU Switch",
+    booleanField
+  ),
+};
+
 const PatchAssignStruct = {
   switch: new FieldDefinition(
     pack7(0x010c - 0x010c),
@@ -2596,6 +2854,21 @@ const PatchAssignStruct = {
   ),
 };
 
+// TODO: Possibly a more useful field type for this
+const vlink32Field = new UByteField(0, 32, {
+  format(value) {
+    return value === 0 ? "LAST" : value.toString();
+  },
+});
+
+const vlinkControlField = enumField([
+  "OFF",
+  "COLOR Cb",
+  "COLOR Cr",
+  "BRIGHT",
+  "PLAY SPEED",
+] as const);
+
 export const PatchStruct = {
   common: new StructDefinition(pack7(0x000000), "Common", {
     patchAttribute: new FieldDefinition(
@@ -2608,6 +2881,114 @@ export const PatchStruct = {
       "Patch Name",
       new AsciiStringField(16)
     ),
+    ctl: new StructDefinition(pack7(0x0011), "CTL", {
+      status: new FieldDefinition(
+        pack7(0x0011 - 0x0011),
+        "CTL Status",
+        booleanField
+      ),
+      function: new FieldDefinition(
+        pack7(0x0012 - 0x0011),
+        "CTL Function",
+        enumField([
+          "OFF",
+          "HOLD",
+          "TAP TEMPO",
+          "TONE SW",
+          "AMP SW",
+          "MOD SW",
+          "MFX SW",
+          "DELAY SW",
+          "REVERB SW",
+          "CHORUS SW",
+          "AUDIO PLAYER PLAY/STOP",
+          "AUDIO PLAYER SONG INC",
+          "AUDIO PLAYER SONG DEC",
+          "AUDIO PLAYER SW",
+          "V-LINK SW",
+          "LED MOMENT",
+          "LED TOGGLE",
+        ] as const)
+      ),
+      holdType: new FieldDefinition(
+        pack7(0x0013 - 0x0011),
+        "CTL Hold Type",
+        enumField(["1", "2", "3", "4"] as const)
+      ),
+      holdSwitchMode: new FieldDefinition(
+        pack7(0x0014 - 0x0011),
+        "CTL Hold Switch Mode",
+        enumField(["LATCH", "MOMENT"] as const)
+      ),
+      holdPcmTone1: new FieldDefinition(
+        pack7(0x0015 - 0x0011),
+        "CTL Hold PCM Tone1",
+        booleanField
+      ),
+      holdPcmTone2: new FieldDefinition(
+        pack7(0x0016 - 0x0011),
+        "CTL Hold PCM Tone2",
+        booleanField
+      ),
+      offPcmTone1Switch: new FieldDefinition(
+        pack7(0x0017 - 0x0011),
+        "CTL=OFF PCM Tone1 Switch",
+        booleanField
+      ),
+      offPcmTone2Switch: new FieldDefinition(
+        pack7(0x0018 - 0x0011),
+        "CTL=OFF PCM Tone2 Switch",
+        booleanField
+      ),
+      offModelingToneSwitch: new FieldDefinition(
+        pack7(0x0019 - 0x0011),
+        "CTL=OFF Modeling Tone Switch",
+        booleanField
+      ),
+      offNormalPuSwitch: new FieldDefinition(
+        pack7(0x001a - 0x0011),
+        "CTL=OFF Normal PU Switch",
+        booleanField
+      ),
+      onPcmTone1Switch: new FieldDefinition(
+        pack7(0x001b - 0x0011),
+        "CTL=ON PCM Tone1 Switch",
+        booleanField
+      ),
+      onPcmTone2Switch: new FieldDefinition(
+        pack7(0x001c - 0x0011),
+        "CTL=ON PCM Tone2 Switch",
+        booleanField
+      ),
+      onModelingToneSwitch: new FieldDefinition(
+        pack7(0x001d - 0x0011),
+        "CTL=ON Modeling Tone Switch",
+        booleanField
+      ),
+      onNormalPuSwitch: new FieldDefinition(
+        pack7(0x001e - 0x0011),
+        "CTL=ON Normal PU Switch",
+        booleanField
+      ),
+    }),
+    expPdlOff: new StructDefinition(
+      pack7(0x001f),
+      "EXP PDL (OFF)",
+      PatchExpPedalGkContinuousControlStruct
+    ),
+    expPdlOn: new StructDefinition(
+      pack7(0x0036),
+      "EXP PDL (ON)",
+      PatchExpPedalGkContinuousControlStruct
+    ),
+    expSw: new StructDefinition(pack7(0x004d), "EXP SW", PatchExpSwStruct),
+    gkVol: new StructDefinition(
+      pack7(0x005b),
+      "GK VOL",
+      PatchExpPedalGkContinuousControlStruct
+    ),
+    gkS1: new StructDefinition(pack7(0x0072), "GK S1", PatchGkSwStruct),
+    gkS2: new StructDefinition(pack7(0x007f), "GK S2", PatchGkSwStruct),
     // TODO: Is it worth creating an ArrayDefinition atom type?
     assign1: new StructDefinition(pack7(0x010c), "ASSIGN1", PatchAssignStruct),
     assign2: new StructDefinition(pack7(0x011f), "ASSIGN2", PatchAssignStruct),
@@ -2641,6 +3022,40 @@ export const PatchStruct = {
       // from each of the sources.
       enumField(["OFF", "NORMAL PU", "MODELING", "BOTH"] as const)
     ),
+    vlinkPalette: new FieldDefinition(
+      pack7(0x0226),
+      "V-LINK Palette",
+      vlink32Field
+    ),
+    vlinkPatchClip: new FieldDefinition(
+      pack7(0x0227),
+      "V-LINK Patch Clip",
+      vlink32Field
+    ),
+    vlinkClipChange: new FieldDefinition(
+      pack7(0x0228),
+      "V-LINK Clip Change",
+      new UByteField(0, 4, {
+        format(value) {
+          return value === 0 ? "OFF" : value.toString();
+        },
+      })
+    ),
+    vlinkExpPedal: new FieldDefinition(
+      pack7(0x0229),
+      "V-LINK EXP Pedal",
+      vlinkControlField
+    ),
+    vlinkExpPedalOn: new FieldDefinition(
+      pack7(0x022a),
+      "V-LINK EXP Pedal On",
+      vlinkControlField
+    ),
+    vlinkGkVol: new FieldDefinition(
+      pack7(0x022b),
+      "V-LINK GK VOL",
+      vlinkControlField
+    ),
     effectStructure: new FieldDefinition(
       pack7(0x022c),
       "EFFECT Structure",
@@ -2655,6 +3070,11 @@ export const PatchStruct = {
       pack7(0x022e),
       "Line Select Normal PU",
       toneLineSelectField
+    ),
+    reserved022f: new FieldDefinition(
+      pack7(0x022f),
+      "(Reserved)",
+      new ReservedField()
     ),
     patchLevel: new FieldDefinition(
       pack7(0x0230),
@@ -2744,6 +3164,41 @@ export const PatchStruct = {
       pack7(0x0240),
       "BYPASS Reverb Send Level",
       new UByteField(0, 100)
+    ),
+    reserved0241: new FieldDefinition(
+      pack7(0x0241),
+      "(Reserved)",
+      new ReservedField()
+    ),
+    expPdlOffModControlMin: new FieldDefinition(
+      pack7(0x0242),
+      "EXP PDL(OFF) MOD CONTROL MIN",
+      new UByteField(0, 120)
+    ),
+    expPdlOffModControlMax: new FieldDefinition(
+      pack7(0x0243),
+      "EXP PDL(OFF) MOD CONTROL MAX",
+      new UByteField(0, 120)
+    ),
+    expPdlOnModControlMin: new FieldDefinition(
+      pack7(0x0244),
+      "EXP PDL(ON) MOD CONTROL MIN",
+      new UByteField(0, 120)
+    ),
+    expPdlOnModControlMax: new FieldDefinition(
+      pack7(0x0245),
+      "EXP PDL(ON) MOD CONTROL MAX",
+      new UByteField(0, 120)
+    ),
+    gkVolModControlMin: new FieldDefinition(
+      pack7(0x0246),
+      "GK VOL MOD CONTROL MIN",
+      new UByteField(0, 120)
+    ),
+    gkVolModControlMax: new FieldDefinition(
+      pack7(0x0247),
+      "GK VOL MOD CONTROL MAX",
+      new UByteField(0, 120)
     ),
   }),
   mfx: new StructDefinition(pack7(0x000300), "MFX", {
