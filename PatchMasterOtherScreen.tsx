@@ -52,6 +52,7 @@ export function PatchMasterOtherScreen({
         page={PATCH}
         field={GR55.temporaryPatch.common.gkSet}
       />
+      {/* TODO: Indicate that this is ignored if SYSTEM GUITAR OUT is anything other than PATCH */}
       <RemoteFieldPicker
         page={PATCH}
         field={GR55.temporaryPatch.common.guitarOutSource}
