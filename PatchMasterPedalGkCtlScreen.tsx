@@ -210,6 +210,7 @@ function PedalOrKnobConfigScreen({
             page={PATCH}
             field={pedalOrKnob.bendSwitchPCMTone2}
           />
+          {/* TODO: Indicate that this is ignored if "12STR SW" is "ON" */}
           <RemoteFieldSwitch
             page={PATCH}
             field={pedalOrKnob.bendSwitchModelingTone}
