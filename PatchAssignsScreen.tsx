@@ -10,23 +10,16 @@ import { ContextualStyleProvider } from "./ContextualStyle";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldDynamic } from "./RemoteFieldDynamic";
 import { RemoteFieldPicker } from "./RemoteFieldPicker";
 import { RemoteFieldSlider } from "./RemoteFieldSlider";
 import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RemoteFieldWaveShapePicker } from "./RemoteFieldWaveShapePicker";
-import {
-  FieldReference,
-  isEnumFieldReference,
-  isNumericFieldReference,
-  NumericField,
-} from "./RolandAddressMap";
+import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
-import {
-  RolandRemotePageContext,
-  RolandRemotePatchContext as PATCH,
-} from "./RolandRemotePageContext";
+import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchAssignsTabParamList, PatchStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
@@ -333,12 +326,12 @@ function AssignSection({
           value={target}
           onValueChange={handleTargetChange}
         />
-        <PatchDynamicField
+        <RemoteFieldDynamic
           page={PATCH}
           field={targetMinField}
           key={target + "min"}
         />
-        <PatchDynamicField
+        <RemoteFieldDynamic
           page={PATCH}
           field={targetMaxField}
           key={target + "max"}
@@ -375,23 +368,6 @@ function AssignSection({
         )}
       </RemoteFieldSwitchedSection>
     </>
-  );
-}
-
-function PatchDynamicField({
-  page,
-  field,
-}: {
-  page: RolandRemotePageContext;
-  field: FieldReference<any>;
-}) {
-  if (isNumericFieldReference(field)) {
-    return <RemoteFieldSlider page={page} field={field} />;
-  } else if (isEnumFieldReference(field)) {
-    return <RemoteFieldPicker page={page} field={field} />;
-  }
-  throw new Error(
-    "Could not render dynamic field " + field.definition.description
   );
 }
 

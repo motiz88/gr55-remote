@@ -3,17 +3,27 @@ import {
   MaterialTopTabScreenProps,
 } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 
 import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
+import { RemoteFieldDynamic } from "./RemoteFieldDynamic";
 import { RemoteFieldPicker } from "./RemoteFieldPicker";
 import { RemoteFieldSlider } from "./RemoteFieldSlider";
 import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
-import { FieldReference, NumericField } from "./RolandAddressMap";
+import {
+  BooleanField,
+  EnumField,
+  FieldDefinition,
+  FieldReference,
+  isBooleanField,
+  isEnumField,
+  isNumericField,
+  NumericField,
+} from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
@@ -147,6 +157,104 @@ function ButtonConfigScreen({
   );
 }
 
+function useModControlField(minOrMaxField: FieldReference<NumericField>) {
+  const [modType] = useRemoteField(PATCH, GR55.temporaryPatch.ampModNs.modType);
+  return useMemo(() => {
+    let controlledField: FieldReference<
+      | NumericField
+      | EnumField<{ [encoded: number]: number | string }>
+      | BooleanField
+    >;
+    switch (modType) {
+      case "OD/DS":
+        controlledField = GR55.temporaryPatch.ampModNs.odDsDrive;
+        break;
+      case "WAH":
+        // TODO: Indicate that this requires WAH MODE to be set to MANUAL.
+        controlledField = GR55.temporaryPatch.ampModNs.wahPedalPosition;
+        break;
+      case "COMP":
+        controlledField = GR55.temporaryPatch.ampModNs.compSustain;
+        break;
+      case "LIMITER":
+        controlledField = GR55.temporaryPatch.ampModNs.limiterThreshold;
+        break;
+      case "OCTAVE":
+        controlledField = GR55.temporaryPatch.ampModNs.octaveOctLevel;
+        break;
+      case "PHASER":
+        // TODO: Rate field needs a custom definition (0..100 instead of 0..113)
+        controlledField = GR55.temporaryPatch.ampModNs.phaserRate;
+        break;
+      case "FLANGER":
+        // TODO: Rate field needs a custom definition (0..100 instead of 0..113)
+        controlledField = GR55.temporaryPatch.ampModNs.flangerRate;
+        break;
+      case "TREMOLO":
+        // TODO: Rate field needs a custom definition (0..100 instead of 0..113)
+        controlledField = GR55.temporaryPatch.ampModNs.tremoloRate;
+        break;
+      case "ROTARY":
+        controlledField = GR55.temporaryPatch.ampModNs.rotarySelect;
+        break;
+      case "UNI-V":
+        // TODO: Rate field needs a custom definition (0..100 instead of 0..113)
+        controlledField = GR55.temporaryPatch.ampModNs.uniVRate;
+        break;
+      case "PAN":
+        // TODO: Rate field needs a custom definition (0..100 instead of 0..113)
+        controlledField = GR55.temporaryPatch.ampModNs.panRate;
+        break;
+      case "DELAY":
+        controlledField = GR55.temporaryPatch.ampModNs.delayEffectLevel;
+        break;
+      case "CHORUS":
+        controlledField = GR55.temporaryPatch.ampModNs.chorusEffectLevel;
+        break;
+      case "EQ":
+        controlledField = GR55.temporaryPatch.ampModNs.eqHighMidCutoffFreq;
+        break;
+    }
+    // TODO: Refactor to reuse reinterpretation logic from assigns map
+    let remappedType;
+    if (isNumericField(controlledField.definition.type)) {
+      const { type } = controlledField.definition;
+      const { min, max, encodedOffset, format } = type;
+      remappedType = minOrMaxField.definition.type.remapped({
+        min,
+        max,
+        encodedOffset,
+        format: format.bind(type),
+      });
+    } else if (isEnumField(controlledField.definition.type)) {
+      const { type } = controlledField.definition;
+      remappedType = new EnumField(type.labels, minOrMaxField.definition.type);
+    } else if (isBooleanField(controlledField.definition.type)) {
+      const { type } = controlledField.definition;
+      remappedType = new EnumField(
+        type.invertedForDisplay
+          ? { 0: type.trueLabel, 1: type.falseLabel }
+          : { 0: type.falseLabel, 1: type.trueLabel },
+        minOrMaxField.definition.type.remapped({ encodedOffset: 0 })
+      );
+    }
+    if (remappedType) {
+      return {
+        ...minOrMaxField,
+        definition: new FieldDefinition(
+          minOrMaxField.definition.offset,
+          minOrMaxField.definition.description +
+            " (" +
+            controlledField.definition.description +
+            ")",
+          remappedType
+        ),
+      };
+    }
+    throw new Error('Unhandled mod type "' + modType + '"');
+  }, [minOrMaxField, modType]);
+}
+
 function PedalOrKnobConfigScreen({
   navigation,
   pedalOrKnob,
@@ -274,13 +382,39 @@ function PedalOrKnobConfigScreen({
         </>
       )}
       {function_ === "MOD CONTROL" && (
-        <>
-          {/* TODO: MOD CONTROL. Reinterpret min/max fields according to the current MOD */}
-          <RemoteFieldSlider page={PATCH} field={modControlMinField} />
-          <RemoteFieldSlider page={PATCH} field={modControlMaxField} />
-        </>
+        <ModControlSection
+          modControlMinField={modControlMinField}
+          modControlMaxField={modControlMaxField}
+        />
       )}
     </PopoverAwareScrollView>
+  );
+}
+
+function ModControlSection({
+  modControlMinField,
+  modControlMaxField,
+}: {
+  modControlMinField: FieldReference<NumericField>;
+  modControlMaxField: FieldReference<NumericField>;
+}) {
+  const reinterpretedModControlMinField =
+    useModControlField(modControlMinField);
+  const reinterpretedModControlMaxField =
+    useModControlField(modControlMaxField);
+
+  return (
+    <>
+      <RemoteFieldDynamic
+        page={PATCH}
+        field={reinterpretedModControlMinField}
+      />
+      <RemoteFieldDynamic
+        page={PATCH}
+        field={reinterpretedModControlMaxField}
+      />
+      {/* TODO: Quick navigation to MOD from here? */}
+    </>
   );
 }
 
