@@ -1,7 +1,6 @@
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
-import { Platform, useWindowDimensions } from "react-native";
 
 import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PatchEffectsAmpScreen } from "./PatchEffectsAmpScreen";
@@ -33,31 +32,11 @@ export function PatchEffectsScreen({
     });
   }, [navigation, patchName]);
 
-  // TODO: Make this split-view aware using context from the nearest navigator
-  const { width } = useWindowDimensions();
-
-  // TODO: Move this to a custom tab bar component
-  const MINIMUM_TAB_WIDTH = Platform.select({
-    ios: 75,
-    default: 65,
-  });
-  const tabCount = 8;
-  let tabsInView = Math.floor(width / MINIMUM_TAB_WIDTH);
-  if (tabsInView < tabCount && tabsInView > 1) {
-    // round down to the nearest half tab
-    tabsInView -= 0.5;
-  }
-
   const { closeAllPopovers } = usePopovers();
 
   return (
     <Tab.Navigator
       id="PatchEffects"
-      screenOptions={{
-        tabBarScrollEnabled: tabsInView < tabCount,
-        tabBarItemStyle:
-          tabsInView < tabCount ? { width: width / tabsInView } : {},
-      }}
       backBehavior="history"
       screenListeners={{
         // TODO: Extract popover aware tab navigator component

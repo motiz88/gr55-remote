@@ -12,6 +12,7 @@ function createAdjustingTabBar<
       [key: string]: {
         options?: {
           tabBarItemStyle?: StyleProp<ViewStyle>;
+          tabBarScrollEnabled?: boolean;
         };
       };
     };
@@ -40,6 +41,7 @@ function createAdjustingTabBar<
           ...descriptor,
           options: {
             ...descriptor.options,
+            tabBarScrollEnabled: tabsInView < tabCount,
             tabBarItemStyle:
               tabsInView < tabCount
                 ? { width: props.layout.width / tabsInView }
