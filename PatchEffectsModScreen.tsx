@@ -1,5 +1,5 @@
 import { MaterialTopTabScreenProps } from "@react-navigation/material-top-tabs";
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { StyleSheet } from "react-native";
 
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
@@ -22,6 +22,14 @@ export function PatchEffectsModScreen({
   const [modType, setModType] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.ampModNs.modType
+  );
+
+  const handleModTypeChange = useCallback(
+    (value: typeof modType) => {
+      setModType(value);
+      // TODO: Reset mod control min/max fields to appropriate values based on mod type
+    },
+    [setModType]
   );
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
@@ -47,7 +55,7 @@ export function PatchEffectsModScreen({
           page={PATCH}
           field={GR55.temporaryPatch.ampModNs.modType}
           value={modType}
-          onValueChange={setModType}
+          onValueChange={handleModTypeChange}
         />
         {modType === "OD/DS" && (
           <>
