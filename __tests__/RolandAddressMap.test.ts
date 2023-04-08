@@ -19,7 +19,7 @@ describe("parse", () => {
     expect(
       parse(new Uint8Array([0]), new FieldDefinition(0, "", booleanField), 0)[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": false,
       }
     `);
@@ -27,7 +27,7 @@ describe("parse", () => {
     expect(
       parse(new Uint8Array([1]), new FieldDefinition(0, "", booleanField), 0)[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": true,
       }
     `);
@@ -39,7 +39,7 @@ describe("parse", () => {
         0
       )[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": false,
       }
     `);
@@ -51,7 +51,7 @@ describe("parse", () => {
         0
       )[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": true,
       }
     `);
@@ -70,7 +70,7 @@ describe("parse", () => {
         0
       )[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": " ABC AAA",
       }
     `);
@@ -87,7 +87,7 @@ describe("parse", () => {
         0
       )[0]
     ).toMatchInlineSnapshot(`
-      Object {
+      {
         "value": "ABC AAA",
       }
     `);
@@ -129,16 +129,16 @@ describe("parse", () => {
       5
     );
     expect(parsed).toMatchInlineSnapshot(`
-      Object {
-        "childA": Object {
-          "grandchildA": Object {
+      {
+        "childA": {
+          "grandchildA": {
             "value": false,
           },
-          "grandchildB": Object {
+          "grandchildB": {
             "value": true,
           },
         },
-        "childB": Object {
+        "childB": {
           "value": false,
         },
       }
