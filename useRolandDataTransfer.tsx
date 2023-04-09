@@ -1,5 +1,5 @@
 import { MIDIMessageEvent } from "@motiz88/react-native-midi";
-import PromiseThrottle from "promise-throttle";
+import pLimit from "p-limit";
 import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { MidiIoContext } from "./MidiIoContext";
@@ -32,12 +32,7 @@ type PendingFetch = {
   bytesReceived: number;
 };
 
-// The GR-55 can only handle 1 request at a time, and both reads/writes can get corrupted
-// if they're too fast. To keep the UI responsive, users of RolandDataTransferContext
-// should throttle their requests as well.
-const globalQueue = new PromiseThrottle({
-  requestsPerSecond: 1000 / GAP_BETWEEN_MESSAGES_MS,
-});
+const globalQueue = pLimit(1);
 
 export function useRolandDataTransfer() {
   const { outputPort, inputPort } = useContext(MidiIoContext);
@@ -144,7 +139,12 @@ export function useRolandDataTransfer() {
       const result = await fetchAndTokenize(
         definition,
         baseAddress,
-        (...args) => globalQueue.add(() => fetchContiguous(...args))
+        (...args) =>
+          globalQueue(async () => {
+            const result = await fetchContiguous(...args);
+            await delay(GAP_BETWEEN_MESSAGES_MS);
+            return result;
+          })
       );
       return result;
     }
@@ -171,8 +171,9 @@ export function useRolandDataTransfer() {
         field.address,
         valueBytes
       );
-      globalQueue.add(async () => {
+      globalQueue(async () => {
         myOutputPort.send(data);
+        await delay(GAP_BETWEEN_MESSAGES_MS);
       });
     }
     return { requestData, setField };
@@ -184,4 +185,8 @@ export function useRolandDataTransfer() {
     deviceId,
     sysExConfig,
   ]);
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

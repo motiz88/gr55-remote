@@ -3,6 +3,8 @@
 // Each "style" (LEAD, RHYTHM, OTHER or USER) has a sequential range of UI banks.
 // So a string like "LEAD 01-1" or "RHYTHM 02-3" uniquely identifies a patch location.
 
+import { pack7 } from "./RolandSysExProtocol";
+
 // Patch contents are fixed in the GR-55's ROM for the LEAD, RHYTHM, and OTHER styles,
 // so in particular we need to hardcode the patch names for these styles.
 // The USER patches have addresses in the GR-55's memory so we read their names over MIDI.
@@ -29,7 +31,7 @@ function buildContiguousPatches({
 }) {
   const patchMap = [];
   let pc = fromPC;
-  let userPatch = fromUserPatch;
+  let userPatchNumber = fromUserPatch;
   for (let i = fromPatchNumber[0]; i <= toPatchNumber[0]; i++) {
     const startj = i === fromPatchNumber[0] ? fromPatchNumber[1] : 1;
     const endj =
@@ -42,11 +44,18 @@ function buildContiguousPatches({
           .padStart(GR55_UI_BANK_NUMBER_WIDTH, "0")}-${j}`,
         bankMSB,
         pc,
-        userPatch,
+        userPatch:
+          userPatchNumber != null
+            ? {
+                patchNumber: userPatchNumber,
+                baseAddress:
+                  pack7(0x20000000) + userPatchNumber * pack7(0x010000),
+              }
+            : undefined,
       });
       pc++;
-      if (typeof userPatch === "number") {
-        userPatch++;
+      if (typeof userPatchNumber === "number") {
+        userPatchNumber++;
       }
     }
   }
@@ -157,7 +166,12 @@ export type RolandGR55PatchMap = Readonly<{
     patchNumberLabel: string;
     bankMSB: number;
     pc: number;
-    userPatch: number | undefined;
+    userPatch:
+      | Readonly<{
+          patchNumber: number;
+          baseAddress: number;
+        }>
+      | undefined;
   }>[];
 }>;
 
