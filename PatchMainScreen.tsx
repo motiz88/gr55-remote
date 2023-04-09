@@ -1,7 +1,11 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { DrawerToggleButton } from "@react-navigation/drawer";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import {
+  StackActions,
+  useNavigation,
+  useTheme as useNavigationTheme,
+} from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
 import {
@@ -9,7 +13,6 @@ import {
   Image,
   Pressable,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
 } from "react-native";
@@ -33,6 +36,7 @@ import {
   RolandRemotePageContext,
 } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
+import { ThemedText as Text } from "./ThemedText";
 import {
   GlobalNavigationProp,
   PatchStackParamList,
@@ -52,12 +56,13 @@ export function PatchMainScreen({
     PATCH,
     GR55.temporaryPatch.common.patchName
   );
+  const theme = useNavigationTheme();
   useEffect(() => {
     navigation.setOptions({
       title: selectedDevice && patchName ? patchName : "GR-55 Editor",
       headerLeft: () =>
         selectedDevice ? (
-          <DrawerToggleButton />
+          <DrawerToggleButton tintColor={theme.colors.primary} />
         ) : (
           <DrawerToggleButton
             // @ts-expect-error DrawerToggleButton passes props to Pressable which supports `disabled`
@@ -66,7 +71,7 @@ export function PatchMainScreen({
           />
         ),
     });
-  }, [navigation, patchName, selectedDevice]);
+  }, [navigation, patchName, selectedDevice, theme.colors.primary]);
 
   // TODO: Also reload SYSTEM page on manual refresh
   const { reloadData } = useContext(PATCH);
@@ -489,6 +494,7 @@ function ToneSummaryView({
   toneLabel: React.ReactNode;
   onPress: () => void;
 }) {
+  const theme = useNavigationTheme();
   return (
     <Pressable android_ripple={{ color: "lightgray" }} onPress={onPress}>
       <View
@@ -496,7 +502,7 @@ function ToneSummaryView({
           flexDirection: "row",
           justifyContent: "space-between",
           borderBottomWidth: 1,
-          borderBottomColor: "lightgray",
+          borderBottomColor: theme.colors.border,
           paddingTop: 16,
           alignItems: "center",
         }}
@@ -536,12 +542,20 @@ function SectionWithHeading({
   heading: React.ReactNode;
   onPress?: () => void;
 }) {
+  const theme = useNavigationTheme();
   return (
     <View style={styles.sectionWithHeading}>
       {onPress ? (
         <HeadingLink onPress={onPress} heading={heading} />
       ) : (
-        <Text style={styles.sectionHeading}>{heading}</Text>
+        <Text
+          style={[
+            { borderBottomColor: theme.colors.border },
+            styles.sectionHeading,
+          ]}
+        >
+          {heading}
+        </Text>
       )}
       {children}
     </View>
@@ -555,6 +569,7 @@ function HeadingLink({
   onPress?: () => void;
   heading: React.ReactNode;
 }) {
+  const theme = useNavigationTheme();
   return (
     <Pressable android_ripple={{ color: "lightgray" }} onPress={onPress}>
       <View
@@ -562,7 +577,7 @@ function HeadingLink({
           flexDirection: "row",
           justifyContent: "space-between",
           borderBottomWidth: 1,
-          borderBottomColor: "lightgray",
+          borderBottomColor: theme.colors.border,
           paddingTop: 16,
           alignItems: "center",
         }}
@@ -586,7 +601,6 @@ const styles = StyleSheet.create({
   sectionHeading: {
     fontWeight: "bold",
     borderBottomWidth: 1,
-    borderBottomColor: "lightgray",
   },
   errorText: {
     marginVertical: 8,

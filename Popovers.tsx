@@ -6,14 +6,10 @@ import React, {
   useReducer,
   useRef,
 } from "react";
-import {
-  ColorValue,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ColorValue, StyleSheet, TouchableOpacity, View } from "react-native";
 import Popover, { PopoverMode as Mode, Rect } from "react-native-popover-view";
+
+import { ThemedText as Text } from "./ThemedText";
 
 export type PopoverProps =
   | {

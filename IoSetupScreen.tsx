@@ -1,11 +1,12 @@
 import { useContext } from "react";
-import { StyleSheet, Switch, Text } from "react-native";
+import { StyleSheet, Switch } from "react-native";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
-import { Picker } from "./Picker";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
+import { ThemedPicker as Picker } from "./ThemedPicker";
+import { ThemedText as Text } from "./ThemedText";
 
 export function IoSetupScreen() {
   const {

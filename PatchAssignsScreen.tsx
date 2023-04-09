@@ -4,7 +4,7 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useCallback, useContext, useEffect, useMemo } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { ContextualStyleProvider } from "./ContextualStyle";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
@@ -21,18 +21,18 @@ import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
+import { useTheme } from "./Theme";
+import { ThemedText as Text } from "./ThemedText";
 import { PatchAssignsTabParamList, PatchStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
 import { useRemoteField } from "./useRemoteField";
 
 const Tab = createMaterialTopTabNavigator<PatchAssignsTabParamList>();
 
-// 10/11ths of the way from cornflowerblue to #f2f2f2
-const ASSIGNS_BACKGROUND_COLOR = "#E5EAF2";
-
 export function PatchAssignsScreen({
   navigation,
 }: NativeStackScreenProps<PatchStackParamList, "PatchAssigns">) {
+  const theme = useTheme();
   const [patchName] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.common.patchName
@@ -119,7 +119,7 @@ export function PatchAssignsScreen({
       id="PatchAssigns"
       backBehavior="history"
       screenOptions={{
-        tabBarStyle: { backgroundColor: "#F1F5FD" },
+        tabBarStyle: { backgroundColor: theme.colors.assigns.tabBarBackground },
         tabBarLabel: renderLabel,
       }}
       screenListeners={{
@@ -216,23 +216,29 @@ function PatchAssignScreen({
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
+  const theme = useTheme();
+
   const assignsMap = useAssignsMap();
   if (!assignsMap) {
     throw new Error(
       "PatchAssignScreen: Assigns map is not available. This should not be reachable."
     );
   }
+
   return (
     <PopoverAwareScrollView
       refreshControl={
         <RefreshControl refreshing={false} onRefresh={reloadData} />
       }
-      style={[styles.container]}
+      style={[
+        { backgroundColor: theme.colors.assigns.background },
+        styles.container,
+      ]}
       contentContainerStyle={safeAreaStyle}
     >
       <ContextualStyleProvider
         value={{
-          backgroundColor: ASSIGNS_BACKGROUND_COLOR,
+          backgroundColor: theme.colors.assigns.background,
         }}
       >
         <AssignSection
@@ -391,7 +397,6 @@ function AssignTabLabel({
 const styles = StyleSheet.create({
   container: {
     padding: 8,
-    backgroundColor: ASSIGNS_BACKGROUND_COLOR,
   },
   label: {
     textAlign: "center",

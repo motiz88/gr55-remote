@@ -1,4 +1,3 @@
-// import { createDrawerNavigator } from "@react-navigation/drawer";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
@@ -30,6 +29,8 @@ import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { ThemeProvider } from "./Theme";
+import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { PatchStackParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
 import { useRolandDataTransfer } from "./useRolandDataTransfer";
@@ -111,9 +112,13 @@ export default function App() {
               <RolandRemotePatchStateContainer>
                 <AppNavigationContainer>
                   <RolandGR55AssignsContainer>
-                    <PopoversContainer>
-                      <RootTabNavigator />
-                    </PopoversContainer>
+                    <ThemeProvider>
+                      <ThemedContextualStyleProvider>
+                        <PopoversContainer>
+                          <RootTabNavigator />
+                        </PopoversContainer>
+                      </ThemedContextualStyleProvider>
+                    </ThemeProvider>
                   </RolandGR55AssignsContainer>
                 </AppNavigationContainer>
               </RolandRemotePatchStateContainer>

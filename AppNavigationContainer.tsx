@@ -1,7 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from "@react-navigation/native";
 import * as React from "react";
-import { Linking, Platform } from "react-native";
+import { Linking, Platform, useColorScheme } from "react-native";
 
 const PERSISTENCE_KEY = "NAVIGATION_STATE_V1";
 
@@ -10,6 +14,8 @@ export default function AppNavigationContainer({
 }: {
   children?: React.ReactNode;
 }) {
+  const scheme = useColorScheme();
+
   const [isReady, setIsReady] = React.useState(!__DEV__);
   const [initialState, setInitialState] = React.useState();
 
@@ -52,6 +58,7 @@ export default function AppNavigationContainer({
       onUnhandledAction={(action) => {
         // Silence errors because of unhandled POP_TO_TOP actions. They're fine.
       }}
+      theme={scheme === "dark" ? DarkTheme : DefaultTheme}
     >
       {children}
     </NavigationContainer>

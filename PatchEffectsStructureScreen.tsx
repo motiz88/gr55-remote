@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
@@ -7,6 +7,7 @@ import { RemoteFieldPicker } from "./RemoteFieldPicker";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
+import { ThemedText as Text } from "./ThemedText";
 
 const { common, patchPCMTone1, patchPCMTone2 } = GR55.temporaryPatch;
 

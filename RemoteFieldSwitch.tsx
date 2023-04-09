@@ -1,10 +1,11 @@
 import { useCallback, useMemo } from "react";
-import { Switch, Text, View, Pressable, StyleSheet } from "react-native";
+import { Switch, View, Pressable, StyleSheet } from "react-native";
 
 import { FieldStyles } from "./FieldStyles";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
 
 export function RemoteFieldSwitch({

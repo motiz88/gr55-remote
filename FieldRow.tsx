@@ -2,7 +2,6 @@ import { Entypo } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { createContext, useCallback, useMemo, useRef, useState } from "react";
 import {
-  Animated,
   GestureResponderEvent,
   Platform,
   Pressable,
@@ -15,6 +14,7 @@ import {
 import { useAnimation } from "react-native-animation-hooks";
 
 import { FieldStyles } from "./FieldStyles";
+import { AnimatedThemedText } from "./ThemedText";
 
 export const FieldRow = function FieldRow({
   description,
@@ -110,7 +110,7 @@ export const FieldRow = function FieldRow({
             onPressOut={handlePressOut}
             style={FieldStyles.fieldDescriptionColumn}
           >
-            <Animated.Text
+            <AnimatedThemedText
               style={[
                 FieldStyles.fieldDescription,
                 isAssigned && FieldStyles.fieldDescriptionAssigned,
@@ -127,7 +127,7 @@ export const FieldRow = function FieldRow({
                   isAssigned && styles.iconAssignedVisible,
                 ]}
               />
-            </Animated.Text>
+            </AnimatedThemedText>
           </MaybePressable>
           {children && (
             <View

@@ -1,10 +1,11 @@
 import Slider from "@react-native-community/slider";
 import { useCallback } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
 
 export function RemoteFieldSlider({

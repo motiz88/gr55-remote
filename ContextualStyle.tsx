@@ -20,9 +20,7 @@ export function ContextualStyleProvider({
   );
 }
 
-const ContextualStyleContext = createContext<ContextualStyle>({
-  backgroundColor: "#f2f2f2",
-});
+const ContextualStyleContext = createContext<ContextualStyle>(undefined!);
 
 export interface ContextualStyle {
   backgroundColor: ColorValue;
