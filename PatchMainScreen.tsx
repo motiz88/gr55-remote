@@ -8,14 +8,7 @@ import {
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
-import {
-  Button,
-  Image,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
@@ -29,6 +22,7 @@ import {
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
   RolandRemotePatchContext as PATCH,
@@ -79,7 +73,7 @@ export function PatchMainScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   if (!selectedDevice) {
-    return <NotConnectedView navigation={navigation} />;
+    return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   return (
@@ -590,11 +584,6 @@ function HeadingLink({
 }
 
 const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   sectionWithHeading: {
     marginBottom: 16,
   },
@@ -602,50 +591,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     borderBottomWidth: 1,
   },
-  errorText: {
-    marginVertical: 8,
-  },
   container: {
     padding: 8,
   },
 });
-
-function NotConnectedView({
-  navigation,
-}: {
-  navigation: NativeStackScreenProps<
-    PatchStackParamList,
-    "PatchMain",
-    "RootTab" | "PatchDrawer" | "PatchStack"
-  >["navigation"];
-}) {
-  const dimensions = useWindowDimensions();
-
-  return (
-    <View style={[styles.center, styles.container]}>
-      <Image
-        source={require("./assets/gr55-pixel-masked.png")}
-        style={{
-          width: dimensions.width / 2,
-          height: ((601 / 1024) * dimensions.width) / 2,
-          resizeMode: "stretch",
-          borderWidth: 0,
-        }}
-      />
-      <Text style={styles.errorText}>Not currently connected to a GR-55!</Text>
-      <Button
-        onPress={() =>
-          (
-            navigation.getParent(
-              "RootTab"
-            ) as BottomTabNavigationProp<RootTabParamList>
-          ).navigate("IoSetup", {})
-        }
-        title="Go to setup"
-      />
-    </View>
-  );
-}
 
 function PopStackToTopOnTabPress() {
   const navigation = useNavigation<GlobalNavigationProp>();
