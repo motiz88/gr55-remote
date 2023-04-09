@@ -67,11 +67,11 @@ export function PatchMainScreen({
           <DrawerToggleButton
             // @ts-expect-error DrawerToggleButton passes props to Pressable which supports `disabled`
             disabled
-            tintColor="lightgray"
+            tintColor={theme.colors.border}
           />
         ),
     });
-  }, [navigation, patchName, selectedDevice, theme.colors.primary]);
+  }, [navigation, patchName, selectedDevice, theme.colors]);
 
   // TODO: Also reload SYSTEM page on manual refresh
   const { reloadData } = useContext(PATCH);
@@ -624,7 +624,7 @@ function NotConnectedView({
   return (
     <View style={[styles.center, styles.container]}>
       <Image
-        source={require("./assets/gr55-pixel.png")}
+        source={require("./assets/gr55-pixel-masked.png")}
         style={{
           width: dimensions.width / 2,
           height: ((601 / 1024) * dimensions.width) / 2,
