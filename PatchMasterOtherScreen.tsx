@@ -95,31 +95,31 @@ export function PatchMasterOtherScreen({
             />
           </>
         )}
-        <RemoteFieldSlider
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkPalette}
-        />
-        <RemoteFieldSlider
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkPatchClip}
-        />
-        <RemoteFieldSlider
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkClipChange}
-        />
-        <RemoteFieldPicker
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkExpPedal}
-        />
-        <RemoteFieldPicker
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkExpPedalOn}
-        />
-        <RemoteFieldPicker
-          page={PATCH}
-          field={GR55.temporaryPatch.common.vlinkGkVol}
-        />
       </RemoteFieldSwitchedSection>
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkPalette}
+      />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkPatchClip}
+      />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkClipChange}
+      />
+      <RemoteFieldPicker
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkExpPedal}
+      />
+      <RemoteFieldPicker
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkExpPedalOn}
+      />
+      <RemoteFieldPicker
+        page={PATCH}
+        field={GR55.temporaryPatch.common.vlinkGkVol}
+      />
     </PopoverAwareScrollView>
   );
 }
