@@ -1,20 +1,21 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { StyleSheet, FlatList } from "react-native";
 
+import {
+  AsciiStringField,
+  FieldDefinition,
+  StructDefinition,
+  getAddresses,
+  parse,
+} from "./RolandAddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
-// import {
-//   AsciiStringField,
-//   FieldDefinition,
-//   StructDefinition,
-//   parse,
-// } from "./RolandAddressMap";
 import { RolandGR55PatchMap } from "./RolandGR55PatchMap";
-// import { pack7 } from "./RolandSysExProtocol";
+import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedText as Text } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { usePatchMap } from "./usePatchMap";
-// import { useRolandRemotePageState } from "./useRolandRemotePageState";
+import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 const ITEM_HEIGHT = 44;
 
@@ -53,7 +54,7 @@ function PatchItem({
 }) {
   const patchName =
     patch.userPatch != null ? (
-      <UserPatchName patch={patch} />
+      <UserPatchName patch={patch} userPatch={patch.userPatch} />
     ) : /* TODO: system patch names */ null;
   return (
     <Text style={styles.item}>
@@ -62,42 +63,45 @@ function PatchItem({
   );
 }
 
-// const CompactPatchDefinition = new StructDefinition(
-//   pack7(0x000000),
-//   "User patch (compact)",
-//   {
-//     common: new StructDefinition(pack7(0x000000), "Common", {
-//       patchName: new FieldDefinition(
-//         pack7(0x0001),
-//         "Patch Name",
-//         new AsciiStringField(16)
-//       ),
-//     }),
-//   }
-// );
+const CompactPatchDefinition = new StructDefinition(
+  pack7(0x000000),
+  "User patch (compact)",
+  {
+    common: new StructDefinition(pack7(0x000000), "Common", {
+      patchName: new FieldDefinition(
+        pack7(0x0001),
+        "Patch Name",
+        new AsciiStringField(16)
+      ),
+    }),
+  }
+);
+
+const CompactPatchDefinitionAddresses = getAddresses(CompactPatchDefinition, 0);
 
 function UserPatchName({
   patch,
+  userPatch,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
+  userPatch: NonNullable<RolandGR55PatchMap["patchList"][number]["userPatch"]>;
 }) {
-  return <>"Patch #{patch.userPatch}"</>;
-
-  // TODO: Fetch patch name reliably
-  // const baseAddress = pack7(0x20000000 + patch.userPatch! * 0x010000);
-  // const { pageData } = useRolandRemotePageState({
-  //   address: baseAddress,
-  //   definition: CompactPatchDefinition,
-  // });
-  // if (pageData) {
-  //   const [patchName] = parse(
-  //     pageData[baseAddress + 0x0001],
-  //     CompactPatchDefinition.$.common.$.patchName,
-  //     0
-  //   );
-  //   return <>{patchName.value}</>;
-  // }
-  // return null;
+  const { pageData } = useRolandRemotePageState({
+    address: userPatch.baseAddress,
+    definition: CompactPatchDefinition,
+  });
+  if (pageData) {
+    const [patchName] = parse(
+      pageData[
+        userPatch.baseAddress +
+          CompactPatchDefinitionAddresses.common.patchName.address
+      ],
+      CompactPatchDefinitionAddresses.common.patchName.definition,
+      0
+    );
+    return <>{patchName.value}</>;
+  }
+  return null;
 }
 
 const styles = StyleSheet.create({
