@@ -43,7 +43,7 @@ function createAdjustingTabBar<
             ...descriptor.options,
             tabBarScrollEnabled: tabsInView < tabCount,
             tabBarItemStyle:
-              tabsInView < tabCount
+              tabsInView < tabCount && tabsInView > 0
                 ? { width: props.layout.width / tabsInView }
                 : {},
           },
