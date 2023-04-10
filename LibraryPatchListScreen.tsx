@@ -14,6 +14,7 @@ import { RolandGR55PatchMap } from "./RolandGR55PatchMap";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
+import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
@@ -149,13 +150,15 @@ function PatchItem({
     ) : (
       patch.builtInName
     );
+  const theme = useTheme();
   return (
     <Text
       style={[
         styles.item,
         selectedPatch?.bankSelectMSB === patch.bankMSB &&
-          selectedPatch?.pc === patch.pc &&
-          styles.selectedItem,
+          selectedPatch?.pc === patch.pc && {
+            backgroundColor: theme.colors.library.selectedPatch,
+          },
       ]}
     >
       {patch.styleLabel} {patch.patchNumberLabel}
@@ -222,8 +225,5 @@ const styles = StyleSheet.create({
     fontSize: ITEM_FONT_SIZE,
     textAlign: "center",
     textAlignVertical: "center",
-  },
-  selectedItem: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
 });

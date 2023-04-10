@@ -9,6 +9,9 @@ export const DefaultTheme = {
       // 10/11ths of the way from cornflowerblue to #ffffff
       tabBarBackground: "#F1F5FD",
     },
+    library: {
+      selectedPatch: "#73b2f9",
+    },
   },
 };
 
@@ -19,6 +22,9 @@ export const DarkTheme = {
       background: "#0A0E16",
       // 10/11ths of the way from cornflowerblue to #121212
       tabBarBackground: "#191E26",
+    },
+    library: {
+      selectedPatch: "#05448b",
     },
   },
 };
