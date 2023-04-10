@@ -4189,10 +4189,24 @@ const SystemStruct = {
   }),
 };
 
+const SetupStruct = {
+  patchBsMsb: new FieldDefinition(
+    pack7(0x0000),
+    "Patch BS MSB (CC #0)",
+    new UByteField(0, 127)
+  ),
+  patchPc: new FieldDefinition(
+    pack7(0x0001),
+    "Patch PC (PC)",
+    new UByteField(0, 127)
+  ),
+};
+
 export const RolandGR55AddressMap = new StructDefinition(
   pack7(0x00000000),
   "Roland GR-55 Address Map",
   {
+    setup: new StructDefinition(pack7(0x01000000), "Setup", SetupStruct),
     system: new StructDefinition(pack7(0x02000000), "System", SystemStruct),
     temporaryPatch: new StructDefinition(
       pack7(0x18000000),

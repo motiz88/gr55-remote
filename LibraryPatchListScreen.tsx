@@ -1,5 +1,5 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { StyleSheet, FlatList, useWindowDimensions, View } from "react-native";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "./RolandAddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import { RolandGR55PatchMap } from "./RolandGR55PatchMap";
+import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedText as Text } from "./ThemedText";
@@ -37,29 +38,61 @@ export function LibraryPatchListScreen({
     1
   );
   const patchMap = usePatchMap();
-  const rows = useMemo(() => {
-    if (!patchMap) {
-      return [];
+  const data = useMemo(() => {
+    const rows: RolandGR55PatchMap["patchList"][] = [];
+    const bankMsbAndPcToRowIndex: number[][] = [];
+    if (patchMap) {
+      let rowIndex = 0;
+      for (let i = 0; i < patchMap.patchList.length; i += itemsPerRow) {
+        const rowPatches = patchMap.patchList.slice(i, i + itemsPerRow);
+        rows.push(rowPatches);
+        for (const patch of rowPatches) {
+          bankMsbAndPcToRowIndex[patch.bankMSB] =
+            bankMsbAndPcToRowIndex[patch.bankMSB] ?? [];
+          bankMsbAndPcToRowIndex[patch.bankMSB][patch.pc] = rowIndex;
+        }
+        ++rowIndex;
+      }
     }
-    const rowsMut: RolandGR55PatchMap["patchList"][] = [];
-    for (let i = 0; i < patchMap.patchList.length; i += itemsPerRow) {
-      rowsMut.push(patchMap.patchList.slice(i, i + itemsPerRow));
-    }
-    return rowsMut;
+    return {
+      rows,
+      bankMsbAndPcToRowIndex,
+    };
   }, [itemsPerRow, patchMap]);
 
+  const { selectedPatch } = useRolandRemotePatchSelection();
+  const listRef = useRef<FlatList<any>>(null);
+  useEffect(() => {
+    const rowIndex =
+      data.bankMsbAndPcToRowIndex[selectedPatch?.bankSelectMSB ?? 0]?.[
+        selectedPatch?.pc ?? 0
+      ];
+    if (rowIndex == null) {
+      return;
+    }
+    // scroll to the row
+    listRef.current?.scrollToIndex({
+      animated: true,
+      index: rowIndex,
+      viewPosition: 0.5,
+    });
+  }, [selectedPatch, data]);
   if (!patchMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   return (
     <FlatList
+      ref={listRef}
       onLayout={onLayout}
       style={styles.container}
       contentContainerStyle={safeAreaStyle}
-      data={rows}
-      renderItem={({ item }) => <PatchRow items={item} />}
+      data={data.rows}
+      renderItem={({ item }) => (
+        <PatchRow items={item} selectedPatch={selectedPatch} />
+      )}
       getItemLayout={getRowLayout}
+      extraData={selectedPatch}
     />
   );
 }
@@ -74,13 +107,25 @@ function getRowLayout(_: any, index: number) {
 
 function PatchRow({
   items,
+  selectedPatch,
 }: {
   items: readonly RolandGR55PatchMap["patchList"][number][];
+  selectedPatch:
+    | {
+        bankSelectMSB: number;
+        pc: number;
+      }
+    | undefined;
 }) {
   return (
     <View style={styles.row}>
       {items.map((item) => (
-        <PatchItem patch={item} key={item.styleLabel + item.patchNumberLabel} />
+        <PatchItem
+          patch={item}
+          key={item.styleLabel + item.patchNumberLabel}
+          selectedPatch={selectedPatch}
+        />
+        // TODO: placeholders at the end of the row if needed, for consistent grid layout
       ))}
     </View>
   );
@@ -88,8 +133,15 @@ function PatchRow({
 
 function PatchItem({
   patch,
+  selectedPatch,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
+  selectedPatch:
+    | {
+        bankSelectMSB: number;
+        pc: number;
+      }
+    | undefined;
 }) {
   const patchName =
     patch.userPatch != null ? (
@@ -98,7 +150,14 @@ function PatchItem({
       patch.builtInName
     );
   return (
-    <Text style={styles.item}>
+    <Text
+      style={[
+        styles.item,
+        selectedPatch?.bankSelectMSB === patch.bankMSB &&
+          selectedPatch?.pc === patch.pc &&
+          styles.selectedItem,
+      ]}
+    >
       {patch.styleLabel} {patch.patchNumberLabel}
       {"\n"}
       {patchName}
@@ -163,5 +222,8 @@ const styles = StyleSheet.create({
     fontSize: ITEM_FONT_SIZE,
     textAlign: "center",
     textAlignVertical: "center",
+  },
+  selectedItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
 });

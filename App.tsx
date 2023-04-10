@@ -30,6 +30,7 @@ import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelection";
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
@@ -112,19 +113,21 @@ export default function App() {
           <RolandIoSetupContainer>
             <RolandDataTransferContainer>
               <RolandRemoteSystemStateContainer>
-                <RolandRemotePatchStateContainer>
-                  <AppNavigationContainer>
-                    <RolandGR55AssignsContainer>
-                      <ThemeProvider>
-                        <ThemedContextualStyleProvider>
-                          <PopoversContainer>
-                            <RootTabNavigator />
-                          </PopoversContainer>
-                        </ThemedContextualStyleProvider>
-                      </ThemeProvider>
-                    </RolandGR55AssignsContainer>
-                  </AppNavigationContainer>
-                </RolandRemotePatchStateContainer>
+                <RolandRemotePatchSelectionContainer>
+                  <RolandRemotePatchStateContainer>
+                    <AppNavigationContainer>
+                      <RolandGR55AssignsContainer>
+                        <ThemeProvider>
+                          <ThemedContextualStyleProvider>
+                            <PopoversContainer>
+                              <RootTabNavigator />
+                            </PopoversContainer>
+                          </ThemedContextualStyleProvider>
+                        </ThemeProvider>
+                      </RolandGR55AssignsContainer>
+                    </AppNavigationContainer>
+                  </RolandRemotePatchStateContainer>
+                </RolandRemotePatchSelectionContainer>
               </RolandRemoteSystemStateContainer>
             </RolandDataTransferContainer>
           </RolandIoSetupContainer>
