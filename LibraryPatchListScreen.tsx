@@ -1,6 +1,13 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { useEffect, useMemo, useRef } from "react";
-import { StyleSheet, FlatList, useWindowDimensions, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useMemo, useRef } from "react";
+import {
+  StyleSheet,
+  FlatList,
+  useWindowDimensions,
+  View,
+  Pressable,
+} from "react-native";
 
 import {
   AsciiStringField,
@@ -61,23 +68,48 @@ export function LibraryPatchListScreen({
     };
   }, [itemsPerRow, patchMap]);
 
-  const { selectedPatch } = useRolandRemotePatchSelection();
+  const { selectedPatch, setSelectedPatch } = useRolandRemotePatchSelection();
   const listRef = useRef<FlatList<any>>(null);
-  useEffect(() => {
-    const rowIndex =
-      data.bankMsbAndPcToRowIndex[selectedPatch?.bankSelectMSB ?? 0]?.[
-        selectedPatch?.pc ?? 0
-      ];
-    if (rowIndex == null) {
-      return;
-    }
-    // scroll to the row
-    listRef.current?.scrollToIndex({
-      animated: true,
-      index: rowIndex,
-      viewPosition: 0.5,
-    });
-  }, [selectedPatch, data]);
+  const scrollToPatch = useCallback(
+    (
+      patch:
+        | {
+            bankSelectMSB: number;
+            pc: number;
+          }
+        | undefined
+    ) => {
+      const rowIndex =
+        data.bankMsbAndPcToRowIndex[patch?.bankSelectMSB ?? 0]?.[
+          patch?.pc ?? 0
+        ];
+      if (rowIndex == null) {
+        return;
+      }
+      // scroll to the row
+      listRef.current?.scrollToIndex({
+        animated: true,
+        index: rowIndex,
+        viewPosition: 0.5,
+      });
+    },
+    [data]
+  );
+  useFocusEffect(
+    useCallback(() => {
+      scrollToPatch(selectedPatch);
+    }, [scrollToPatch, selectedPatch])
+  );
+  const handleSelectPatch = useCallback(
+    (patch: { bankSelectMSB: number; pc: number }) => {
+      setSelectedPatch(patch);
+    },
+    [setSelectedPatch]
+  );
+  const listExtraDeps = useMemo(
+    () => [selectedPatch, itemsPerRow, handleSelectPatch],
+    [selectedPatch, itemsPerRow, handleSelectPatch]
+  );
   if (!patchMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
@@ -94,10 +126,11 @@ export function LibraryPatchListScreen({
           items={item}
           selectedPatch={selectedPatch}
           itemsPerRow={itemsPerRow}
+          onSelectPatch={handleSelectPatch}
         />
       )}
       getItemLayout={getRowLayout}
-      extraData={selectedPatch}
+      extraData={listExtraDeps}
     />
   );
 }
@@ -114,6 +147,7 @@ function PatchRow({
   items,
   selectedPatch,
   itemsPerRow,
+  onSelectPatch,
 }: {
   items: readonly RolandGR55PatchMap["patchList"][number][];
   selectedPatch:
@@ -123,6 +157,7 @@ function PatchRow({
       }
     | undefined;
   itemsPerRow: number;
+  onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
 }) {
   return (
     <View style={styles.row}>
@@ -131,6 +166,7 @@ function PatchRow({
           patch={item}
           key={item.styleLabel + item.patchNumberLabel}
           selectedPatch={selectedPatch}
+          onSelectPatch={onSelectPatch}
         />
       ))}
       {items.length < itemsPerRow
@@ -149,6 +185,7 @@ function PatchItemPlaceholder() {
 function PatchItem({
   patch,
   selectedPatch,
+  onSelectPatch,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
   selectedPatch:
@@ -157,6 +194,7 @@ function PatchItem({
         pc: number;
       }
     | undefined;
+  onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
 }) {
   const patchName =
     patch.userPatch != null ? (
@@ -165,20 +203,25 @@ function PatchItem({
       patch.builtInName
     );
   const theme = useTheme();
+  const handlePress = useCallback(() => {
+    onSelectPatch({ bankSelectMSB: patch.bankMSB, pc: patch.pc });
+  }, [onSelectPatch, patch]);
   return (
-    <Text
-      style={[
-        styles.item,
-        selectedPatch?.bankSelectMSB === patch.bankMSB &&
-          selectedPatch?.pc === patch.pc && {
-            backgroundColor: theme.colors.library.selectedPatch,
-          },
-      ]}
-    >
-      {patch.styleLabel} {patch.patchNumberLabel}
-      {"\n"}
-      {patchName}
-    </Text>
+    <Pressable onPress={handlePress}>
+      <Text
+        style={[
+          styles.item,
+          selectedPatch?.bankSelectMSB === patch.bankMSB &&
+            selectedPatch?.pc === patch.pc && {
+              backgroundColor: theme.colors.library.selectedPatch,
+            },
+        ]}
+      >
+        {patch.styleLabel} {patch.patchNumberLabel}
+        {"\n"}
+        {patchName}
+      </Text>
+    </Pressable>
   );
 }
 

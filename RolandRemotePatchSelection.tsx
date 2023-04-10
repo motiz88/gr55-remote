@@ -1,6 +1,7 @@
 import { MIDIMessageEvent } from "@motiz88/react-native-midi";
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -21,7 +22,10 @@ const RolandRemotePatchSelectionContext = createContext<{
     bankSelectMSB: number;
     pc: number;
   };
-}>({});
+  setSelectedPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
+}>({
+  setSelectedPatch: () => {},
+});
 
 export function RolandRemotePatchSelectionContainer({
   children,
@@ -33,7 +37,7 @@ export function RolandRemotePatchSelectionContainer({
   const addressMap = sysExConfig.addressMap;
 
   const remotePageState = useRolandRemotePageState(addressMap?.setup);
-  const { inputPort } = useContext(MidiIoContext);
+  const { inputPort, outputPort } = useContext(MidiIoContext);
 
   const nextBankSelectMSB = useRef<number>();
 
@@ -110,7 +114,22 @@ export function RolandRemotePatchSelectionContainer({
     };
   }, [inputPort, selectedDevice, inputPort?.state, remotePageState]);
 
-  const ctx = useMemo(() => ({ selectedPatch }), [selectedPatch]);
+  const setAndSendSelectedPatch = useCallback(
+    (patch: { bankSelectMSB: number; pc: number }) => {
+      if (!selectedDevice || !outputPort) {
+        return;
+      }
+      setSelectedPatch(patch);
+      outputPort.send([0xb0, 0x00, patch.bankSelectMSB]);
+      // TODO: Read PATCH CH from device and send on that channel
+      outputPort.send([0xc0, patch.pc]);
+    },
+    [outputPort, selectedDevice]
+  );
+  const ctx = useMemo(
+    () => ({ selectedPatch, setSelectedPatch: setAndSendSelectedPatch }),
+    [selectedPatch, setAndSendSelectedPatch]
+  );
 
   return (
     <RolandRemotePatchSelectionContext.Provider value={ctx}>

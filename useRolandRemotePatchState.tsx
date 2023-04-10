@@ -1,9 +1,8 @@
-import { MIDIMessageEvent } from "@motiz88/react-native-midi";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 
-import { MidiIoContext } from "./MidiIoContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 export function useRolandRemotePatchState() {
@@ -12,25 +11,28 @@ export function useRolandRemotePatchState() {
   const addressMap = sysExConfig.addressMap;
 
   const remotePageState = useRolandRemotePageState(addressMap?.temporaryPatch);
-  const { inputPort } = useContext(MidiIoContext);
 
+  const { selectedPatch } = useRolandRemotePatchSelection();
+  const previousPatch = usePrevious(selectedPatch);
   useEffect(() => {
-    if (!inputPort) {
+    if (!selectedPatch) {
       return;
     }
-    const handleMidiMessage = ({ data }: MIDIMessageEvent) => {
-      // program change, any channel
-      if ((data[0] & 0xf0) === 0xc0) {
-        remotePageState.reloadData();
-      }
-    };
-
-    inputPort.addEventListener("midimessage", handleMidiMessage);
-
-    return () => {
-      inputPort.removeEventListener("midimessage", handleMidiMessage as any);
-    };
-  }, [inputPort, selectedDevice, inputPort?.state, remotePageState]);
+    if (
+      previousPatch?.bankSelectMSB !== selectedPatch.bankSelectMSB ||
+      previousPatch?.pc !== selectedPatch.pc
+    ) {
+      remotePageState.reloadData();
+    }
+  }, [selectedPatch, previousPatch, remotePageState]);
 
   return remotePageState;
+}
+
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }
