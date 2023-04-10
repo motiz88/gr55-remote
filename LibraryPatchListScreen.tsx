@@ -90,7 +90,11 @@ export function LibraryPatchListScreen({
       contentContainerStyle={safeAreaStyle}
       data={data.rows}
       renderItem={({ item }) => (
-        <PatchRow items={item} selectedPatch={selectedPatch} />
+        <PatchRow
+          items={item}
+          selectedPatch={selectedPatch}
+          itemsPerRow={itemsPerRow}
+        />
       )}
       getItemLayout={getRowLayout}
       extraData={selectedPatch}
@@ -109,6 +113,7 @@ function getRowLayout(_: any, index: number) {
 function PatchRow({
   items,
   selectedPatch,
+  itemsPerRow,
 }: {
   items: readonly RolandGR55PatchMap["patchList"][number][];
   selectedPatch:
@@ -117,6 +122,7 @@ function PatchRow({
         pc: number;
       }
     | undefined;
+  itemsPerRow: number;
 }) {
   return (
     <View style={styles.row}>
@@ -126,10 +132,18 @@ function PatchRow({
           key={item.styleLabel + item.patchNumberLabel}
           selectedPatch={selectedPatch}
         />
-        // TODO: placeholders at the end of the row if needed, for consistent grid layout
       ))}
+      {items.length < itemsPerRow
+        ? Array(itemsPerRow - items.length)
+            .fill(null)
+            .map((_, index) => <PatchItemPlaceholder key={index} />)
+        : null}
     </View>
   );
+}
+
+function PatchItemPlaceholder() {
+  return <View style={[styles.item]} />;
 }
 
 function PatchItem({
