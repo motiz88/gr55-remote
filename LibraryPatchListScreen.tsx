@@ -1,5 +1,5 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { memo, useCallback, useMemo, useRef } from "react";
 import {
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   View,
   Pressable,
+  ViewToken,
 } from "react-native";
 
 import {
@@ -70,6 +71,10 @@ export function LibraryPatchListScreen({
 
   const { selectedPatch, setSelectedPatch } = useRolandRemotePatchSelection();
   const listRef = useRef<FlatList<any>>(null);
+  const viewableRowsRange = useRef<{
+    firstVisibleItemIndex: number | null;
+    lastVisibleItemIndex: number | null;
+  }>();
   const scrollToPatch = useCallback(
     (
       patch:
@@ -86,9 +91,30 @@ export function LibraryPatchListScreen({
       if (rowIndex == null) {
         return;
       }
-      // scroll to the row
+      let middleVisibleItemIndex;
+      // scroll to the row if it's not already visible
+      if (
+        viewableRowsRange.current &&
+        viewableRowsRange.current.firstVisibleItemIndex != null &&
+        viewableRowsRange.current.lastVisibleItemIndex != null
+      ) {
+        if (
+          rowIndex >= viewableRowsRange.current.firstVisibleItemIndex &&
+          rowIndex <= viewableRowsRange.current.lastVisibleItemIndex
+        ) {
+          return;
+        }
+        middleVisibleItemIndex = Math.floor(
+          (viewableRowsRange.current.firstVisibleItemIndex +
+            viewableRowsRange.current.lastVisibleItemIndex) /
+            2
+        );
+      }
+
       listRef.current?.scrollToIndex({
-        animated: true,
+        animated:
+          middleVisibleItemIndex != null &&
+          Math.abs(rowIndex - middleVisibleItemIndex) <= data.rows.length / 2,
         index: rowIndex,
         viewPosition: 0.5,
       });
@@ -106,9 +132,27 @@ export function LibraryPatchListScreen({
     },
     [setSelectedPatch]
   );
+  const isFocused = useIsFocused();
   const listExtraDeps = useMemo(
-    () => [selectedPatch, itemsPerRow, handleSelectPatch],
-    [selectedPatch, itemsPerRow, handleSelectPatch]
+    () => [selectedPatch, itemsPerRow, handleSelectPatch, isFocused],
+    [selectedPatch, itemsPerRow, handleSelectPatch, isFocused]
+  );
+  const handleViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length === 0) {
+        return;
+      }
+      const firstVisibleItemIndex = viewableItems[0].index;
+      const lastVisibleItemIndex =
+        viewableItems[viewableItems.length - 1].index;
+
+      // store in ref for use during the scrolling callback
+      viewableRowsRange.current = {
+        firstVisibleItemIndex,
+        lastVisibleItemIndex,
+      };
+    },
+    []
   );
   if (!patchMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
@@ -131,6 +175,18 @@ export function LibraryPatchListScreen({
       )}
       getItemLayout={getRowLayout}
       extraData={listExtraDeps}
+      initialNumToRender={Math.round(
+        Math.max(
+          10,
+          (layout.height || windowDimensions.height) /
+            (ITEM_HEIGHT + ITEM_VPADDING * 2)
+        )
+      )}
+      windowSize={1.6}
+      onViewableItemsChanged={handleViewableItemsChanged}
+      viewabilityConfig={{
+        itemVisiblePercentThreshold: 100,
+      }}
     />
   );
 }
@@ -245,10 +301,23 @@ function UserPatchName({
   patch: RolandGR55PatchMap["patchList"][number];
   userPatch: NonNullable<RolandGR55PatchMap["patchList"][number]["userPatch"]>;
 }) {
-  const { pageData } = useRolandRemotePageState({
-    address: userPatch.baseAddress,
-    definition: CompactPatchDefinition,
-  });
+  const isFocused = useIsFocused();
+  const { pageData } = useRolandRemotePageState(
+    useMemo(
+      () =>
+        isFocused
+          ? {
+              address: userPatch.baseAddress,
+              definition: CompactPatchDefinition,
+            }
+          : // TODO: This hack cancels the request when the screen is not focused
+            // but also forces a refetch every time we return to the screen.
+            // Need to hoist the data fetching to a higher level so we can
+            // do this a bit more elegantly.
+            undefined,
+      [isFocused, userPatch.baseAddress]
+    )
+  );
   if (pageData) {
     const [patchName] = parse(
       pageData[
