@@ -1,6 +1,6 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useMemo, useRef } from "react";
 import {
   StyleSheet,
   FlatList,
@@ -143,7 +143,7 @@ function getRowLayout(_: any, index: number) {
   };
 }
 
-function PatchRow({
+const PatchRow = memo(function PatchRow({
   items,
   selectedPatch,
   itemsPerRow,
@@ -165,7 +165,10 @@ function PatchRow({
         <PatchItem
           patch={item}
           key={item.styleLabel + item.patchNumberLabel}
-          selectedPatch={selectedPatch}
+          isSelected={
+            selectedPatch?.bankSelectMSB === item.bankMSB &&
+            selectedPatch?.pc === item.pc
+          }
           onSelectPatch={onSelectPatch}
         />
       ))}
@@ -176,24 +179,19 @@ function PatchRow({
         : null}
     </View>
   );
-}
+});
 
 function PatchItemPlaceholder() {
   return <View style={[styles.item]} />;
 }
 
-function PatchItem({
+const PatchItem = memo(function PatchItem({
   patch,
-  selectedPatch,
+  isSelected,
   onSelectPatch,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
-  selectedPatch:
-    | {
-        bankSelectMSB: number;
-        pc: number;
-      }
-    | undefined;
+  isSelected: boolean;
   onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
 }) {
   const patchName =
@@ -211,10 +209,9 @@ function PatchItem({
       <Text
         style={[
           styles.item,
-          selectedPatch?.bankSelectMSB === patch.bankMSB &&
-            selectedPatch?.pc === patch.pc && {
-              backgroundColor: theme.colors.library.selectedPatch,
-            },
+          isSelected && {
+            backgroundColor: theme.colors.library.selectedPatch,
+          },
         ]}
       >
         {patch.styleLabel} {patch.patchNumberLabel}
@@ -223,7 +220,7 @@ function PatchItem({
       </Text>
     </Pressable>
   );
-}
+});
 
 const CompactPatchDefinition = new StructDefinition(
   pack7(0x000000),

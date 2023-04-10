@@ -127,7 +127,15 @@ export function RolandRemotePatchSelectionContainer({
     [outputPort, selectedDevice]
   );
   const ctx = useMemo(
-    () => ({ selectedPatch, setSelectedPatch: setAndSendSelectedPatch }),
+    () => ({
+      selectedPatch: selectedPatch
+        ? {
+            bankSelectMSB: selectedPatch.bankSelectMSB,
+            pc: selectedPatch.pc,
+          }
+        : undefined,
+      setSelectedPatch: setAndSendSelectedPatch,
+    }),
     [selectedPatch, setAndSendSelectedPatch]
   );
 
