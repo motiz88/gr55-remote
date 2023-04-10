@@ -12,7 +12,8 @@ export const RolandDataTransferContext = React.createContext<{
     | undefined
     | (<T extends AtomDefinition>(
         block: T,
-        baseAddress?: number
+        baseAddress?: number,
+        signal?: AbortSignal
       ) => Promise<RawDataBag>);
   setField:
     | undefined

@@ -8,13 +8,13 @@ import {
   useRef,
   useState,
 } from "react";
-import usePromise from "react-use-promise";
 
 import { MidiIoContext } from "./MidiIoContext";
 import { parse } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import useCancellablePromise from "./useCancellablePromise";
 import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 const RolandRemotePatchSelectionContext = createContext<{
@@ -48,43 +48,50 @@ export function RolandRemotePatchSelectionContainer({
     pc: number;
   }>();
 
-  usePromise(async () => {
-    if (!addressMap || !requestData) {
-      return;
-    }
-    const setupData = await requestData(
-      addressMap.setup.definition,
-      addressMap.setup.address
-    );
+  useCancellablePromise(
+    useCallback(
+      async (signal) => {
+        if (!addressMap || !requestData) {
+          return;
+        }
+        const setupData = await requestData(
+          addressMap.setup.definition,
+          addressMap.setup.address,
+          signal
+        );
 
-    const [parsedBsMsb] = parse(
-      setupData[
-        addressMap.setup.address +
-          addressMap.setup.definition.$.patchBsMsb.offset
-      ],
-      addressMap.setup.definition.$.patchBsMsb,
-      0
-    );
+        const [parsedBsMsb] = parse(
+          setupData[
+            addressMap.setup.address +
+              addressMap.setup.definition.$.patchBsMsb.offset
+          ],
+          addressMap.setup.definition.$.patchBsMsb,
+          0
+        );
 
-    const [parsedPc] = parse(
-      setupData[
-        addressMap.setup.address + addressMap.setup.definition.$.patchPc.offset
-      ],
-      addressMap.setup.definition.$.patchPc,
-      0
-    );
+        const [parsedPc] = parse(
+          setupData[
+            addressMap.setup.address +
+              addressMap.setup.definition.$.patchPc.offset
+          ],
+          addressMap.setup.definition.$.patchPc,
+          0
+        );
 
-    const remoteSelectedPatch = {
-      bankSelectMSB: parsedBsMsb.value,
-      pc: parsedPc.value,
-    };
-    setSelectedPatch((localSelection) => {
-      if (localSelection) {
-        return localSelection;
-      }
-      return remoteSelectedPatch;
-    });
-  }, [addressMap, requestData]);
+        const remoteSelectedPatch = {
+          bankSelectMSB: parsedBsMsb.value,
+          pc: parsedPc.value,
+        };
+        setSelectedPatch((localSelection) => {
+          if (localSelection) {
+            return localSelection;
+          }
+          return remoteSelectedPatch;
+        });
+      },
+      [addressMap, requestData]
+    )
+  );
 
   useEffect(() => {
     if (!inputPort) {
