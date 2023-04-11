@@ -1,6 +1,6 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import { memo, useCallback, useMemo, useRef } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   FlatList,
@@ -8,7 +8,10 @@ import {
   View,
   Pressable,
   ViewToken,
+  Animated,
+  Platform,
 } from "react-native";
+import { useAnimation } from "react-native-animation-hooks";
 
 import {
   AsciiStringField,
@@ -23,7 +26,7 @@ import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { useTheme } from "./Theme";
-import { ThemedText as Text } from "./ThemedText";
+import { AnimatedThemedText } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
 import { usePatchMap } from "./usePatchMap";
@@ -266,24 +269,50 @@ const PatchItem = memo(function PatchItem({
   const handlePress = useCallback(() => {
     onSelectPatch({ bankSelectMSB: patch.bankMSB, pc: patch.pc });
   }, [onSelectPatch, patch]);
+  const [isPressed, setIsPressed] = useState(false);
+  const handlePressIn = useCallback(() => {
+    setIsPressed(true);
+  }, []);
+  const handlePressOut = useCallback(() => {
+    setIsPressed(false);
+  }, []);
+  const touchOpacity = useAnimation({
+    type: "timing",
+    initialValue: isPressed ? 0.25 : 1,
+    toValue: isPressed ? 0.25 : 1,
+    duration: isPressed ? 0 : 300,
+    useNativeDriver: true,
+  });
   return (
-    <Pressable onPress={handlePress}>
-      <View
-        style={[
-          styles.item,
-          isSelected && {
-            backgroundColor: theme.colors.library.selectedPatch,
-          },
-          isSingleColumn && styles.singleColumnItem,
-        ]}
+    <View>
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        android_ripple={{ color: theme.colors.library.selectedPatch }}
       >
-        <Text style={styles.itemText}>
-          {patch.styleLabel} {patch.patchNumberLabel}
-          {"\n"}
-          {patchName}
-        </Text>
-      </View>
-    </Pressable>
+        <Animated.View
+          style={[
+            styles.item,
+            isSelected && {
+              backgroundColor: theme.colors.library.selectedPatch,
+            },
+            isSingleColumn && styles.singleColumnItem,
+          ]}
+        >
+          <AnimatedThemedText
+            style={[
+              styles.itemText,
+              Platform.select({ ios: { opacity: touchOpacity } }),
+            ]}
+          >
+            {patch.styleLabel} {patch.patchNumberLabel}
+            {"\n"}
+            {patchName}
+          </AnimatedThemedText>
+        </Animated.View>
+      </Pressable>
+    </View>
   );
 });
 
