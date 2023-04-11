@@ -111,6 +111,8 @@ export function LibraryPatchListScreen({
         );
       }
 
+      // TODO: don't scroll on viewport size / orientation change
+
       listRef.current?.scrollToIndex({
         animated:
           middleVisibleItemIndex != null &&
@@ -216,7 +218,7 @@ const PatchRow = memo(function PatchRow({
   onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
 }) {
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, itemsPerRow === 1 && styles.singleColumnRow]}>
       {items.map((item) => (
         <PatchItem
           patch={item}
@@ -226,6 +228,7 @@ const PatchRow = memo(function PatchRow({
             selectedPatch?.pc === item.pc
           }
           onSelectPatch={onSelectPatch}
+          isSingleColumn={itemsPerRow === 1}
         />
       ))}
       {items.length < itemsPerRow
@@ -245,10 +248,12 @@ const PatchItem = memo(function PatchItem({
   patch,
   isSelected,
   onSelectPatch,
+  isSingleColumn,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
   isSelected: boolean;
   onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
+  isSingleColumn: boolean;
 }) {
   const patchName =
     patch.userPatch != null ? (
@@ -262,18 +267,21 @@ const PatchItem = memo(function PatchItem({
   }, [onSelectPatch, patch]);
   return (
     <Pressable onPress={handlePress}>
-      <Text
+      <View
         style={[
           styles.item,
           isSelected && {
             backgroundColor: theme.colors.library.selectedPatch,
           },
+          isSingleColumn && styles.singleColumnItem,
         ]}
       >
-        {patch.styleLabel} {patch.patchNumberLabel}
-        {"\n"}
-        {patchName}
-      </Text>
+        <Text style={styles.itemText}>
+          {patch.styleLabel} {patch.patchNumberLabel}
+          {"\n"}
+          {patchName}
+        </Text>
+      </View>
     </Pressable>
   );
 });
@@ -340,13 +348,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  singleColumnRow: {
+    flexDirection: "column",
+  },
   item: {
     height: ITEM_HEIGHT + ITEM_VPADDING * 2,
     width: ITEM_WIDTH + ITEM_HPADDING * 2,
     paddingHorizontal: ITEM_HPADDING,
     paddingVertical: ITEM_VPADDING,
+  },
+  itemText: {
     fontSize: ITEM_FONT_SIZE,
     textAlign: "center",
     textAlignVertical: "center",
+  },
+  singleColumnItem: {
+    width: "100%",
   },
 });
