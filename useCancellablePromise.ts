@@ -16,6 +16,7 @@ function useCancellablePromise<Result = any>(
     const controller = new AbortController();
 
     const promise = promiseFactory(controller.signal);
+    setState([undefined, undefined, "pending"]);
 
     promise
       .then((result: Result) => {

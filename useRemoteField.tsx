@@ -9,7 +9,7 @@ import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 export function useRemoteField<T>(
   page: RolandRemotePageContext,
   field: FieldReference<FieldType<T>>
-): [T, (newValue: T) => void] {
+): [T, (newValue: T) => void, undefined | "pending" | "resolved" | "rejected"] {
   return useRemoteFieldImpl(page, field, undefined, /* detached */ false);
 }
 
@@ -18,7 +18,7 @@ function useRemoteFieldImpl<T>(
   field: FieldReference<FieldType<T>>,
   defaultValue: T | undefined,
   detached: boolean
-): [T, (newValue: T) => void] {
+): [T, (newValue: T) => void, undefined | "pending" | "resolved" | "rejected"] {
   const { setField } = useContext(RolandDataTransferContext);
   const setFieldThrottled = useMemo(() => {
     if (setField) {
@@ -26,8 +26,13 @@ function useRemoteFieldImpl<T>(
     }
   }, [setField]);
 
-  const { pageData, localOverrides, setLocalOverride, subscribeToField } =
-    useContext(page);
+  const {
+    pageData,
+    pageReadStatus,
+    localOverrides,
+    setLocalOverride,
+    subscribeToField,
+  } = useContext(page);
 
   const [valueBytes, setValueBytes] = useState(() => {
     let valueBytes: Uint8Array | undefined = localOverrides?.[field.address];
@@ -93,7 +98,7 @@ function useRemoteFieldImpl<T>(
       return defaultValue ?? field.definition.type.emptyValue;
     }
   }, [defaultValue, field.definition.size, field.definition.type, valueBytes]);
-  return [value, setAndSendValue];
+  return [value, setAndSendValue, pageReadStatus];
 }
 
 export function useMaybeControlledRemoteField<T>(
@@ -103,7 +108,7 @@ export function useMaybeControlledRemoteField<T>(
   onValueChange: ((value: T) => void) | undefined
 ) {
   const isControlled = value != null;
-  const [uncontrolledValue, setUncontrolledValue] = useRemoteFieldImpl(
+  const [uncontrolledValue, setUncontrolledValue, status] = useRemoteFieldImpl(
     page,
     field,
     undefined,
@@ -121,5 +126,5 @@ export function useMaybeControlledRemoteField<T>(
     },
     [onValueChange, setUncontrolledValue, isControlled]
   );
-  return [value ?? uncontrolledValue, setValue] as const;
+  return [value ?? uncontrolledValue, setValue, status] as const;
 }

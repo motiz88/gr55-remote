@@ -27,7 +27,7 @@ export function RemoteFieldSystemPicker<T extends number | string>({
   value?: T;
   onValueChange?: (value: T) => void;
 }) {
-  const [value, onValueChange] = useMaybeControlledRemoteField(
+  const [value, onValueChange, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
@@ -60,12 +60,16 @@ export function RemoteFieldSystemPicker<T extends number | string>({
     }
     return items;
   }, [field]);
+
+  const isPending = status === "pending";
+
   return (
     <RemoteFieldRow page={page} field={field}>
       <PickerControl
         value={value}
         onValueChange={onValueChange}
         items={items}
+        isPending={isPending}
       />
     </RemoteFieldRow>
   );
@@ -75,10 +79,12 @@ function PickerControl<T extends number | string>({
   value,
   onValueChange,
   items,
+  isPending,
 }: {
   value: T;
   onValueChange: (value: T) => void;
   items: readonly JSX.Element[];
+  isPending: boolean;
 }) {
   // const { isAssigned } = useContext(FieldRowContext);
   // TODO: Show assigned state when all controls can reliably handle long press etc
@@ -97,6 +103,7 @@ function PickerControl<T extends number | string>({
           backgroundColor: "#6495ed22",
         },
       ]}
+      enabled={!isPending}
     >
       {items}
     </Picker>

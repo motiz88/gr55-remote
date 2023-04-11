@@ -13,6 +13,7 @@ import {
 } from "./RolandRemotePageContext";
 import { GlobalNavigationProp } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
+import { useRemoteField } from "./useRemoteField";
 
 export function RemoteFieldRow({
   page,
@@ -30,7 +31,9 @@ export function RemoteFieldRow({
   const assignDefIndex =
     page === PATCH ? assignsMap?.getIndexByField(field) : undefined;
   const isAssignable = page === PATCH && assignDefIndex != null;
-  if (isAssignable) {
+  const [, , status] = useRemoteField(page, field);
+  const isPending = status === "pending";
+  if (isAssignable && !isPending) {
     return (
       <AssignablePatchFieldRow
         field={field}

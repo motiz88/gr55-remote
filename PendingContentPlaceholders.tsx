@@ -1,10 +1,8 @@
 import { memo } from "react";
 import {
-  View,
   Text as UnthemedText,
   StyleProp,
   TextStyle,
-  ViewStyle,
   StyleSheet,
 } from "react-native";
 
@@ -13,36 +11,34 @@ import { useTheme } from "./Theme";
 export const PendingTextPlaceholder = memo(function PendingTextPlaceholder({
   chars,
   textStyle,
-  style,
 }: {
   chars: number;
   textStyle?: StyleProp<TextStyle>;
-  style?: StyleProp<ViewStyle>;
 }) {
   const theme = useTheme();
   return (
-    <View
+    <UnthemedText
       style={[
         styles.namePlaceholderView,
         {
           backgroundColor: theme.colors.pendingTextPlaceholder,
         },
-        style,
+        textStyle,
       ]}
     >
-      <UnthemedText style={[textStyle]}>
-        {
-          // U+2007 FIGURE SPACE interspersed with U+2060 WORD JOINER to prevent wrapping
-          "\u2007\u2060".repeat(chars - 1) + "\u2007"
-        }
-      </UnthemedText>
-    </View>
+      {
+        // U+2007 FIGURE SPACE interspersed with U+2060 WORD JOINER to prevent wrapping
+        "\u2007\u2060".repeat(chars - 1) + "\u2007"
+      }
+    </UnthemedText>
   );
 });
 
 const styles = StyleSheet.create({
   namePlaceholderView: {
+    // TODO: Border radius doesn't render in inline text context
     borderRadius: 4,
+    overflow: "hidden",
     transform: [{ scale: 0.9 }],
   },
 });
