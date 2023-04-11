@@ -113,6 +113,9 @@ export function PatchAssignsScreen({
       assign8Switch,
     ]
   );
+
+  const topTabNavigatorDefaults = useTopTabNavigatorDefaults();
+
   const assignsMap = useAssignsMap();
   if (!assignsMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
@@ -125,7 +128,7 @@ export function PatchAssignsScreen({
         tabBarStyle: { backgroundColor: theme.colors.assigns.tabBarBackground },
         tabBarLabel: renderLabel,
       }}
-      {...useTopTabNavigatorDefaults()}
+      {...topTabNavigatorDefaults}
     >
       <Tab.Screen
         name="Assign1"
