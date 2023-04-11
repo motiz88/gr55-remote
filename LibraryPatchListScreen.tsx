@@ -185,6 +185,7 @@ export function LibraryPatchListScreen({
         )
       )}
       windowSize={1.6}
+      // @refresh reset - FIXME: this is a workaround for a bug in react-native
       onViewableItemsChanged={handleViewableItemsChanged}
       viewabilityConfig={{
         itemVisiblePercentThreshold: 100,
