@@ -8,7 +8,6 @@ import { StyleSheet } from "react-native";
 
 import { ContextualStyleProvider } from "./ContextualStyle";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
-import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
 import { RemoteFieldDynamic } from "./RemoteFieldDynamic";
 import { RemoteFieldPicker } from "./RemoteFieldPicker";
@@ -26,6 +25,7 @@ import { ThemedText as Text } from "./ThemedText";
 import { PatchAssignsTabParamList, PatchStackParamList } from "./navigation";
 import { useAssignsMap } from "./useAssignsMap";
 import { useRemoteField } from "./useRemoteField";
+import { useTopTabNavigatorDefaults } from "./useTopTabNavigatorDefaults";
 
 const Tab = createMaterialTopTabNavigator<PatchAssignsTabParamList>();
 
@@ -44,7 +44,6 @@ export function PatchAssignsScreen({
     });
   }, [navigation, patchName]);
 
-  const { closeAllPopovers } = usePopovers();
   const [assign1Switch] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.common.assign1.switch
@@ -117,16 +116,11 @@ export function PatchAssignsScreen({
   return (
     <Tab.Navigator
       id="PatchAssigns"
-      backBehavior="history"
       screenOptions={{
         tabBarStyle: { backgroundColor: theme.colors.assigns.tabBarBackground },
         tabBarLabel: renderLabel,
       }}
-      screenListeners={{
-        blur: () => {
-          closeAllPopovers();
-        },
-      }}
+      {...useTopTabNavigatorDefaults()}
     >
       <Tab.Screen
         name="Assign1"
