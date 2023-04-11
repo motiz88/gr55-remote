@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
+import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import {
   AsciiStringField,
   FieldDefinition,
@@ -259,12 +260,6 @@ const PatchItem = memo(function PatchItem({
   onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
   isSingleColumn: boolean;
 }) {
-  const patchName =
-    patch.userPatch != null ? (
-      <UserPatchName patch={patch} userPatch={patch.userPatch} />
-    ) : (
-      patch.builtInName
-    );
   const theme = useTheme();
   const handlePress = useCallback(() => {
     onSelectPatch({ bankSelectMSB: patch.bankMSB, pc: patch.pc });
@@ -283,6 +278,22 @@ const PatchItem = memo(function PatchItem({
     duration: isPressed ? 0 : 300,
     useNativeDriver: true,
   });
+  const pressFeedbackStyle = useMemo(
+    () => Platform.select({ ios: { opacity: touchOpacity } }),
+    [touchOpacity]
+  );
+  const patchName =
+    patch.userPatch != null ? (
+      <UserPatchName
+        patch={patch}
+        userPatch={patch.userPatch}
+        pressFeedbackStyle={pressFeedbackStyle}
+      />
+    ) : (
+      <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
+        {patch.builtInName}
+      </AnimatedThemedText>
+    );
   return (
     <View>
       <Pressable
@@ -300,16 +311,10 @@ const PatchItem = memo(function PatchItem({
             isSingleColumn && styles.singleColumnItem,
           ]}
         >
-          <AnimatedThemedText
-            style={[
-              styles.itemText,
-              Platform.select({ ios: { opacity: touchOpacity } }),
-            ]}
-          >
+          <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
             {patch.styleLabel} {patch.patchNumberLabel}
-            {"\n"}
-            {patchName}
           </AnimatedThemedText>
+          {patchName}
         </Animated.View>
       </Pressable>
     </View>
@@ -335,12 +340,14 @@ const CompactPatchDefinitionAddresses = getAddresses(CompactPatchDefinition, 0);
 function UserPatchName({
   patch,
   userPatch,
+  pressFeedbackStyle,
 }: {
   patch: RolandGR55PatchMap["patchList"][number];
   userPatch: NonNullable<RolandGR55PatchMap["patchList"][number]["userPatch"]>;
+  pressFeedbackStyle: React.ComponentProps<(typeof Animated)["Text"]>["style"];
 }) {
   const isFocused = useIsFocused();
-  const { pageData } = useRolandRemotePageState(
+  const { pageData, pageReadStatus } = useRolandRemotePageState(
     useMemo(
       () =>
         isFocused
@@ -365,7 +372,14 @@ function UserPatchName({
       CompactPatchDefinitionAddresses.common.patchName.definition,
       0
     );
-    return <>{patchName.value}</>;
+    return (
+      <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
+        {patchName.value}
+      </AnimatedThemedText>
+    );
+  }
+  if (pageReadStatus === "pending") {
+    return <PendingTextPlaceholder chars={16} textStyle={styles.itemText} />;
   }
   return null;
 }
@@ -386,6 +400,7 @@ const styles = StyleSheet.create({
     width: ITEM_WIDTH + ITEM_HPADDING * 2,
     paddingHorizontal: ITEM_HPADDING,
     paddingVertical: ITEM_VPADDING,
+    alignItems: "center",
   },
   itemText: {
     fontSize: ITEM_FONT_SIZE,

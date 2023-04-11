@@ -12,6 +12,7 @@ export const DefaultTheme = {
     library: {
       selectedPatch: "#73b2f9",
     },
+    pendingTextPlaceholder: "rgb(216, 216, 216)",
   },
 };
 
@@ -26,6 +27,7 @@ export const DarkTheme = {
     library: {
       selectedPatch: "#05448b",
     },
+    pendingTextPlaceholder: "rgb(39, 39, 41)",
   },
 };
 
