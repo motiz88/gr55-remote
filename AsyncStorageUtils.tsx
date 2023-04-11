@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMemo, useCallback, useState, useEffect } from "react";
+import { useMemo, useCallback, useState } from "react";
 import usePromise from "react-use-promise";
 
 type Serializable = { [key: string]: Serializable } | string | number | boolean;
@@ -55,14 +55,13 @@ function useStateWithStoredDefault<T extends Serializable>(
     },
     [setStoredValue]
   );
-  useEffect(() => {
-    if (value == null && storedValue != null) {
-      setValueInState(storedValue);
-    } else if (storageReadStatus === "rejected" && defaultIfNotStored != null) {
-      setValueInState(defaultIfNotStored);
-    }
-  }, [value, storedValue, defaultIfNotStored, storageReadStatus]);
-  return [value ?? defaultIfNotStored, setValue, storageReadStatus] as const;
+  let effectiveValue = value;
+  if (value == null && storedValue != null) {
+    effectiveValue = storedValue;
+  } else if (storageReadStatus === "rejected" && defaultIfNotStored != null) {
+    effectiveValue = defaultIfNotStored;
+  }
+  return [effectiveValue, setValue, storageReadStatus] as const;
 }
 
 export { useStateWithStoredDefault };
