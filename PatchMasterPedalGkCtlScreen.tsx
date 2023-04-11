@@ -7,9 +7,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useContext, useEffect, useMemo } from "react";
 import { Button, StyleSheet, View } from "react-native";
 
-import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
-import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
 import { RemoteFieldDynamic } from "./RemoteFieldDynamic";
 import { RemoteFieldPicker } from "./RemoteFieldPicker";
@@ -33,6 +31,7 @@ import {
   PatchStackParamList,
 } from "./navigation";
 import { useRemoteField } from "./useRemoteField";
+import { useTopTabNavigatorDefaults } from "./useTopTabNavigatorDefaults";
 
 const Tab = createMaterialTopTabNavigator<PatchMasterPedalGkCtlTabParamList>();
 
@@ -49,25 +48,8 @@ export function PatchMasterPedalGkCtlScreen({
     });
   }, [navigation, patchName]);
 
-  const { closeAllPopovers } = usePopovers();
-
   return (
-    <Tab.Navigator
-      id="PatchMasterPedalGkCtl"
-      backBehavior="history"
-      screenListeners={{
-        swipeStart: () => {
-          closeAllPopovers();
-        },
-        tabPress: () => {
-          closeAllPopovers();
-        },
-        blur: () => {
-          closeAllPopovers();
-        },
-      }}
-      tabBar={renderAdjustingMaterialTopTabBar}
-    >
+    <Tab.Navigator id="PatchMasterPedalGkCtl" {...useTopTabNavigatorDefaults()}>
       <Tab.Screen name="Ctl" component={CtlScreen} />
       <Tab.Screen name="Exp" component={ExpScreen} />
       <Tab.Screen

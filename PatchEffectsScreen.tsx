@@ -2,7 +2,6 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useEffect } from "react";
 
-import { renderAdjustingMaterialTopTabBar } from "./AdjustingTabBar";
 import { PatchEffectsAmpScreen } from "./PatchEffectsAmpScreen";
 import { PatchEffectsChorusScreen } from "./PatchEffectsChorusScreen";
 import { PatchEffectsDelayScreen } from "./PatchEffectsDelayScreen";
@@ -11,11 +10,11 @@ import { PatchEffectsMFXScreen } from "./PatchEffectsMFXScreen";
 import { PatchEffectsModScreen } from "./PatchEffectsModScreen";
 import { PatchEffectsReverbScreen } from "./PatchEffectsReverbScreen";
 import { PatchEffectsStructureScreen } from "./PatchEffectsStructureScreen";
-import { usePopovers } from "./Popovers";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { PatchEffectsTabParamList, PatchStackParamList } from "./navigation";
 import { useRemoteField } from "./useRemoteField";
+import { useTopTabNavigatorDefaults } from "./useTopTabNavigatorDefaults";
 
 const Tab = createMaterialTopTabNavigator<PatchEffectsTabParamList>();
 
@@ -32,26 +31,8 @@ export function PatchEffectsScreen({
     });
   }, [navigation, patchName]);
 
-  const { closeAllPopovers } = usePopovers();
-
   return (
-    <Tab.Navigator
-      id="PatchEffects"
-      backBehavior="history"
-      screenListeners={{
-        // TODO: Extract popover aware tab navigator component
-        swipeStart: () => {
-          closeAllPopovers();
-        },
-        tabPress: () => {
-          closeAllPopovers();
-        },
-        blur: () => {
-          closeAllPopovers();
-        },
-      }}
-      tabBar={renderAdjustingMaterialTopTabBar}
-    >
+    <Tab.Navigator id="PatchEffects" {...useTopTabNavigatorDefaults()}>
       <Tab.Screen
         name="Struct"
         component={PatchEffectsStructureScreen}
