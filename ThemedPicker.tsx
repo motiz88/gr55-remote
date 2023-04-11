@@ -4,13 +4,18 @@ import { forwardRef } from "react";
 import { Picker } from "./Picker";
 
 export const ThemedPicker = forwardRef(function ThemedPicker<T>(
-  { itemStyle, ...props }: React.ComponentPropsWithoutRef<typeof Picker<T>>,
+  {
+    itemStyle,
+    style,
+    ...props
+  }: React.ComponentPropsWithoutRef<typeof Picker<T>>,
   ref: React.ForwardedRef<Picker<T>>
 ) {
   const { colors } = useTheme();
   return (
     <Picker
       itemStyle={[{ color: colors.text }, itemStyle]}
+      style={[{ color: colors.text }, style]}
       {...props}
       ref={ref}
     />
