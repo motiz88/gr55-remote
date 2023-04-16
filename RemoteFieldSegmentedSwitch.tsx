@@ -20,7 +20,7 @@ export function RemoteFieldSegmentedSwitch({
   segmented?: boolean;
   page: RolandRemotePageContext;
 }) {
-  const [value, onValueChange] = useMaybeControlledRemoteField(
+  const [value, onValueChange, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
@@ -47,17 +47,21 @@ export function RemoteFieldSegmentedSwitch({
           ] as const),
     [field, invertedForDisplay]
   );
+  const isPending = status === "pending";
   return (
     <RemoteFieldRow page={page} field={field}>
       <SegmentedPicker
         style={FieldStyles.fieldControlInner}
         onValueChange={handleLabelChange}
         value={
-          (invertedForDisplay ? !value : value)
+          isPending
+            ? undefined
+            : (invertedForDisplay ? !value : value)
             ? field.definition.type.trueLabel
             : field.definition.type.falseLabel
         }
         values={labelsInOrder}
+        disabled={isPending}
       />
     </RemoteFieldRow>
   );

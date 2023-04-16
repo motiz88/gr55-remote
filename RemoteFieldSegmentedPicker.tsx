@@ -18,7 +18,7 @@ export function RemoteFieldSegmentedPicker<T extends string>({
   value?: T;
   onValueChange?: (value: T) => void;
 }) {
-  const [value, onValueChange] = useMaybeControlledRemoteField(
+  const [value, onValueChange, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
@@ -28,12 +28,14 @@ export function RemoteFieldSegmentedPicker<T extends string>({
     () => Object.values(field.definition.type.labels),
     [field]
   );
+  const isPending = status === "pending";
   return (
     <RemoteFieldRow page={page} field={field}>
       <SegmentedPickerControl
         value={value}
         onValueChange={onValueChange}
         values={values}
+        isPending={isPending}
       />
     </RemoteFieldRow>
   );
@@ -43,10 +45,12 @@ function SegmentedPickerControl<T extends string>({
   value,
   onValueChange,
   values,
+  isPending,
 }: {
   value: T;
   onValueChange: (value: T) => void;
   values: readonly T[];
+  isPending: boolean;
 }) {
   // const { isAssigned } = useContext(FieldRowContext);
   // TODO: Show assigned state when all controls can reliably handle long press etc
@@ -56,9 +60,10 @@ function SegmentedPickerControl<T extends string>({
     <SegmentedPicker
       style={FieldStyles.fieldControlInner}
       onValueChange={onValueChange}
-      value={value}
+      value={isPending ? undefined : value}
       values={values}
       tintColor={isAssigned ? "cornflowerblue" : undefined}
+      disabled={isPending}
     />
   );
 }

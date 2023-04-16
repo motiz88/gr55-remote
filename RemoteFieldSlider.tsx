@@ -2,9 +2,11 @@ import Slider from "@react-native-community/slider";
 import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 
+import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
 
@@ -26,7 +28,7 @@ export function RemoteFieldSlider({
   onSlidingStart?: (value: number) => void;
   onSlidingComplete?: (value: number) => void;
 }) {
-  const [value, setValue] = useMaybeControlledRemoteField(
+  const [value, setValue, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
@@ -72,6 +74,7 @@ export function RemoteFieldSlider({
         handleSlidingStart={handleSlidingStart}
         handleSlidingComplete={handleSlidingComplete}
         value={value}
+        isPending={status === "pending"}
       />
     </RemoteFieldRow>
   );
@@ -84,6 +87,7 @@ function SliderControl({
   handleSlidingStart,
   handleSlidingComplete,
   value,
+  isPending,
 }: {
   prettyValue: string;
   field: FieldReference<NumericField>;
@@ -91,14 +95,23 @@ function SliderControl({
   handleSlidingStart: (valueOrValues: number | number[]) => void;
   handleSlidingComplete: (valueOrValues: number | number[]) => void;
   value: number;
+  isPending: boolean;
 }) {
   // const { isAssigned } = useContext(FieldRowContext);
   // TODO: Show assigned state when all controls can reliably handle long press etc
   const isAssigned = false;
 
+  const theme = useTheme();
+
   return (
     <View style={styles.sliderContainer}>
-      <Text style={styles.sliderValueLabel}>{prettyValue}</Text>
+      <View style={styles.labelRow}>
+        {isPending ? (
+          <PendingTextPlaceholder chars={4} />
+        ) : (
+          <Text>{prettyValue}</Text>
+        )}
+      </View>
       <Slider
         minimumValue={field.definition.type.min}
         maximumValue={field.definition.type.max}
@@ -106,17 +119,34 @@ function SliderControl({
         onValueChange={handleValueChange}
         onSlidingStart={handleSlidingStart}
         onSlidingComplete={handleSlidingComplete}
-        value={value}
-        thumbTintColor={isAssigned ? "cornflowerblue" : "white"}
+        value={isPending ? field.definition.type.max : value}
+        minimumTrackTintColor={
+          isPending ? theme.colors.pendingTextPlaceholder : undefined
+        }
+        maximumTrackTintColor={
+          isPending ? theme.colors.pendingTextPlaceholder : undefined
+        }
+        thumbTintColor={
+          isPending
+            ? theme.colors.pendingTextPlaceholder
+            : isAssigned
+            ? "cornflowerblue"
+            : "white"
+        }
+        disabled={isPending}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  sliderValueLabel: {},
-  sliderContainer: { flex: 1 },
+  sliderContainer: {
+    flex: 1,
+  },
   sliderTrack: {
     height: 32,
+  },
+  labelRow: {
+    flexDirection: "row",
   },
 });

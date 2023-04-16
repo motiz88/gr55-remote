@@ -5,6 +5,7 @@ import { FieldStyles } from "./FieldStyles";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { BooleanField, FieldReference } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
 
@@ -21,7 +22,7 @@ export function RemoteFieldSwitch({
   field: FieldReference<BooleanField>;
   inline?: boolean;
 }) {
-  const [value, onValueChange] = useMaybeControlledRemoteField(
+  const [value, onValueChange, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
@@ -61,6 +62,7 @@ export function RemoteFieldSwitch({
         value={value}
         handleValueChange={handleValueChange}
         labelsInOrder={labelsInOrder}
+        isPending={status === "pending"}
       />
     </RemoteFieldRow>
   );
@@ -72,16 +74,20 @@ function SwitchControl({
   value,
   handleValueChange,
   labelsInOrder,
+  isPending,
 }: {
   inline: boolean;
   invertedForDisplay: boolean;
   value: boolean;
   handleValueChange: (value: boolean) => void;
   labelsInOrder: readonly [string, string];
+  isPending: boolean;
 }) {
   // const { isAssigned } = useContext(FieldRowContext);
   // TODO: Show assigned state when all controls can reliably handle long press etc
   const isAssigned = false;
+
+  const theme = useTheme();
 
   const inlineSwitch = (
     // Prevent the switch from triggering any parent Pressables
@@ -89,11 +95,22 @@ function SwitchControl({
       <Switch
         style={inline ? null : styles.switchBetweenLabels}
         onValueChange={handleValueChange}
-        value={invertedForDisplay ? !value : value}
-        trackColor={
-          isAssigned ? { false: "#bccee9", true: "cornflowerblue" } : undefined
-        }
+        value={(invertedForDisplay ? !value : value) || isPending}
+        trackColor={useMemo(
+          () =>
+            isPending
+              ? {
+                  false: theme.colors.pendingTextPlaceholder,
+                  true: theme.colors.pendingTextPlaceholder,
+                }
+              : isAssigned
+              ? { false: "#bccee9", true: "cornflowerblue" }
+              : undefined,
+          [isAssigned, isPending, theme.colors.pendingTextPlaceholder]
+        )}
         ios_backgroundColor={isAssigned ? "#bccee9" : undefined}
+        thumbColor={isPending ? theme.colors.pendingTextPlaceholder : undefined}
+        disabled={isPending}
       />
     </Pressable>
   );

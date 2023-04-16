@@ -166,7 +166,7 @@ const tonesAndOffsets = [
       "BsMarimba 1",
       "BsMarimba 2",
       "Sine Mallet",
-      "Glockenspeil",
+      "Glockenspiel",
       "Vibraphone 2",
       "Vibraphone w",
       // NOTE: Listed as "Marimba 2" which is a duplicate

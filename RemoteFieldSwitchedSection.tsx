@@ -16,13 +16,14 @@ export function RemoteFieldSwitchedSection({
   field: FieldReference<BooleanField>;
   children?: React.ReactNode;
 }) {
-  const [value, setValue] = useRemoteField(page, field);
+  const [value, setValue, status] = useRemoteField(page, field);
   const isDisabled = field.definition.type.invertedForDisplay ? value : !value;
+  const isPending = status === "pending";
 
   const overlayOpacity = useAnimation({
     type: "timing",
-    initialValue: isDisabled ? 0.5 : 0,
-    toValue: isDisabled ? 0.5 : 0,
+    initialValue: isPending ? 0.5 : isDisabled ? 0.5 : 0,
+    toValue: isPending ? 0.5 : isDisabled ? 0.5 : 0,
     duration: 150,
     useNativeDriver: true,
   });

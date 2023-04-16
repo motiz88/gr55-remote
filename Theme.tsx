@@ -9,6 +9,10 @@ export const DefaultTheme = {
       // 10/11ths of the way from cornflowerblue to #ffffff
       tabBarBackground: "#F1F5FD",
     },
+    library: {
+      selectedPatch: "#73b2f9",
+    },
+    pendingTextPlaceholder: "rgb(216, 216, 216)",
   },
 };
 
@@ -20,6 +24,10 @@ export const DarkTheme = {
       // 10/11ths of the way from cornflowerblue to #121212
       tabBarBackground: "#191E26",
     },
+    library: {
+      selectedPatch: "#05448b",
+    },
+    pendingTextPlaceholder: "rgb(39, 39, 41)",
   },
 };
 

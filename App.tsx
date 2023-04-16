@@ -13,6 +13,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
 import { IoSetupScreen } from "./IoSetupScreen";
+import { LibraryPatchListScreen } from "./LibraryPatchListScreen";
 import { MidiIoContext } from "./MidiIoContext";
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
 import { PatchAssignsScreen } from "./PatchAssignsScreen";
@@ -29,9 +30,11 @@ import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelection";
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
-import { PatchStackParamList } from "./navigation";
+import { UserOptionsContainer, useUserOptions } from "./UserOptions";
+import { PatchStackParamList, RootTabParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
 import { useRolandDataTransfer } from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
@@ -41,7 +44,7 @@ import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
 const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
 const PatchDrawer = createDrawerNavigator();
-const RootTab = createBottomTabNavigator();
+const RootTab = createBottomTabNavigator<RootTabParamList>();
 
 function MidiIoSetupContainer({ children }: { children?: React.ReactNode }) {
   const midiIoSetupState = useMidiIoSetup();
@@ -105,27 +108,31 @@ function RolandDataTransferContainer({
 export default function App() {
   return (
     <SafeAreaProvider>
-      <MidiIoSetupContainer>
-        <RolandIoSetupContainer>
-          <RolandDataTransferContainer>
-            <RolandRemoteSystemStateContainer>
-              <RolandRemotePatchStateContainer>
-                <AppNavigationContainer>
-                  <RolandGR55AssignsContainer>
-                    <ThemeProvider>
-                      <ThemedContextualStyleProvider>
-                        <PopoversContainer>
-                          <RootTabNavigator />
-                        </PopoversContainer>
-                      </ThemedContextualStyleProvider>
-                    </ThemeProvider>
-                  </RolandGR55AssignsContainer>
-                </AppNavigationContainer>
-              </RolandRemotePatchStateContainer>
-            </RolandRemoteSystemStateContainer>
-          </RolandDataTransferContainer>
-        </RolandIoSetupContainer>
-      </MidiIoSetupContainer>
+      <UserOptionsContainer>
+        <MidiIoSetupContainer>
+          <RolandIoSetupContainer>
+            <RolandDataTransferContainer>
+              <RolandRemoteSystemStateContainer>
+                <RolandRemotePatchSelectionContainer>
+                  <RolandRemotePatchStateContainer>
+                    <AppNavigationContainer>
+                      <RolandGR55AssignsContainer>
+                        <ThemeProvider>
+                          <ThemedContextualStyleProvider>
+                            <PopoversContainer>
+                              <RootTabNavigator />
+                            </PopoversContainer>
+                          </ThemedContextualStyleProvider>
+                        </ThemeProvider>
+                      </RolandGR55AssignsContainer>
+                    </AppNavigationContainer>
+                  </RolandRemotePatchStateContainer>
+                </RolandRemotePatchSelectionContainer>
+              </RolandRemoteSystemStateContainer>
+            </RolandDataTransferContainer>
+          </RolandIoSetupContainer>
+        </MidiIoSetupContainer>
+      </UserOptionsContainer>
     </SafeAreaProvider>
   );
 }
@@ -211,8 +218,21 @@ function PatchDrawerNavigator() {
 }
 
 function RootTabNavigator() {
+  const EXPERIMENTAL_ROUTES = ["LibraryPatchList"];
+  const [{ enableExperimentalFeatures }] = useUserOptions();
   return (
-    <RootTab.Navigator id="RootTab">
+    <RootTab.Navigator
+      id="RootTab"
+      screenOptions={({ route }) => ({
+        tabBarButton:
+          !enableExperimentalFeatures &&
+          EXPERIMENTAL_ROUTES.includes(route.name)
+            ? () => {
+                return null;
+              }
+            : undefined,
+      })}
+    >
       <RootTab.Screen
         name="PatchDrawer"
         component={PatchDrawerNavigator}
@@ -221,6 +241,16 @@ function RootTabNavigator() {
           title: "Patch",
           tabBarIcon: ({ color }) => (
             <Entypo name="sound-mix" size={24} color={color} />
+          ),
+        }}
+      />
+      <RootTab.Screen
+        name="LibraryPatchList"
+        component={LibraryPatchListScreen}
+        options={{
+          title: "Library 🧪",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="library" size={24} color={color} />
           ),
         }}
       />

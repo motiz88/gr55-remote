@@ -1,5 +1,5 @@
 import { MIDIMessageEvent } from "@motiz88/react-native-midi";
-import PromiseThrottle from "promise-throttle";
+import pLimit from "p-limit";
 import { useContext, useEffect, useMemo, useRef } from "react";
 
 import { MidiIoContext } from "./MidiIoContext";
@@ -19,7 +19,9 @@ import {
   ALL_DEVICES,
   makeDataSetMessage,
   GAP_BETWEEN_MESSAGES_MS,
+  unpack7,
 } from "./RolandSysExProtocol";
+import { useUserOptions } from "./UserOptions";
 
 type PendingFetch = {
   inputPortId: string;
@@ -32,12 +34,7 @@ type PendingFetch = {
   bytesReceived: number;
 };
 
-// The GR-55 can only handle 1 request at a time, and both reads/writes can get corrupted
-// if they're too fast. To keep the UI responsive, users of RolandDataTransferContext
-// should throttle their requests as well.
-const globalQueue = new PromiseThrottle({
-  requestsPerSecond: 1000 / GAP_BETWEEN_MESSAGES_MS,
-});
+const globalQueue = pLimit(1);
 
 export function useRolandDataTransfer() {
   const { outputPort, inputPort } = useContext(MidiIoContext);
@@ -95,6 +92,8 @@ export function useRolandDataTransfer() {
     };
   }, [inputPort, outputPort, selectedDeviceKey, deviceId, sysExConfig]);
 
+  const [{ enableExperimentalFeatures }] = useUserOptions();
+
   return useMemo(() => {
     if (!outputPort || !inputPort || !selectedDevice) {
       return { requestData: undefined, setField: undefined };
@@ -139,14 +138,59 @@ export function useRolandDataTransfer() {
     // TODO: abort requests so rapid patch changes don't cause a backlog
     async function requestData<T extends AtomDefinition>(
       definition: T,
-      baseAddress: number = 0
+      baseAddress: number = 0,
+      signal?: AbortSignal
     ): Promise<RawDataBag> {
-      const result = await fetchAndTokenize(
-        definition,
-        baseAddress,
-        (...args) => globalQueue.add(() => fetchContiguous(...args))
-      );
-      return result;
+      let lastQueueStartTimestamp = performance.now();
+      let totalQueueTime = 0,
+        totalDelayTime = 0,
+        totalFetchTime = 0;
+      let chunkCount = 0,
+        atomCount = 0;
+      try {
+        return await fetchAndTokenize(definition, baseAddress, (...args) =>
+          globalQueue(async () => {
+            if (signal?.aborted) {
+              throw new Error("Aborted");
+            }
+            ++chunkCount;
+
+            const dequeueTimestamp = performance.now();
+            totalQueueTime += dequeueTimestamp - lastQueueStartTimestamp;
+
+            const beforeFetchTimestamp = performance.now();
+            const result = await fetchContiguous(...args);
+            const afterFetchTimestamp = performance.now();
+            totalFetchTime += afterFetchTimestamp - beforeFetchTimestamp;
+
+            const beforeDelayTimestamp = performance.now();
+            await delay(GAP_BETWEEN_MESSAGES_MS);
+            const afterDelayTimestamp = performance.now();
+            totalDelayTime += afterDelayTimestamp - beforeDelayTimestamp;
+            lastQueueStartTimestamp = performance.now();
+            atomCount += Object.keys(result).length;
+            return result;
+          })
+        );
+      } finally {
+        if (enableExperimentalFeatures) {
+          // Performance logging is an "experimental feature", until we possibly split it out into its own option
+          console.log(
+            "🧪 " +
+              `${signal?.aborted ? "(ABORTED) " : ""}Request for ${
+                definition.description
+              } (0x${unpack7(baseAddress)
+                .toString(16)
+                .padStart(8, "0")}) queued for ${Math.round(
+                totalQueueTime
+              )}ms, fetched in ${Math.round(
+                totalFetchTime
+              )}ms, delayed for ${Math.round(
+                totalDelayTime
+              )}ms (${atomCount} atoms in ${chunkCount} chunk(s))`
+          );
+        }
+      }
     }
 
     function setField<T extends FieldDefinition<any>>(
@@ -171,8 +215,9 @@ export function useRolandDataTransfer() {
         field.address,
         valueBytes
       );
-      globalQueue.add(async () => {
+      globalQueue(async () => {
         myOutputPort.send(data);
+        await delay(GAP_BETWEEN_MESSAGES_MS);
       });
     }
     return { requestData, setField };
@@ -183,5 +228,10 @@ export function useRolandDataTransfer() {
     outputPort,
     deviceId,
     sysExConfig,
+    enableExperimentalFeatures,
   ]);
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

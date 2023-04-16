@@ -3,6 +3,15 @@ import { pack7 } from "./RolandSysExProtocol";
 export interface RolandAddressMap {
   readonly temporaryPatch: AtomReference;
   readonly system: AtomReference;
+
+  // Allows reading the current program number and bank number
+  // TODO: Do other devices have a similar concept? Otherwise this might need to be optional / device-specific.
+  readonly setup: AtomReference<
+    StructDefinition<{
+      patchBsMsb: FieldDefinition<NumericField>;
+      patchPc: FieldDefinition<NumericField>;
+    }>
+  >;
 }
 
 export type AtomReference<Definition extends AtomDefinition = AtomDefinition> =

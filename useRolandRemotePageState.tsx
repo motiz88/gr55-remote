@@ -1,7 +1,5 @@
 import EventEmitter from "events";
 import { useRef, useCallback, useContext, useMemo, useState } from "react";
-import usePromise from "react-use-promise";
-import { throttle } from "throttle-debounce";
 
 import {
   AtomReference,
@@ -11,10 +9,7 @@ import {
 } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
-import {
-  BULK_DATA_TRANSFER_SIZE_PER_MESSAGE,
-  GAP_BETWEEN_MESSAGES_MS,
-} from "./RolandSysExProtocol";
+import useCancellablePromise from "./useCancellablePromise";
 
 export function useRolandRemotePageState(page: AtomReference | void) {
   const { selectedDeviceKey } = useContext(RolandIoSetupContext);
@@ -22,34 +17,45 @@ export function useRolandRemotePageState(page: AtomReference | void) {
 
   const [invalidationCount, setInvalidationCount] = useState(0);
 
-  const [pageData, pageReadError, pageReadStatus] = usePromise(async () => {
-    if (!requestData) {
-      return Promise.reject(new Error("No device available"));
-    }
-    if (!page) {
-      return Promise.reject(new Error("No address map available"));
-    }
-    const remoteData = await requestData(page.definition, page.address);
-    const oldLocalOverrides = localOverrides.current;
-    localOverrides.current = {};
-    for (const address of Object.keys(oldLocalOverrides)) {
-      subscriptions.current!.emit(
-        address,
-        remoteData[address as unknown as number]
-      );
-    }
-    return remoteData;
-  }, [requestData, selectedDeviceKey, invalidationCount]);
+  const [pageData, pageReadError, pageReadStatus] = useCancellablePromise(
+    useCallback(
+      async (signal) => {
+        // Manually register a dependency on the device to force a refetch when it changes.
+        // eslint-disable-next-line no-unused-expressions
+        selectedDeviceKey;
+        // Manually register a dependency on the invalidation count to force a refetch in invalidateData.
+        // eslint-disable-next-line no-unused-expressions
+        invalidationCount;
+        if (!requestData) {
+          return Promise.reject(new Error("No device available"));
+        }
+        if (!page) {
+          return Promise.reject(new Error("No address map available"));
+        }
+        const remoteData = await requestData(
+          page.definition,
+          page.address,
+          signal
+        );
+        const oldLocalOverrides = localOverrides.current;
+        localOverrides.current = {};
+        for (const address of Object.keys(oldLocalOverrides)) {
+          subscriptions.current!.emit(
+            address,
+            remoteData[address as unknown as number]
+          );
+        }
+        return remoteData;
+      },
+      [selectedDeviceKey, invalidationCount, requestData, page]
+    )
+  );
 
   const invalidateData = useMemo(
-    () =>
-      throttle(
-        Math.ceil(
-          (page?.definition.size ?? 1) / BULK_DATA_TRANSFER_SIZE_PER_MESSAGE
-        ) * GAP_BETWEEN_MESSAGES_MS,
-        () => setInvalidationCount((x) => x + 1)
-      ),
-    [page?.definition.size]
+    () => () => {
+      setInvalidationCount((x) => x + 1);
+    },
+    []
   );
 
   const localOverrides = useRef<RawDataBag>({});

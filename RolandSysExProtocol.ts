@@ -1,5 +1,6 @@
 import type { RolandAddressMap } from "./RolandAddressMap";
 import { AssignsMap } from "./RolandGR55Assigns";
+import type { RolandGR55PatchMap } from "./RolandGR55PatchMap";
 
 export interface RolandSysExConfig {
   readonly description: string;
@@ -14,6 +15,8 @@ export interface RolandSysExConfig {
   readonly gr55?: {
     readonly assignsMapBassMode: AssignsMap;
     readonly assignsMapGuitarMode: AssignsMap;
+    readonly patchMapBassMode: RolandGR55PatchMap;
+    readonly patchMapGuitarMode: RolandGR55PatchMap;
   };
 }
 

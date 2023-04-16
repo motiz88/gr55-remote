@@ -39,6 +39,10 @@ export const RolandRemotePatchContext =
 export const RolandRemoteSystemContext =
   React.createContext<RolandRemotePageState>(rolandRemotePageEmptyState);
 
+export const RolandRemoteSetupContext =
+  React.createContext<RolandRemotePageState>(rolandRemotePageEmptyState);
+
 export type RolandRemotePageContext =
   | typeof RolandRemotePatchContext
-  | typeof RolandRemoteSystemContext;
+  | typeof RolandRemoteSystemContext
+  | typeof RolandRemoteSetupContext;

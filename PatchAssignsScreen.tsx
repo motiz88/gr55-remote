@@ -18,6 +18,7 @@ import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { AssignDefinition, AssignsMap } from "./RolandGR55Assigns";
 import { useRolandGR55Assigns } from "./RolandGR55AssignsContainer";
+import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { useTheme } from "./Theme";
@@ -113,6 +114,13 @@ export function PatchAssignsScreen({
     ]
   );
 
+  const topTabNavigatorDefaults = useTopTabNavigatorDefaults();
+
+  const assignsMap = useAssignsMap();
+  if (!assignsMap) {
+    return <RolandGR55NotConnectedView navigation={navigation} />;
+  }
+
   return (
     <Tab.Navigator
       id="PatchAssigns"
@@ -120,7 +128,7 @@ export function PatchAssignsScreen({
         tabBarStyle: { backgroundColor: theme.colors.assigns.tabBarBackground },
         tabBarLabel: renderLabel,
       }}
-      {...useTopTabNavigatorDefaults()}
+      {...topTabNavigatorDefaults}
     >
       <Tab.Screen
         name="Assign1"
@@ -194,6 +202,7 @@ const assignsByRouteName = {
 };
 
 function PatchAssignScreen({
+  navigation,
   route,
 }: MaterialTopTabScreenProps<
   PatchAssignsTabParamList,
@@ -212,12 +221,7 @@ function PatchAssignScreen({
 
   const theme = useTheme();
 
-  const assignsMap = useAssignsMap();
-  if (!assignsMap) {
-    throw new Error(
-      "PatchAssignScreen: Assigns map is not available. This should not be reachable."
-    );
-  }
+  const assignsMap = useAssignsMap()!;
 
   return (
     <PopoverAwareScrollView

@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useCallback, useContext } from "react";
 import { StyleSheet, Switch } from "react-native";
 
 import { MidiIoSetupContext } from "./MidiIoSetupContext";
@@ -7,6 +7,7 @@ import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedPicker as Picker } from "./ThemedPicker";
 import { ThemedText as Text } from "./ThemedText";
+import { useUserOptions } from "./UserOptions";
 
 export function IoSetupScreen() {
   const {
@@ -21,6 +22,16 @@ export function IoSetupScreen() {
   const rolandIoSetupContext = useContext(RolandIoSetupContext);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
+  const [userOptions, setUserOptions] = useUserOptions();
+
+  const setEnableExperimentalFeatures = useCallback(
+    (enableExperimentalFeatures: boolean) =>
+      setUserOptions({
+        enableExperimentalFeatures,
+      }),
+    [setUserOptions]
+  );
 
   return (
     <PopoverAwareScrollView
@@ -78,6 +89,13 @@ export function IoSetupScreen() {
         <Switch
           onValueChange={rolandIoSetupContext.setIncludeFakeDevice}
           value={rolandIoSetupContext.includeFakeDevice}
+        />
+      </>
+      <>
+        <Text>Enable experimental options 🧪</Text>
+        <Switch
+          onValueChange={setEnableExperimentalFeatures}
+          value={userOptions.enableExperimentalFeatures}
         />
       </>
     </PopoverAwareScrollView>

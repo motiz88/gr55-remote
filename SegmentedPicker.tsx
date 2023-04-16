@@ -10,17 +10,19 @@ import { NativeSyntheticEvent } from "react-native";
 
 export type Props<T extends string> = Omit<
   SegmentedControlProps,
-  "onChange" | "selectedIndex" | "values" | "onValueChange"
+  "onChange" | "selectedIndex" | "values" | "onValueChange" | "enabled"
 > & {
   onValueChange?: (value: T) => void;
-  value: T;
+  value: T | undefined;
   values: readonly T[] | readonly { value: T; icon?: unknown }[];
+  disabled?: boolean;
 };
 
 export function SegmentedPicker<T extends string>({
   values,
   value,
   onValueChange,
+  disabled,
   ...props
 }: Props<T>) {
   const normalizedValues = useMemo(
@@ -65,6 +67,7 @@ export function SegmentedPicker<T extends string>({
       onChange={onChange}
       // TODO: Fix tintColor reactivity upstream
       key={props.tintColor}
+      enabled={!disabled}
       {...props}
     />
   );

@@ -8,15 +8,9 @@ import {
 } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
-import {
-  Button,
-  Image,
-  Pressable,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
+import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
 import { RefreshControl } from "./RefreshControl";
@@ -29,6 +23,7 @@ import {
   NumericField,
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
   RolandRemotePatchContext as PATCH,
@@ -52,14 +47,25 @@ export function PatchMainScreen({
   "RootTab" | "PatchDrawer" | "PatchStack"
 >) {
   const { selectedDevice } = useContext(RolandIoSetupContext);
-  const [patchName] = useRemoteField(
+  const [patchName, , patchNameStatus] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.common.patchName
   );
   const theme = useNavigationTheme();
   useEffect(() => {
+    // TODO: Refactor to avoid duplication with all the other screens
+    if (patchNameStatus === "pending") {
+      navigation.setOptions({
+        headerTitle() {
+          return <PendingTextPlaceholder chars={16} />;
+        },
+      });
+    } else if (selectedDevice && patchName) {
+      navigation.setOptions({ headerTitle: undefined, title: patchName });
+    } else {
+      navigation.setOptions({ headerTitle: undefined, title: "GR-55 Editor" });
+    }
     navigation.setOptions({
-      title: selectedDevice && patchName ? patchName : "GR-55 Editor",
       headerLeft: () =>
         selectedDevice ? (
           <DrawerToggleButton tintColor={theme.colors.primary} />
@@ -71,7 +77,7 @@ export function PatchMainScreen({
           />
         ),
     });
-  }, [navigation, patchName, selectedDevice, theme.colors]);
+  }, [navigation, patchName, patchNameStatus, selectedDevice, theme.colors]);
 
   // TODO: Also reload SYSTEM page on manual refresh
   const { reloadData } = useContext(PATCH);
@@ -79,7 +85,7 @@ export function PatchMainScreen({
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   if (!selectedDevice) {
-    return <NotConnectedView navigation={navigation} />;
+    return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   return (
@@ -263,7 +269,10 @@ function FieldLabel({
   page: RolandRemotePageContext;
   field: FieldReference<FieldType<string>>;
 }) {
-  const [value] = useRemoteField(page, field);
+  const [value, , status] = useRemoteField(page, field);
+  if (status === "pending") {
+    return <PendingTextPlaceholder chars={8} />;
+  }
   return <Text>{value}</Text>;
 }
 
@@ -280,47 +289,43 @@ function ModelToneLabel() {
 
   // TODO: Check whether we need to read the bass mode switch from the patch or system page.
   // It's possible that the system setting is "mode on next restart" and the patch setting is the actual current mode.
-  const [guitarBassSelect] = useRemoteField(
+  const [guitarBassSelect, , guitarBassSelectStatus] = useRemoteField(
     SYSTEM,
     GR55.system.common.guitarBassSelect
   );
-  const [toneCategory] = useRemoteField(
+  const [toneCategory, , toneCategoryStatus] = useRemoteField(
     PATCH,
     guitarBassSelect === "GUITAR"
       ? modelingTone.toneCategory_guitar
       : modelingTone.toneCategory_bass
   );
-  const [toneNumberEGtr_guitar] = useRemoteField(
+  const [toneNumberEGtr_guitar, , toneNumberEGtr_guitarStatus] = useRemoteField(
     PATCH,
     modelingTone.toneNumberEGtr_guitar
   );
 
-  const [toneNumberAc_guitar] = useRemoteField(
+  const [toneNumberAc_guitar, , toneNumberAc_guitarStatus] = useRemoteField(
     PATCH,
     modelingTone.toneNumberAc_guitar
   );
 
-  const [toneNumberEBass_guitar] = useRemoteField(
-    PATCH,
-    modelingTone.toneNumberEBass_guitar
-  );
+  const [toneNumberEBass_guitar, , toneNumberEBass_guitarStatus] =
+    useRemoteField(PATCH, modelingTone.toneNumberEBass_guitar);
 
-  const [toneNumberSynth_guitar] = useRemoteField(
-    PATCH,
-    modelingTone.toneNumberSynth_guitar
-  );
+  const [toneNumberSynth_guitar, , toneNumberSynth_guitarStatus] =
+    useRemoteField(PATCH, modelingTone.toneNumberSynth_guitar);
 
-  const [toneNumberEBass_bass] = useRemoteField(
+  const [toneNumberEBass_bass, , toneNumberEBass_bassStatus] = useRemoteField(
     PATCH,
     modelingTone.toneNumberEBass_bass
   );
 
-  const [toneNumberEGtr_bass] = useRemoteField(
+  const [toneNumberEGtr_bass, , toneNumberEGtr_bassStatus] = useRemoteField(
     PATCH,
     modelingTone.toneNumberEGtr_bass
   );
 
-  const [toneNumberSynth_bass] = useRemoteField(
+  const [toneNumberSynth_bass, , toneNumberSynth_bassStatus] = useRemoteField(
     PATCH,
     modelingTone.toneNumberSynth_bass
   );
@@ -341,7 +346,20 @@ function ModelToneLabel() {
         ? toneNumberSynth_guitar
         : toneNumberSynth_bass
       : "";
-  return (
+  const isLoading = [
+    guitarBassSelectStatus,
+    toneCategoryStatus,
+    toneNumberEGtr_guitarStatus,
+    toneNumberAc_guitarStatus,
+    toneNumberEBass_guitarStatus,
+    toneNumberSynth_guitarStatus,
+    toneNumberEBass_bassStatus,
+    toneNumberEGtr_bassStatus,
+    toneNumberSynth_bassStatus,
+  ].some((status) => status === "pending");
+  return isLoading ? (
+    <PendingTextPlaceholder chars={16} />
+  ) : (
     <Text>
       {toneCategory} &gt; {toneNumber}
     </Text>
@@ -355,7 +373,10 @@ function FieldLevelLabel({
   page: RolandRemotePageContext;
   field: FieldReference<NumericField>;
 }) {
-  const [level] = useRemoteField(page, field);
+  const [level, , status] = useRemoteField(page, field);
+  if (status === "pending") {
+    return <PendingTextPlaceholder chars={2} />;
+  }
   return <>{field.definition.type.format(level)}</>;
 }
 
@@ -590,11 +611,6 @@ function HeadingLink({
 }
 
 const styles = StyleSheet.create({
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   sectionWithHeading: {
     marginBottom: 16,
   },
@@ -602,50 +618,10 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     borderBottomWidth: 1,
   },
-  errorText: {
-    marginVertical: 8,
-  },
   container: {
     padding: 8,
   },
 });
-
-function NotConnectedView({
-  navigation,
-}: {
-  navigation: NativeStackScreenProps<
-    PatchStackParamList,
-    "PatchMain",
-    "RootTab" | "PatchDrawer" | "PatchStack"
-  >["navigation"];
-}) {
-  const dimensions = useWindowDimensions();
-
-  return (
-    <View style={[styles.center, styles.container]}>
-      <Image
-        source={require("./assets/gr55-pixel-masked.png")}
-        style={{
-          width: dimensions.width / 2,
-          height: ((601 / 1024) * dimensions.width) / 2,
-          resizeMode: "stretch",
-          borderWidth: 0,
-        }}
-      />
-      <Text style={styles.errorText}>Not currently connected to a GR-55!</Text>
-      <Button
-        onPress={() =>
-          (
-            navigation.getParent(
-              "RootTab"
-            ) as BottomTabNavigationProp<RootTabParamList>
-          ).navigate("IoSetup", {})
-        }
-        title="Go to setup"
-      />
-    </View>
-  );
-}
 
 function PopStackToTopOnTabPress() {
   const navigation = useNavigation<GlobalNavigationProp>();
