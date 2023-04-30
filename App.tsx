@@ -9,6 +9,7 @@ import {
 } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
@@ -120,7 +121,19 @@ export default function App() {
                         <ThemeProvider>
                           <ThemedContextualStyleProvider>
                             <PopoversContainer>
-                              <RootTabNavigator />
+                              <KeyboardAvoidingView
+                                behavior={
+                                  Platform.OS === "ios" ? "padding" : undefined
+                                }
+                                enabled={
+                                  // On Android we rely on android:windowSoftInputMode="resize".
+                                  // On web we currently let things render under the keyboard.
+                                  Platform.OS === "ios"
+                                }
+                                style={styles.keyboardAvoidingView}
+                              >
+                                <RootTabNavigator />
+                              </KeyboardAvoidingView>
                             </PopoversContainer>
                           </ThemedContextualStyleProvider>
                         </ThemeProvider>
@@ -224,6 +237,7 @@ function RootTabNavigator() {
     <RootTab.Navigator
       id="RootTab"
       screenOptions={({ route }) => ({
+        tabBarHideOnKeyboard: true,
         tabBarButton:
           !enableExperimentalFeatures &&
           EXPERIMENTAL_ROUTES.includes(route.name)
@@ -300,3 +314,9 @@ function PatchStackNavigator() {
     </PatchStack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+});

@@ -27,6 +27,7 @@ import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { useTheme } from "./Theme";
+import { ThemedSearchBar } from "./ThemedSearchBar";
 import { AnimatedThemedText } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
@@ -51,13 +52,21 @@ export function LibraryPatchListScreen({
     1
   );
   const patchMap = usePatchMap();
+  const [search, setSearch] = useState("");
   const data = useMemo(() => {
     const rows: RolandGR55PatchMap["patchList"][] = [];
     const bankMsbAndPcToRowIndex: number[][] = [];
     if (patchMap) {
+      const filteredPatchList = search
+        ? patchMap.patchList.filter((patch) => {
+            return patch.builtInName
+              ?.toLowerCase()
+              .includes(search.toLowerCase());
+          })
+        : patchMap.patchList;
       let rowIndex = 0;
-      for (let i = 0; i < patchMap.patchList.length; i += itemsPerRow) {
-        const rowPatches = patchMap.patchList.slice(i, i + itemsPerRow);
+      for (let i = 0; i < filteredPatchList.length; i += itemsPerRow) {
+        const rowPatches = filteredPatchList.slice(i, i + itemsPerRow);
         rows.push(rowPatches);
         for (const patch of rowPatches) {
           bankMsbAndPcToRowIndex[patch.bankMSB] =
@@ -71,7 +80,7 @@ export function LibraryPatchListScreen({
       rows,
       bankMsbAndPcToRowIndex,
     };
-  }, [itemsPerRow, patchMap]);
+  }, [itemsPerRow, patchMap, search]);
 
   const { selectedPatch, setSelectedPatch } = useRolandRemotePatchSelection();
   const listRef = useRef<FlatList<any>>(null);
@@ -93,6 +102,9 @@ export function LibraryPatchListScreen({
           patch?.pc ?? 0
         ];
       if (rowIndex == null) {
+        return;
+      }
+      if (rowIndex >= data.rows.length) {
         return;
       }
       let middleVisibleItemIndex;
@@ -160,41 +172,49 @@ export function LibraryPatchListScreen({
     },
     []
   );
+
   if (!patchMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   return (
-    <FlatList
-      ref={listRef}
-      onLayout={onLayout}
-      style={styles.container}
-      contentContainerStyle={safeAreaStyle}
-      data={data.rows}
-      renderItem={({ item }) => (
-        <PatchRow
-          items={item}
-          selectedPatch={selectedPatch}
-          itemsPerRow={itemsPerRow}
-          onSelectPatch={handleSelectPatch}
-        />
-      )}
-      getItemLayout={getRowLayout}
-      extraData={listExtraDeps}
-      initialNumToRender={Math.round(
-        Math.max(
-          10,
-          (layout.height || windowDimensions.height) /
-            (ITEM_HEIGHT + ITEM_VPADDING * 2)
-        )
-      )}
-      windowSize={1.6}
-      // @refresh reset - FIXME: this is a workaround for a bug in react-native
-      onViewableItemsChanged={handleViewableItemsChanged}
-      viewabilityConfig={{
-        itemVisiblePercentThreshold: 100,
-      }}
-    />
+    <>
+      <ThemedSearchBar
+        placeholder="Search system patches..."
+        onChangeText={setSearch}
+        value={search}
+      />
+      <FlatList
+        ref={listRef}
+        onLayout={onLayout}
+        style={styles.container}
+        contentContainerStyle={safeAreaStyle}
+        data={data.rows}
+        renderItem={({ item }) => (
+          <PatchRow
+            items={item}
+            selectedPatch={selectedPatch}
+            itemsPerRow={itemsPerRow}
+            onSelectPatch={handleSelectPatch}
+          />
+        )}
+        getItemLayout={getRowLayout}
+        extraData={listExtraDeps}
+        initialNumToRender={Math.round(
+          Math.max(
+            10,
+            (layout.height || windowDimensions.height) /
+              (ITEM_HEIGHT + ITEM_VPADDING * 2)
+          )
+        )}
+        windowSize={1.6}
+        // @refresh reset - FIXME: this is a workaround for a bug in react-native
+        onViewableItemsChanged={handleViewableItemsChanged}
+        viewabilityConfig={{
+          itemVisiblePercentThreshold: 100,
+        }}
+      />
+    </>
   );
 }
 
