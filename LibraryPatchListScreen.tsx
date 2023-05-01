@@ -55,7 +55,7 @@ export function LibraryPatchListScreen({
   );
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
-  const { patches } = useRolandGR55RemotePatchDescriptions();
+  const { patches, reloadData } = useRolandGR55RemotePatchDescriptions();
   const data = useMemo(() => {
     const rows: RolandGR55PatchDescription[][] = [];
     const bankMsbAndPcToRowIndex: number[][] = [];
@@ -192,12 +192,22 @@ export function LibraryPatchListScreen({
     () => patches?.some((patch) => patch.status === "pending") ?? false,
     [patches]
   );
+  const [didRefresh, setDidRefresh] = useState(false);
+  const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const handleRefresh = useCallback(() => {
+    // TODO: Clear the search bar here? Figure out ref shenanigans in RNE
+    setDidRefresh(true);
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
+      setDidRefresh(false);
+    }, 0);
+    reloadData();
+  }, [reloadData]);
   if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   // TODO: add a "no results" view
-  // TODO: add a refresh control
 
   return (
     <>
@@ -228,6 +238,8 @@ export function LibraryPatchListScreen({
         viewabilityConfig={{
           itemVisiblePercentThreshold: 100,
         }}
+        refreshing={didRefresh}
+        onRefresh={handleRefresh}
       />
     </>
   );

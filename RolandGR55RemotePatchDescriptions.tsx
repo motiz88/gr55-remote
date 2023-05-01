@@ -1,4 +1,10 @@
-import React, { useCallback, useContext, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   AsciiStringField,
@@ -44,7 +50,8 @@ export type RolandGR55PatchDescription = {
 
 const RolandGR55RemotePatchDescriptions = React.createContext<{
   readonly patches: RolandGR55PatchDescription[] | null;
-}>({ patches: null });
+  readonly reloadData: () => void;
+}>({ patches: null, reloadData: () => {} });
 
 function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
   typeof RolandGR55RemotePatchDescriptions
@@ -52,6 +59,7 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
   const patchMap = usePatchMap();
   const { requestData } = useContext(RolandDataTransferContext);
   const userPatchDescriptionsMut = useRef<{ name: string }[]>([]);
+  const [invalidationCount, setInvalidationCount] = useState(0);
   const [
     userPatchDescriptions,
     userPatchDescriptionsError,
@@ -59,6 +67,9 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
   ] = useCancellablePromise(
     useCallback(
       async (signal) => {
+        // Manually register a dependency on the invalidation count to force a refetch in invalidateData.
+        // eslint-disable-next-line no-unused-expressions
+        invalidationCount;
         if (!patchMap || !requestData) {
           throw new Error(
             "No patch map or request data available. Is a GR-55 connected?"
@@ -96,12 +107,20 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
         await Promise.all(promises);
         return userPatchDescriptionsMut.current;
       },
-      [patchMap, requestData]
+      [patchMap, requestData, invalidationCount]
     )
   );
+
+  const invalidateData = useMemo(
+    () => () => {
+      setInvalidationCount((x) => x + 1);
+    },
+    []
+  );
+
   return useMemo(() => {
     if (!patchMap) {
-      return { patches: null };
+      return { patches: null, reloadData: invalidateData };
     }
 
     const patches = patchMap.patchList.map((patch) => {
@@ -135,8 +154,9 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
         } as const;
       }
     });
-    return { patches };
+    return { patches, reloadData: invalidateData };
   }, [
+    invalidateData,
     patchMap,
     userPatchDescriptions,
     userPatchDescriptionsError,
