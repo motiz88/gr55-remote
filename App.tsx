@@ -26,6 +26,7 @@ import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
+import { RolandGR55RemotePatchDescriptionsContainer } from "./RolandGR55RemotePatchDescriptions";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
   RolandRemotePatchContext,
@@ -114,33 +115,37 @@ export default function App() {
           <RolandIoSetupContainer>
             <RolandDataTransferContainer>
               <RolandRemoteSystemStateContainer>
-                <RolandRemotePatchSelectionContainer>
-                  <RolandRemotePatchStateContainer>
-                    <AppNavigationContainer>
-                      <RolandGR55AssignsContainer>
-                        <ThemeProvider>
-                          <ThemedContextualStyleProvider>
-                            <PopoversContainer>
-                              <KeyboardAvoidingView
-                                behavior={
-                                  Platform.OS === "ios" ? "padding" : undefined
-                                }
-                                enabled={
-                                  // On Android we rely on android:windowSoftInputMode="resize".
-                                  // On web we currently let things render under the keyboard.
-                                  Platform.OS === "ios"
-                                }
-                                style={styles.keyboardAvoidingView}
-                              >
-                                <RootTabNavigator />
-                              </KeyboardAvoidingView>
-                            </PopoversContainer>
-                          </ThemedContextualStyleProvider>
-                        </ThemeProvider>
-                      </RolandGR55AssignsContainer>
-                    </AppNavigationContainer>
-                  </RolandRemotePatchStateContainer>
-                </RolandRemotePatchSelectionContainer>
+                <RolandGR55RemotePatchDescriptionsContainer>
+                  <RolandRemotePatchSelectionContainer>
+                    <RolandRemotePatchStateContainer>
+                      <AppNavigationContainer>
+                        <RolandGR55AssignsContainer>
+                          <ThemeProvider>
+                            <ThemedContextualStyleProvider>
+                              <PopoversContainer>
+                                <KeyboardAvoidingView
+                                  behavior={
+                                    Platform.OS === "ios"
+                                      ? "padding"
+                                      : undefined
+                                  }
+                                  enabled={
+                                    // On Android we rely on android:windowSoftInputMode="resize".
+                                    // On web we currently let things render under the keyboard.
+                                    Platform.OS === "ios"
+                                  }
+                                  style={styles.keyboardAvoidingView}
+                                >
+                                  <RootTabNavigator />
+                                </KeyboardAvoidingView>
+                              </PopoversContainer>
+                            </ThemedContextualStyleProvider>
+                          </ThemeProvider>
+                        </RolandGR55AssignsContainer>
+                      </AppNavigationContainer>
+                    </RolandRemotePatchStateContainer>
+                  </RolandRemotePatchSelectionContainer>
+                </RolandGR55RemotePatchDescriptionsContainer>
               </RolandRemoteSystemStateContainer>
             </RolandDataTransferContainer>
           </RolandIoSetupContainer>

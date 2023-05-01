@@ -1,6 +1,14 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
-import { memo, useCallback, useMemo, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   StyleSheet,
   FlatList,
@@ -14,25 +22,18 @@ import {
 import { useAnimation } from "react-native-animation-hooks";
 
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
-import {
-  AsciiStringField,
-  FieldDefinition,
-  StructDefinition,
-  getAddresses,
-  parse,
-} from "./RolandAddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
-import { RolandGR55PatchMap } from "./RolandGR55PatchMap";
+import {
+  RolandGR55PatchDescription,
+  useRolandGR55RemotePatchDescriptions,
+} from "./RolandGR55RemotePatchDescriptions";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
-import { pack7 } from "./RolandSysExProtocol";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { useTheme } from "./Theme";
 import { ThemedSearchBar } from "./ThemedSearchBar";
 import { AnimatedThemedText } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
-import { usePatchMap } from "./usePatchMap";
-import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 const ITEM_HEIGHT = 2 * 32;
 const ITEM_WIDTH = 16 * 16;
@@ -51,27 +52,29 @@ export function LibraryPatchListScreen({
     Math.floor(availableWidth / (ITEM_WIDTH + ITEM_HPADDING * 2)),
     1
   );
-  const patchMap = usePatchMap();
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
+  const { patches } = useRolandGR55RemotePatchDescriptions();
   const data = useMemo(() => {
-    const rows: RolandGR55PatchMap["patchList"][] = [];
+    const rows: RolandGR55PatchDescription[][] = [];
     const bankMsbAndPcToRowIndex: number[][] = [];
-    if (patchMap) {
-      const filteredPatchList = search
-        ? patchMap.patchList.filter((patch) => {
-            return patch.builtInName
-              ?.toLowerCase()
-              .includes(search.toLowerCase());
+    if (patches) {
+      const filteredPatchList = deferredSearch
+        ? patches.filter((patch) => {
+            return patch.data?.name
+              .toLowerCase()
+              .includes(deferredSearch.toLowerCase());
           })
-        : patchMap.patchList;
+        : patches;
       let rowIndex = 0;
       for (let i = 0; i < filteredPatchList.length; i += itemsPerRow) {
         const rowPatches = filteredPatchList.slice(i, i + itemsPerRow);
         rows.push(rowPatches);
         for (const patch of rowPatches) {
-          bankMsbAndPcToRowIndex[patch.bankMSB] =
-            bankMsbAndPcToRowIndex[patch.bankMSB] ?? [];
-          bankMsbAndPcToRowIndex[patch.bankMSB][patch.pc] = rowIndex;
+          bankMsbAndPcToRowIndex[patch.identity.bankMSB] =
+            bankMsbAndPcToRowIndex[patch.identity.bankMSB] ?? [];
+          bankMsbAndPcToRowIndex[patch.identity.bankMSB][patch.identity.pc] =
+            rowIndex;
         }
         ++rowIndex;
       }
@@ -80,7 +83,7 @@ export function LibraryPatchListScreen({
       rows,
       bankMsbAndPcToRowIndex,
     };
-  }, [itemsPerRow, patchMap, search]);
+  }, [itemsPerRow, patches, deferredSearch]);
 
   const { selectedPatch, setSelectedPatch } = useRolandRemotePatchSelection();
   const listRef = useRef<FlatList<any>>(null);
@@ -172,16 +175,27 @@ export function LibraryPatchListScreen({
     },
     []
   );
+  const handleChangeText = useCallback((value: string) => {
+    setSearch(value);
+    isPendingScroll.current = true;
+  }, []);
+  const isPendingScroll = useRef<boolean>(false);
+  useEffect(() => {
+    if (isPendingScroll.current) {
+      isPendingScroll.current = false;
+      scrollToPatch(selectedPatch);
+    }
+  }, [scrollToPatch, search, selectedPatch]);
 
-  if (!patchMap) {
+  if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   return (
     <>
       <ThemedSearchBar
-        placeholder="Search system patches..."
-        onChangeText={setSearch}
+        placeholder="Search patches..."
+        onChangeText={handleChangeText}
         value={search}
       />
       <FlatList
@@ -200,14 +214,6 @@ export function LibraryPatchListScreen({
         )}
         getItemLayout={getRowLayout}
         extraData={listExtraDeps}
-        initialNumToRender={Math.round(
-          Math.max(
-            10,
-            (layout.height || windowDimensions.height) /
-              (ITEM_HEIGHT + ITEM_VPADDING * 2)
-          )
-        )}
-        windowSize={1.6}
         // @refresh reset - FIXME: this is a workaround for a bug in react-native
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={{
@@ -232,7 +238,7 @@ const PatchRow = memo(function PatchRow({
   itemsPerRow,
   onSelectPatch,
 }: {
-  items: readonly RolandGR55PatchMap["patchList"][number][];
+  items: readonly RolandGR55PatchDescription[];
   selectedPatch:
     | {
         bankSelectMSB: number;
@@ -247,10 +253,10 @@ const PatchRow = memo(function PatchRow({
       {items.map((item) => (
         <PatchItem
           patch={item}
-          key={item.styleLabel + item.patchNumberLabel}
+          key={item.identity.styleLabel + item.identity.patchNumberLabel}
           isSelected={
-            selectedPatch?.bankSelectMSB === item.bankMSB &&
-            selectedPatch?.pc === item.pc
+            selectedPatch?.bankSelectMSB === item.identity.bankMSB &&
+            selectedPatch?.pc === item.identity.pc
           }
           onSelectPatch={onSelectPatch}
           isSingleColumn={itemsPerRow === 1}
@@ -275,14 +281,17 @@ const PatchItem = memo(function PatchItem({
   onSelectPatch,
   isSingleColumn,
 }: {
-  patch: RolandGR55PatchMap["patchList"][number];
+  patch: RolandGR55PatchDescription;
   isSelected: boolean;
   onSelectPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
   isSingleColumn: boolean;
 }) {
   const theme = useTheme();
   const handlePress = useCallback(() => {
-    onSelectPatch({ bankSelectMSB: patch.bankMSB, pc: patch.pc });
+    onSelectPatch({
+      bankSelectMSB: patch.identity.bankMSB,
+      pc: patch.identity.pc,
+    });
   }, [onSelectPatch, patch]);
   const [isPressed, setIsPressed] = useState(false);
   const handlePressIn = useCallback(() => {
@@ -302,18 +311,9 @@ const PatchItem = memo(function PatchItem({
     () => Platform.select({ ios: { opacity: touchOpacity } }),
     [touchOpacity]
   );
-  const patchName =
-    patch.userPatch != null ? (
-      <UserPatchName
-        patch={patch}
-        userPatch={patch.userPatch}
-        pressFeedbackStyle={pressFeedbackStyle}
-      />
-    ) : (
-      <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
-        {patch.builtInName}
-      </AnimatedThemedText>
-    );
+  const patchName = (
+    <PatchName patch={patch} pressFeedbackStyle={pressFeedbackStyle} />
+  );
   return (
     <View>
       <Pressable
@@ -332,7 +332,7 @@ const PatchItem = memo(function PatchItem({
           ]}
         >
           <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
-            {patch.styleLabel} {patch.patchNumberLabel}
+            {patch.identity.styleLabel} {patch.identity.patchNumberLabel}
           </AnimatedThemedText>
           {patchName}
         </Animated.View>
@@ -341,64 +341,21 @@ const PatchItem = memo(function PatchItem({
   );
 });
 
-const CompactPatchDefinition = new StructDefinition(
-  pack7(0x000000),
-  "User patch (compact)",
-  {
-    common: new StructDefinition(pack7(0x000000), "Common", {
-      patchName: new FieldDefinition(
-        pack7(0x0001),
-        "Patch Name",
-        new AsciiStringField(16)
-      ),
-    }),
-  }
-);
-
-const CompactPatchDefinitionAddresses = getAddresses(CompactPatchDefinition, 0);
-
-function UserPatchName({
+function PatchName({
   patch,
-  userPatch,
   pressFeedbackStyle,
 }: {
-  patch: RolandGR55PatchMap["patchList"][number];
-  userPatch: NonNullable<RolandGR55PatchMap["patchList"][number]["userPatch"]>;
+  patch: RolandGR55PatchDescription;
   pressFeedbackStyle: React.ComponentProps<(typeof Animated)["Text"]>["style"];
 }) {
-  const isFocused = useIsFocused();
-  const { pageData, pageReadStatus } = useRolandRemotePageState(
-    useMemo(
-      () =>
-        isFocused
-          ? {
-              address: userPatch.baseAddress,
-              definition: CompactPatchDefinition,
-            }
-          : // TODO: This hack cancels the request when the screen is not focused
-            // but also forces a refetch every time we return to the screen.
-            // Need to hoist the data fetching to a higher level so we can
-            // do this a bit more elegantly.
-            undefined,
-      [isFocused, userPatch.baseAddress]
-    )
-  );
-  if (pageData) {
-    const [patchName] = parse(
-      pageData[
-        userPatch.baseAddress +
-          CompactPatchDefinitionAddresses.common.patchName.address
-      ],
-      CompactPatchDefinitionAddresses.common.patchName.definition,
-      0
-    );
+  if (patch.data) {
     return (
       <AnimatedThemedText style={[styles.itemText, pressFeedbackStyle]}>
-        {patchName.value}
+        {patch.data.name}
       </AnimatedThemedText>
     );
   }
-  if (pageReadStatus === "pending") {
+  if (patch.status === "pending") {
     return <PendingTextPlaceholder chars={16} textStyle={styles.itemText} />;
   }
   return null;
