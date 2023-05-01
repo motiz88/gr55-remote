@@ -193,6 +193,10 @@ export function LibraryPatchListScreen({
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
+  // TODO: add a "no results" view
+  // TODO: add a refresh control
+  // TODO: indicate whether the search function is ready (e.g. if the patches are still loading)
+
   return (
     <>
       <ThemedSearchBar
