@@ -226,6 +226,8 @@ export function LibraryPatchListScreen({
         viewabilityConfig={{
           itemVisiblePercentThreshold: 100,
         }}
+        // The keyboard will not dismiss automatically, and the scroll view will not catch taps, but children of the scroll view can catch taps.
+        keyboardShouldPersistTaps="handled"
       />
     );
   }
