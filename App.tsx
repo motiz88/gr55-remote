@@ -38,7 +38,10 @@ import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
-import { useRolandDataTransfer } from "./useRolandDataTransfer";
+import {
+  useFocusQueryPriority,
+  useRolandDataTransfer,
+} from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
@@ -224,6 +227,7 @@ function PatchDrawerContent(
 }
 
 function PatchDrawerNavigator() {
+  useFocusQueryPriority("read_patch_details");
   return (
     <PatchDrawer.Navigator drawerContent={PatchDrawerContent} id="PatchDrawer">
       <PatchDrawer.Screen

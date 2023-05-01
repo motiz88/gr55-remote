@@ -13,7 +13,8 @@ export const RolandDataTransferContext = React.createContext<{
     | (<T extends AtomDefinition>(
         block: T,
         baseAddress?: number,
-        signal?: AbortSignal
+        signal?: AbortSignal,
+        queueID?: string
       ) => Promise<RawDataBag>);
   setField:
     | undefined
@@ -21,7 +22,11 @@ export const RolandDataTransferContext = React.createContext<{
         field: AtomReference<T>,
         newValue: Uint8Array | ReturnType<T["type"]["decode"]>
       ) => void);
+  registerQueueAsPriority: (queueID: string) => void;
+  unregisterQueueAsPriority: (queueID: string) => void;
 }>({
   requestData: undefined,
   setField: undefined,
+  registerQueueAsPriority: () => {},
+  unregisterQueueAsPriority: () => {},
 });

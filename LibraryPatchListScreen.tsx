@@ -34,6 +34,7 @@ import { ThemedSearchBar } from "./ThemedSearchBar";
 import { AnimatedThemedText } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
+import { useFocusQueryPriority } from "./useRolandDataTransfer";
 
 const ITEM_HEIGHT = 2 * 32;
 const ITEM_WIDTH = 16 * 16;
@@ -186,6 +187,7 @@ export function LibraryPatchListScreen({
       scrollToPatch(selectedPatch);
     }
   }, [scrollToPatch, search, selectedPatch]);
+  useFocusQueryPriority("read_patch_list");
 
   if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;

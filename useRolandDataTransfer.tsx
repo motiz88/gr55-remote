@@ -1,8 +1,9 @@
 import { MIDIMessageEvent } from "@motiz88/react-native-midi";
-import pLimit from "p-limit";
-import { useContext, useEffect, useMemo, useRef } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 
 import { MidiIoContext } from "./MidiIoContext";
+import { MultiQueueScheduler } from "./MultiQueueScheduler";
 import {
   AtomDefinition,
   FieldDefinition,
@@ -10,6 +11,7 @@ import {
   fetchAndTokenize,
   RawDataBag,
 } from "./RolandAddressMap";
+import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
@@ -34,12 +36,47 @@ type PendingFetch = {
   bytesReceived: number;
 };
 
-const globalQueue = pLimit(1);
-
 export function useRolandDataTransfer() {
   const { outputPort, inputPort } = useContext(MidiIoContext);
   const { selectedDevice, selectedDeviceKey } =
     useContext(RolandIoSetupContext);
+  const refCountByQueueId = useRef(new Map<string, number>());
+  const scheduler = useRef<MultiQueueScheduler<string>>();
+  if (!scheduler.current) {
+    scheduler.current = new MultiQueueScheduler([
+      "write_utmost",
+      "read_utmost",
+      "read_default",
+    ]);
+  }
+  const updateSchedulerPriorities = useCallback(() => {
+    scheduler.current!.setPriorityOrder([
+      "write_utmost",
+      "read_utmost",
+      ...refCountByQueueId.current.keys(),
+      "read_default",
+    ]);
+  }, []);
+  const registerQueueAsPriority = useCallback(
+    (queueId: string) => {
+      const refCount = refCountByQueueId.current.get(queueId) ?? 0;
+      refCountByQueueId.current.set(queueId, refCount + 1);
+      updateSchedulerPriorities();
+    },
+    [updateSchedulerPriorities]
+  );
+  const unregisterQueueAsPriority = useCallback(
+    (queueId: string) => {
+      const refCount = refCountByQueueId.current.get(queueId) ?? 0;
+      if (refCount <= 1) {
+        refCountByQueueId.current.delete(queueId);
+        updateSchedulerPriorities();
+      } else {
+        refCountByQueueId.current.set(queueId, refCount - 1);
+      }
+    },
+    [updateSchedulerPriorities]
+  );
   const pendingFetches = useRef(new Set<PendingFetch>());
   const sysExConfig = selectedDevice?.sysExConfig ?? RolandGR55SysExConfig;
   const deviceId = selectedDevice?.identity.deviceId;
@@ -96,7 +133,12 @@ export function useRolandDataTransfer() {
 
   return useMemo(() => {
     if (!outputPort || !inputPort || !selectedDevice) {
-      return { requestData: undefined, setField: undefined };
+      return {
+        requestData: undefined,
+        setField: undefined,
+        registerQueueAsPriority,
+        unregisterQueueAsPriority,
+      };
     }
     const myOutputPort = outputPort;
     const fetchContiguous = (
@@ -135,11 +177,11 @@ export function useRolandDataTransfer() {
       });
     };
 
-    // TODO: abort requests so rapid patch changes don't cause a backlog
     async function requestData<T extends AtomDefinition>(
       definition: T,
       baseAddress: number = 0,
-      signal?: AbortSignal
+      signal?: AbortSignal,
+      queueID: string = "read_default"
     ): Promise<RawDataBag> {
       let lastQueueStartTimestamp = performance.now();
       let totalQueueTime = 0,
@@ -149,7 +191,7 @@ export function useRolandDataTransfer() {
         atomCount = 0;
       try {
         return await fetchAndTokenize(definition, baseAddress, (...args) =>
-          globalQueue(async () => {
+          scheduler.current!.enqueue(async () => {
             if (signal?.aborted) {
               throw new Error("Aborted");
             }
@@ -170,7 +212,7 @@ export function useRolandDataTransfer() {
             lastQueueStartTimestamp = performance.now();
             atomCount += Object.keys(result).length;
             return result;
-          })
+          }, queueID)
         );
       } finally {
         if (enableExperimentalFeatures) {
@@ -215,23 +257,56 @@ export function useRolandDataTransfer() {
         field.address,
         valueBytes
       );
-      globalQueue(async () => {
+      scheduler.current!.enqueue(async () => {
         myOutputPort.send(data);
         await delay(GAP_BETWEEN_MESSAGES_MS);
-      });
+      }, "write_utmost");
     }
-    return { requestData, setField };
+    return {
+      requestData,
+      setField,
+      registerQueueAsPriority,
+      unregisterQueueAsPriority,
+    };
   }, [
+    outputPort,
     inputPort,
     selectedDevice,
+    registerQueueAsPriority,
+    unregisterQueueAsPriority,
     selectedDeviceKey,
-    outputPort,
-    deviceId,
     sysExConfig,
+    deviceId,
     enableExperimentalFeatures,
   ]);
 }
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function useQueryPriority(queueID: string): void {
+  const { registerQueueAsPriority, unregisterQueueAsPriority } = useContext(
+    RolandDataTransferContext
+  );
+  useEffect(() => {
+    registerQueueAsPriority(queueID);
+    return () => {
+      unregisterQueueAsPriority(queueID);
+    };
+  }, [queueID, registerQueueAsPriority, unregisterQueueAsPriority]);
+}
+
+export function useFocusQueryPriority(queueID: string): void {
+  const { registerQueueAsPriority, unregisterQueueAsPriority } = useContext(
+    RolandDataTransferContext
+  );
+  useFocusEffect(
+    useCallback(() => {
+      registerQueueAsPriority(queueID);
+      return () => {
+        unregisterQueueAsPriority(queueID);
+      };
+    }, [queueID, registerQueueAsPriority, unregisterQueueAsPriority])
+  );
 }

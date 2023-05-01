@@ -76,7 +76,8 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
               const compactPatchData = await requestData(
                 CompactPatchDefinition,
                 userPatch.baseAddress,
-                signal
+                signal,
+                "read_patch_list"
               );
               const [patchName] = parse(
                 compactPatchData[

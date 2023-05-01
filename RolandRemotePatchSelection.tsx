@@ -57,7 +57,8 @@ export function RolandRemotePatchSelectionContainer({
         const setupData = await requestData(
           addressMap.setup.definition,
           addressMap.setup.address,
-          signal
+          signal,
+          "read_utmost"
         );
 
         const [parsedBsMsb] = parse(

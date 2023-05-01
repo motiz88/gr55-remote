@@ -11,7 +11,10 @@ import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import useCancellablePromise from "./useCancellablePromise";
 
-export function useRolandRemotePageState(page: AtomReference | void) {
+export function useRolandRemotePageState(
+  page: AtomReference | void,
+  queueID: string = "read_default"
+) {
   const { selectedDeviceKey } = useContext(RolandIoSetupContext);
   const { requestData, setField } = useContext(RolandDataTransferContext);
 
@@ -35,7 +38,8 @@ export function useRolandRemotePageState(page: AtomReference | void) {
         const remoteData = await requestData(
           page.definition,
           page.address,
-          signal
+          signal,
+          queueID
         );
         const oldLocalOverrides = localOverrides.current;
         localOverrides.current = {};
@@ -47,7 +51,7 @@ export function useRolandRemotePageState(page: AtomReference | void) {
         }
         return remoteData;
       },
-      [selectedDeviceKey, invalidationCount, requestData, page]
+      [selectedDeviceKey, invalidationCount, requestData, page, queueID]
     )
   );
 
