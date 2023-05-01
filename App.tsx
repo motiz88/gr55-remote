@@ -1,3 +1,5 @@
+// TODO: Configure this as a polyfill in Metro?
+import "setimmediate";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
