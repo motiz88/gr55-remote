@@ -21,6 +21,7 @@ import {
 } from "react-native";
 import { useAnimation } from "react-native-animation-hooks";
 
+import { LibraryPatchListNoResultsView } from "./LibraryPatchListNoResultsView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import {
@@ -206,17 +207,15 @@ export function LibraryPatchListScreen({
   if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
-
-  // TODO: add a "no results" view
-
-  return (
-    <>
-      <ThemedSearchBar
-        placeholder="Search patches..."
-        onChangeText={handleChangeText}
-        value={search}
-        showLoading={anyPatchesPending || deferredSearch !== search}
-      />
+  let content;
+  if (
+    search !== "" &&
+    !(anyPatchesPending || deferredSearch !== search) &&
+    !data.rows.length
+  ) {
+    content = <LibraryPatchListNoResultsView />;
+  } else {
+    content = (
       <FlatList
         ref={listRef}
         onLayout={onLayout}
@@ -241,6 +240,17 @@ export function LibraryPatchListScreen({
         refreshing={didRefresh}
         onRefresh={handleRefresh}
       />
+    );
+  }
+  return (
+    <>
+      <ThemedSearchBar
+        placeholder="Search patches..."
+        onChangeText={handleChangeText}
+        value={search}
+        showLoading={anyPatchesPending || deferredSearch !== search}
+      />
+      {content}
     </>
   );
 }
