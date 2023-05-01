@@ -188,14 +188,16 @@ export function LibraryPatchListScreen({
     }
   }, [scrollToPatch, search, selectedPatch]);
   useFocusQueryPriority("read_patch_list");
-
+  const anyPatchesPending = useMemo(
+    () => patches?.some((patch) => patch.status === "pending") ?? false,
+    [patches]
+  );
   if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
 
   // TODO: add a "no results" view
   // TODO: add a refresh control
-  // TODO: indicate whether the search function is ready (e.g. if the patches are still loading)
 
   return (
     <>
@@ -203,6 +205,7 @@ export function LibraryPatchListScreen({
         placeholder="Search patches..."
         onChangeText={handleChangeText}
         value={search}
+        showLoading={anyPatchesPending || deferredSearch !== search}
       />
       <FlatList
         ref={listRef}
