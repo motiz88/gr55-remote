@@ -1,3 +1,5 @@
+// TODO: Configure this as a polyfill in Metro?
+import "setimmediate";
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
@@ -9,6 +11,7 @@ import {
 } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
+import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
@@ -25,6 +28,7 @@ import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
+import { RolandGR55RemotePatchDescriptionsContainer } from "./RolandGR55RemotePatchDescriptions";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
   RolandRemotePatchContext,
@@ -36,7 +40,10 @@ import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
-import { useRolandDataTransfer } from "./useRolandDataTransfer";
+import {
+  useFocusQueryPriority,
+  useRolandDataTransfer,
+} from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
@@ -113,21 +120,37 @@ export default function App() {
           <RolandIoSetupContainer>
             <RolandDataTransferContainer>
               <RolandRemoteSystemStateContainer>
-                <RolandRemotePatchSelectionContainer>
-                  <RolandRemotePatchStateContainer>
-                    <AppNavigationContainer>
-                      <RolandGR55AssignsContainer>
-                        <ThemeProvider>
-                          <ThemedContextualStyleProvider>
-                            <PopoversContainer>
-                              <RootTabNavigator />
-                            </PopoversContainer>
-                          </ThemedContextualStyleProvider>
-                        </ThemeProvider>
-                      </RolandGR55AssignsContainer>
-                    </AppNavigationContainer>
-                  </RolandRemotePatchStateContainer>
-                </RolandRemotePatchSelectionContainer>
+                <RolandGR55RemotePatchDescriptionsContainer>
+                  <RolandRemotePatchSelectionContainer>
+                    <RolandRemotePatchStateContainer>
+                      <AppNavigationContainer>
+                        <RolandGR55AssignsContainer>
+                          <ThemeProvider>
+                            <ThemedContextualStyleProvider>
+                              <PopoversContainer>
+                                <KeyboardAvoidingView
+                                  behavior={
+                                    Platform.OS === "ios"
+                                      ? "padding"
+                                      : undefined
+                                  }
+                                  enabled={
+                                    // On Android we rely on android:windowSoftInputMode="resize".
+                                    // On web we currently let things render under the keyboard.
+                                    Platform.OS === "ios"
+                                  }
+                                  style={styles.keyboardAvoidingView}
+                                >
+                                  <RootTabNavigator />
+                                </KeyboardAvoidingView>
+                              </PopoversContainer>
+                            </ThemedContextualStyleProvider>
+                          </ThemeProvider>
+                        </RolandGR55AssignsContainer>
+                      </AppNavigationContainer>
+                    </RolandRemotePatchStateContainer>
+                  </RolandRemotePatchSelectionContainer>
+                </RolandGR55RemotePatchDescriptionsContainer>
               </RolandRemoteSystemStateContainer>
             </RolandDataTransferContainer>
           </RolandIoSetupContainer>
@@ -206,6 +229,7 @@ function PatchDrawerContent(
 }
 
 function PatchDrawerNavigator() {
+  useFocusQueryPriority("read_patch_details");
   return (
     <PatchDrawer.Navigator drawerContent={PatchDrawerContent} id="PatchDrawer">
       <PatchDrawer.Screen
@@ -218,12 +242,13 @@ function PatchDrawerNavigator() {
 }
 
 function RootTabNavigator() {
-  const EXPERIMENTAL_ROUTES = ["LibraryPatchList"];
+  const EXPERIMENTAL_ROUTES: (keyof RootTabParamList)[] = [];
   const [{ enableExperimentalFeatures }] = useUserOptions();
   return (
     <RootTab.Navigator
       id="RootTab"
       screenOptions={({ route }) => ({
+        tabBarHideOnKeyboard: true,
         tabBarButton:
           !enableExperimentalFeatures &&
           EXPERIMENTAL_ROUTES.includes(route.name)
@@ -248,7 +273,7 @@ function RootTabNavigator() {
         name="LibraryPatchList"
         component={LibraryPatchListScreen}
         options={{
-          title: "Library 🧪",
+          title: "Library",
           tabBarIcon: ({ color }) => (
             <Ionicons name="library" size={24} color={color} />
           ),
@@ -300,3 +325,9 @@ function PatchStackNavigator() {
     </PatchStack.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+});

@@ -114,7 +114,7 @@ function buildPatchMap(guitarBassSelect: "GUITAR" | "BASS") {
             "CTL=DLY/EXP=WAH",
             "More Blacklord",
             "Pdl Bend Guitar",
-            "POLY DISTOTION",
+            "POLY DISTORTION",
             "NaturalResoLead",
             "Organ Syn Lead",
             "Crims-O-Tron",

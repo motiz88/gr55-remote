@@ -10,7 +10,10 @@ export function useRolandRemotePatchState() {
   const sysExConfig = selectedDevice?.sysExConfig ?? RolandGR55SysExConfig;
   const addressMap = sysExConfig.addressMap;
 
-  const remotePageState = useRolandRemotePageState(addressMap?.temporaryPatch);
+  const remotePageState = useRolandRemotePageState(
+    addressMap?.temporaryPatch,
+    "read_patch_details"
+  );
 
   const { selectedPatch } = useRolandRemotePatchSelection();
   const previousPatch = usePrevious(selectedPatch);

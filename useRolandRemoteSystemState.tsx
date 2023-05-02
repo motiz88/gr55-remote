@@ -9,5 +9,5 @@ export function useRolandRemoteSystemState() {
   const sysExConfig = selectedDevice?.sysExConfig ?? RolandGR55SysExConfig;
   const addressMap = sysExConfig.addressMap;
 
-  return useRolandRemotePageState(addressMap?.system);
+  return useRolandRemotePageState(addressMap?.system, "read_utmost");
 }
