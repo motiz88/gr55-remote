@@ -242,7 +242,7 @@ function PatchDrawerNavigator() {
 }
 
 function RootTabNavigator() {
-  const EXPERIMENTAL_ROUTES = ["LibraryPatchList"];
+  const EXPERIMENTAL_ROUTES: (keyof RootTabParamList)[] = [];
   const [{ enableExperimentalFeatures }] = useUserOptions();
   return (
     <RootTab.Navigator
@@ -273,7 +273,7 @@ function RootTabNavigator() {
         name="LibraryPatchList"
         component={LibraryPatchListScreen}
         options={{
-          title: "Library 🧪",
+          title: "Library",
           tabBarIcon: ({ color }) => (
             <Ionicons name="library" size={24} color={color} />
           ),
