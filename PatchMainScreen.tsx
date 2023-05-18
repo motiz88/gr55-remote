@@ -10,6 +10,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import { PatchNameHeaderButton } from "./PatchNameHeaderButton";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { usePopovers } from "./Popovers";
@@ -47,12 +48,30 @@ export function PatchMainScreen({
   "RootTab" | "PatchDrawer" | "PatchStack"
 >) {
   const { selectedDevice } = useContext(RolandIoSetupContext);
-  const [patchName, , patchNameStatus] = useRemoteField(
+  const [patchName, setPatchName, patchNameStatus] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.common.patchName
   );
   const theme = useNavigationTheme();
+
   useEffect(() => {
+    const renderHeaderTitle = ({
+      children,
+      tintColor,
+    }: {
+      children: React.ReactNode;
+      tintColor?: string | undefined;
+    }) => {
+      return (
+        <PatchNameHeaderButton
+          tintColor={tintColor}
+          patchName={patchName}
+          setPatchName={setPatchName}
+        >
+          {children}
+        </PatchNameHeaderButton>
+      );
+    };
     // TODO: Refactor to avoid duplication with all the other screens
     if (patchNameStatus === "pending") {
       navigation.setOptions({
@@ -61,9 +80,15 @@ export function PatchMainScreen({
         },
       });
     } else if (selectedDevice && patchName) {
-      navigation.setOptions({ headerTitle: undefined, title: patchName });
+      navigation.setOptions({
+        headerTitle: renderHeaderTitle,
+        title: patchName,
+      });
     } else {
-      navigation.setOptions({ headerTitle: undefined, title: "GR-55 Editor" });
+      navigation.setOptions({
+        headerTitle: renderHeaderTitle,
+        title: "GR-55 Editor",
+      });
     }
     navigation.setOptions({
       headerLeft: () =>
@@ -77,7 +102,14 @@ export function PatchMainScreen({
           />
         ),
     });
-  }, [navigation, patchName, patchNameStatus, selectedDevice, theme.colors]);
+  }, [
+    navigation,
+    patchName,
+    patchNameStatus,
+    selectedDevice,
+    setPatchName,
+    theme.colors,
+  ]);
 
   // TODO: Also reload SYSTEM page on manual refresh
   const { reloadData } = useContext(PATCH);
