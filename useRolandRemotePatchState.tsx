@@ -1,5 +1,13 @@
-import { useContext, useEffect, useRef } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
+import { AtomReference, FieldDefinition } from "./RolandAddressMap";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
@@ -29,7 +37,31 @@ export function useRolandRemotePatchState() {
     }
   }, [selectedPatch, previousPatch, remotePageState]);
 
-  return remotePageState;
+  // NOTE: This bit is intentionally not cleared on reloads. Reloads only sync with the
+  // temporary patch storage, but we want to keep track of whether the user has made
+  // changes that need to be saved from the temporary patch to permanent storage.
+  const [isModifiedSinceSave, setModifiedSinceSave] = useState(false);
+
+  const setRemoteField = useCallback(
+    <T extends FieldDefinition<any>>(
+      field: AtomReference<T>,
+      value: Uint8Array | ReturnType<T["type"]["decode"]>
+    ) => {
+      setModifiedSinceSave(true);
+      remotePageState.setRemoteField(field, value);
+    },
+    [remotePageState]
+  );
+
+  return useMemo(
+    () => ({
+      ...remotePageState,
+      setRemoteField,
+      isModifiedSinceSave,
+      setModifiedSinceSave,
+    }),
+    [isModifiedSinceSave, remotePageState, setRemoteField]
+  );
 }
 
 function usePrevious<T>(value: T): T | undefined {

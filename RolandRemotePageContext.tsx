@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { AtomReference, FieldDefinition, RawDataBag } from "./RolandAddressMap";
 
-type RolandRemotePageState = {
+export type RolandRemotePageState = {
   pageData: undefined | RawDataBag;
   pageReadError: undefined | Error;
   pageReadStatus: undefined | "pending" | "resolved" | "rejected";
@@ -22,6 +22,11 @@ type RolandRemotePageState = {
   ) => () => void;
 };
 
+type RolandRemotePatchState = RolandRemotePageState & {
+  isModifiedSinceSave: boolean;
+  setModifiedSinceSave: (value: boolean) => void;
+};
+
 const rolandRemotePageEmptyState = {
   pageData: undefined,
   pageReadError: undefined,
@@ -33,8 +38,14 @@ const rolandRemotePageEmptyState = {
   subscribeToField: () => () => {},
 };
 
+const rolandRemotePatchEmptyState = {
+  ...rolandRemotePageEmptyState,
+  isModifiedSinceSave: false,
+  setModifiedSinceSave: () => {},
+};
+
 export const RolandRemotePatchContext =
-  React.createContext<RolandRemotePageState>(rolandRemotePageEmptyState);
+  React.createContext<RolandRemotePatchState>(rolandRemotePatchEmptyState);
 
 export const RolandRemoteSystemContext =
   React.createContext<RolandRemotePageState>(rolandRemotePageEmptyState);
