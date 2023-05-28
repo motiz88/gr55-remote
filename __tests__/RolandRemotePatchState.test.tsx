@@ -11,6 +11,7 @@ import {
   RawDataBag,
   StructDefinition,
   tokenize,
+  UByteField,
 } from "../RolandAddressMap";
 import { RolandDataTransferContext } from "../RolandDataTransfer";
 import { RolandIoSetupContext } from "../RolandIoSetup";
@@ -110,6 +111,8 @@ function MockRolandDataTransferContainer({
     () => ({
       requestData,
       setField,
+      registerQueueAsPriority() {},
+      unregisterQueueAsPriority() {},
     }),
     [requestData, setField]
   );
@@ -125,6 +128,14 @@ export const mockAddressMap = new StructDefinition(0, "Mock Address Map", {
     field1: new FieldDefinition(0, "Field 1", new AsciiStringField(16)),
   }),
   system: new StructDefinition(2000, "System", {}),
+  setup: new StructDefinition(3000, "Setup", {
+    patchBsMsb: new FieldDefinition(
+      0,
+      "Patch BS MSB (CC #0)",
+      new UByteField(0, 127)
+    ),
+    patchPc: new FieldDefinition(1, "Patch PC (PC)", new UByteField(0, 127)),
+  }),
 });
 
 export const mockAddressMapAbsolute = getAddresses(mockAddressMap, 0);
