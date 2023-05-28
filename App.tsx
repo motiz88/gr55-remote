@@ -84,9 +84,9 @@ export default function App() {
           <RolandIoSetupContainer>
             <RolandDataTransferContainer>
               <RolandRemoteSystemStateContainer>
-                <RolandGR55RemotePatchDescriptionsContainer>
-                  <RolandRemotePatchSelectionContainer>
-                    <RolandRemotePatchStateContainer>
+                <RolandRemotePatchSelectionContainer>
+                  <RolandRemotePatchStateContainer>
+                    <RolandGR55RemotePatchDescriptionsContainer>
                       <AppNavigationContainer>
                         <RolandGR55AssignsContainer>
                           <ThemeProvider>
@@ -112,9 +112,9 @@ export default function App() {
                           </ThemeProvider>
                         </RolandGR55AssignsContainer>
                       </AppNavigationContainer>
-                    </RolandRemotePatchStateContainer>
-                  </RolandRemotePatchSelectionContainer>
-                </RolandGR55RemotePatchDescriptionsContainer>
+                    </RolandGR55RemotePatchDescriptionsContainer>
+                  </RolandRemotePatchStateContainer>
+                </RolandRemotePatchSelectionContainer>
               </RolandRemoteSystemStateContainer>
             </RolandDataTransferContainer>
           </RolandIoSetupContainer>

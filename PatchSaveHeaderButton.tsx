@@ -38,7 +38,6 @@ export function PatchSaveHeaderButton({
     // TODO: Let user select destination patch
     const patch = userPatchNumber;
     await saveAndSelectUserPatch(patch);
-    // TODO: Invalidate the cached patch description for the destination patch
 
     // Notes on how the GR-55 handles this command:
     // 1. The GR-55 will send a patch change message when the patch is saved, *before* sending the
