@@ -34,6 +34,10 @@ export function useRolandRemotePatchState() {
       previousPatch?.pc !== selectedPatch.pc
     ) {
       remotePageState.reloadData();
+      // Strictly speaking there is a race condition here, but we block the user
+      // from editing the patch while a reload is in progress, so we can clear this
+      // flag early with no ill effects.
+      setModifiedSinceSave(false);
     }
   }, [selectedPatch, previousPatch, remotePageState]);
 

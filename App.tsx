@@ -24,6 +24,7 @@ import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
 import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
+import { PatchSaveHeaderButton } from "./PatchSaveHeaderButton";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
@@ -306,6 +307,11 @@ function PatchStackNavigator() {
         blur: () => {
           closeAllPopovers();
         },
+      }}
+      screenOptions={{
+        headerRight: ({ tintColor }) => (
+          <PatchSaveHeaderButton tintColor={tintColor} />
+        ),
       }}
     >
       <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
