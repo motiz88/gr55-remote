@@ -2,7 +2,7 @@ import type { MIDIMessageEvent } from "@motiz88/react-native-midi";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { useStateWithStoredDefault } from "./AsyncStorageUtils";
-import { MidiIoContext } from "./MidiIoContext";
+import { MidiIoContext } from "./MidiIo";
 import { AllSysExConfigs, RolandGR55SysExConfig } from "./RolandDevices";
 import { DeviceDescriptor } from "./RolandIoSetupContext";
 import * as RolandSysExProtocol from "./RolandSysExProtocol";

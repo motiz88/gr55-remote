@@ -1,7 +1,7 @@
 import { useCallback, useContext } from "react";
 import { StyleSheet, Switch } from "react-native";
 
-import { MidiIoSetupContext } from "./MidiIoSetupContext";
+import { MidiIoSetupContext } from "./MidiIo";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";

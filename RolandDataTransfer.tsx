@@ -9,7 +9,7 @@ import {
   useRef,
 } from "react";
 
-import { MidiIoContext } from "./MidiIoContext";
+import { MidiIoContext } from "./MidiIo";
 import { MultiQueueScheduler } from "./MultiQueueScheduler";
 import {
   AtomDefinition,

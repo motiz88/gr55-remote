@@ -17,8 +17,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigationContainer from "./AppNavigationContainer";
 import { IoSetupScreen } from "./IoSetupScreen";
 import { LibraryPatchListScreen } from "./LibraryPatchListScreen";
-import { MidiIoContext } from "./MidiIoContext";
-import { MidiIoSetupContext } from "./MidiIoSetupContext";
+import { MidiIoSetupContainer } from "./MidiIo";
 import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
@@ -43,7 +42,6 @@ import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
-import { useMidiIoSetup } from "./useMidiIoSetup";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
@@ -52,17 +50,6 @@ const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
 const PatchDrawer = createDrawerNavigator();
 const RootTab = createBottomTabNavigator<RootTabParamList>();
-
-function MidiIoSetupContainer({ children }: { children?: React.ReactNode }) {
-  const midiIoSetupState = useMidiIoSetup();
-  return (
-    <MidiIoSetupContext.Provider value={midiIoSetupState}>
-      <MidiIoContext.Provider value={midiIoSetupState.midiIoContext}>
-        {children}
-      </MidiIoContext.Provider>
-    </MidiIoSetupContext.Provider>
-  );
-}
 
 function RolandIoSetupContainer({ children }: { children?: React.ReactNode }) {
   const rolandIoSetupState = useRolandIoSetup();

@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import { MidiIoContext } from "./MidiIoContext";
+import { MidiIoContext } from "./MidiIo";
 import { parse } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
