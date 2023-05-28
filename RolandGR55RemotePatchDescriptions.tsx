@@ -13,7 +13,7 @@ import {
   getAddresses,
   parse,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { pack7 } from "./RolandSysExProtocol";
 import useCancellablePromise from "./useCancellablePromise";
 import { usePatchMap } from "./usePatchMap";

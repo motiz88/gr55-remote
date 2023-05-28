@@ -12,7 +12,7 @@ import {
   StructDefinition,
   tokenize,
 } from "../RolandAddressMap";
-import { RolandDataTransferContext } from "../RolandDataTransferContext";
+import { RolandDataTransferContext } from "../RolandDataTransfer";
 import { RolandIoSetupContext } from "../RolandIoSetupContext";
 import { RolandRemotePatchContext } from "../RolandRemotePageContext";
 import { useRemoteField } from "../useRemoteField";

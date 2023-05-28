@@ -7,7 +7,7 @@ import {
   FieldType,
   RawDataBag,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import useCancellablePromise from "./useCancellablePromise";
 

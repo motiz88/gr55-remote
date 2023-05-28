@@ -1,6 +1,13 @@
 import { MIDIMessageEvent } from "@motiz88/react-native-midi";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 
 import { MidiIoContext } from "./MidiIoContext";
 import { MultiQueueScheduler } from "./MultiQueueScheduler";
@@ -11,7 +18,6 @@ import {
   fetchAndTokenize,
   RawDataBag,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import {
@@ -36,7 +42,7 @@ type PendingFetch = {
   bytesReceived: number;
 };
 
-export function useRolandDataTransfer() {
+function useRolandDataTransferImpl() {
   const { outputPort, inputPort } = useContext(MidiIoContext);
   const { selectedDevice, selectedDeviceKey } =
     useContext(RolandIoSetupContext);
@@ -308,5 +314,42 @@ export function useFocusQueryPriority(queueID: string): void {
         unregisterQueueAsPriority(queueID);
       };
     }, [queueID, registerQueueAsPriority, unregisterQueueAsPriority])
+  );
+}
+
+export const RolandDataTransferContext = createContext<{
+  requestData:
+    | undefined
+    | (<T extends AtomDefinition>(
+        block: T,
+        baseAddress?: number,
+        signal?: AbortSignal,
+        queueID?: string
+      ) => Promise<RawDataBag>);
+  setField:
+    | undefined
+    | (<T extends FieldDefinition<any>>(
+        field: AtomReference<T>,
+        newValue: Uint8Array | ReturnType<T["type"]["decode"]>
+      ) => void);
+  registerQueueAsPriority: (queueID: string) => void;
+  unregisterQueueAsPriority: (queueID: string) => void;
+}>({
+  requestData: undefined,
+  setField: undefined,
+  registerQueueAsPriority: () => {},
+  unregisterQueueAsPriority: () => {},
+});
+
+export function RolandDataTransferContainer({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const rolandDataTransfer = useRolandDataTransferImpl();
+  return (
+    <RolandDataTransferContext.Provider value={rolandDataTransfer}>
+      {children}
+    </RolandDataTransferContext.Provider>
   );
 }

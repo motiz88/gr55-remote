@@ -23,6 +23,7 @@ import { useAnimation } from "react-native-animation-hooks";
 
 import { LibraryPatchListNoResultsView } from "./LibraryPatchListNoResultsView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
+import { useFocusQueryPriority } from "./RolandDataTransfer";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import {
   RolandGR55PatchDescription,
@@ -35,7 +36,6 @@ import { ThemedSearchBar } from "./ThemedSearchBar";
 import { AnimatedThemedText } from "./ThemedText";
 import { RootTabParamList } from "./navigation";
 import { useLayout } from "./useLayout";
-import { useFocusQueryPriority } from "./useRolandDataTransfer";
 
 const ITEM_HEIGHT = 2 * 32;
 const ITEM_WIDTH = 16 * 16;

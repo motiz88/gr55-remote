@@ -27,7 +27,10 @@ import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
 import { PatchSaveHeaderButton } from "./PatchSaveHeaderButton";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import {
+  useFocusQueryPriority,
+  RolandDataTransferContainer,
+} from "./RolandDataTransfer";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandGR55RemotePatchDescriptionsContainer } from "./RolandGR55RemotePatchDescriptions";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
@@ -41,10 +44,6 @@ import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
 import { useMidiIoSetup } from "./useMidiIoSetup";
-import {
-  useFocusQueryPriority,
-  useRolandDataTransfer,
-} from "./useRolandDataTransfer";
 import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
@@ -97,19 +96,6 @@ function RolandRemoteSystemStateContainer({
     <RolandRemoteSystemContext.Provider value={rolandRemoteSystemState}>
       {children}
     </RolandRemoteSystemContext.Provider>
-  );
-}
-
-function RolandDataTransferContainer({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
-  const rolandDataTransfer = useRolandDataTransfer();
-  return (
-    <RolandDataTransferContext.Provider value={rolandDataTransfer}>
-      {children}
-    </RolandDataTransferContext.Provider>
   );
 }
 

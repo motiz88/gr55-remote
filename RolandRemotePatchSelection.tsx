@@ -11,7 +11,7 @@ import {
 
 import { MidiIoContext } from "./MidiIoContext";
 import { parse } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import useCancellablePromise from "./useCancellablePromise";
