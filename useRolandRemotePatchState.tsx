@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { AtomReference, FieldDefinition } from "./RolandAddressMap";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetup";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
@@ -22,6 +23,7 @@ export function useRolandRemotePatchState() {
     addressMap?.temporaryPatch,
     "read_patch_details"
   );
+  const rolandDataTransfer = useContext(RolandDataTransferContext);
 
   const { selectedPatch } = useRolandRemotePatchSelection();
   const previousPatch = usePrevious(selectedPatch);
@@ -57,14 +59,34 @@ export function useRolandRemotePatchState() {
     [remotePageState]
   );
 
+  const saveAndSelectUserPatch = useCallback(
+    async (userPatchNumber: number) => {
+      if (sysExConfig.commands?.saveAndSelectUserPatch) {
+        setModifiedSinceSave(false);
+        await sysExConfig.commands?.saveAndSelectUserPatch?.(
+          userPatchNumber,
+          rolandDataTransfer
+        );
+      }
+      // TODO: Fallback to using raw data transfer if no canned command is available.
+    },
+    [rolandDataTransfer, sysExConfig.commands]
+  );
+
   return useMemo(
     () => ({
       ...remotePageState,
       setRemoteField,
       isModifiedSinceSave,
       setModifiedSinceSave,
+      saveAndSelectUserPatch,
     }),
-    [isModifiedSinceSave, remotePageState, setRemoteField]
+    [
+      isModifiedSinceSave,
+      remotePageState,
+      setRemoteField,
+      saveAndSelectUserPatch,
+    ]
   );
 }
 

@@ -3,10 +3,8 @@ import { Button } from "@rneui/themed";
 import { useContext, useCallback, useMemo } from "react";
 import { View } from "react-native";
 
-import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
-import { pack7 } from "./RolandSysExProtocol";
 import { useUserOptions } from "./UserOptions";
 import { usePatchMap } from "./usePatchMap";
 
@@ -15,10 +13,9 @@ export function PatchSaveHeaderButton({
 }: {
   tintColor: string | undefined;
 }) {
-  const { isModifiedSinceSave, setModifiedSinceSave } = useContext(PATCH);
+  const { isModifiedSinceSave, saveAndSelectUserPatch } = useContext(PATCH);
 
   const [{ enableExperimentalFeatures }] = useUserOptions();
-  const { requestNonDataCommand } = useContext(RolandDataTransferContext);
   const patchMap = usePatchMap();
   const { selectedPatch } = useRolandRemotePatchSelection();
   const userPatchNumber = useMemo(() => {
@@ -35,25 +32,12 @@ export function PatchSaveHeaderButton({
   // TODO: Allow saving system patches to user area
   const canSave = isModifiedSinceSave && userPatchNumber != null;
   const handleSave = useCallback(async () => {
-    if (requestNonDataCommand == null) {
-      return;
-    }
     if (userPatchNumber == null) {
       return;
     }
-    setModifiedSinceSave(false);
-    // TODO: Lift all this GR-55-specific logic into context and abstract by device type
     // TODO: Let user select destination patch
     const patch = userPatchNumber;
-    const msb = (patch / 128) | 0;
-    const pc = (patch | 0) % 128;
-    await requestNonDataCommand(
-      // Command for writing Temporary patch data to User area
-      pack7(0x0f000000),
-      [msb, 0x00, pc, 0x7f],
-      [pack7(0x0f000001), pack7(0x0f000002)]
-      // TODO: Pass an abort signal? When would we want to abort?
-    );
+    await saveAndSelectUserPatch(patch);
     // TODO: Invalidate the cached patch description for the destination patch
 
     // Notes on how the GR-55 handles this command:
@@ -64,7 +48,7 @@ export function PatchSaveHeaderButton({
     // 2. It appears that the separate "Command for storing User data to internal memory" (writing
     //    0x01 to 0x0f000001) is not necessary. It may become necessary if we want to make direct
     //    writes to the User area, instead of (or in addition to) writing to the Temporary area.
-  }, [requestNonDataCommand, setModifiedSinceSave, userPatchNumber]);
+  }, [saveAndSelectUserPatch, userPatchNumber]);
   return (
     <View style={{ paddingEnd: 8 }}>
       {enableExperimentalFeatures && (
