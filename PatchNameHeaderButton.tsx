@@ -3,7 +3,7 @@ import HeaderTitle from "@react-navigation/elements/src/Header/HeaderTitle";
 import { useTheme as useNavigationTheme } from "@react-navigation/native";
 import { Button } from "@rneui/themed";
 import * as React from "react";
-import { Platform, View } from "react-native";
+import { Alert, Platform, View } from "react-native";
 
 import { useUserOptions } from "./UserOptions";
 
@@ -27,16 +27,12 @@ export function PatchNameHeaderButton({
         <Button
           accessibilityLabel="Rename patch"
           type="clear"
-          onPress={() => {
-            if (Platform.OS !== "web") {
-              return;
-            }
-            // TODO: Cross-platform prompt
-            const newPatchName = prompt(
+          onPress={async () => {
+            const newPatchName = await promptForValue(
               "Edit patch name",
               patchName || "Untitled"
             );
-            if (newPatchName === null || newPatchName === "") {
+            if (newPatchName == null || newPatchName === "") {
               return;
             }
             setPatchName(newPatchName);
@@ -52,4 +48,30 @@ export function PatchNameHeaderButton({
       )}
     </View>
   );
+}
+
+async function promptForValue(
+  message: string,
+  defaultValue: string
+): Promise<string | null | void> {
+  if (Platform.OS === "web") {
+    return prompt(message, defaultValue);
+  }
+  // TODO: Support Android
+  return new Promise((resolve) => {
+    Alert.prompt(
+      message,
+      undefined,
+      [
+        { text: "Cancel", onPress: () => resolve(null), style: "cancel" },
+        {
+          text: "OK",
+          onPress: (value) => resolve(value),
+          style: "default",
+        },
+      ],
+      "plain-text",
+      defaultValue
+    );
+  });
 }
