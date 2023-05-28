@@ -85,18 +85,14 @@ export function makeDataSetMessage(
   ];
 }
 
-export function makeDataRequestMessage(
+export function makeRawDataRequestMessage(
   deviceConstants: RolandSysExConfig,
   deviceID: number,
   address: number,
-  lengthPacked: number
+  rawArgs: readonly number[] | Uint8Array = []
 ) {
   const addressArray = convertAddressToByteArray(
     unpack7(address),
-    deviceConstants.addressBytes
-  );
-  const lengthArray = convertAddressToByteArray(
-    unpack7(lengthPacked),
     deviceConstants.addressBytes
   );
   return [
@@ -106,10 +102,27 @@ export function makeDataRequestMessage(
     ...deviceConstants.modelId,
     MESSAGE_DATA_REQUEST_1,
     ...addressArray,
-    ...lengthArray,
-    rolandChecksum([...addressArray, ...lengthArray]),
+    ...rawArgs,
+    rolandChecksum([...addressArray, ...rawArgs]),
     0xf7,
   ];
+}
+
+export function makeDataRequestMessage(
+  deviceConstants: RolandSysExConfig,
+  deviceID: number,
+  address: number,
+  lengthPacked: number
+) {
+  return makeRawDataRequestMessage(
+    deviceConstants,
+    deviceID,
+    address,
+    convertAddressToByteArray(
+      unpack7(lengthPacked),
+      deviceConstants.addressBytes
+    )
+  );
 }
 
 export type ParsedDataResponse = {

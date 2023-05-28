@@ -28,6 +28,7 @@ import {
   makeDataSetMessage,
   GAP_BETWEEN_MESSAGES_MS,
   unpack7,
+  makeRawDataRequestMessage,
 } from "./RolandSysExProtocol";
 import { useUserOptions } from "./UserOptions";
 
@@ -36,7 +37,7 @@ type PendingFetch = {
   outputPortId: string | undefined;
   selectedDeviceKey: string | undefined;
   address: number;
-  length: number;
+  expectedLength: number | null;
   resolve: (value: Uint8Array) => void;
   reject: (reason?: any) => void;
   bytesReceived: number;
@@ -120,8 +121,9 @@ function useRolandDataTransferImpl() {
         }
         if (
           parsed.address === fetch.address &&
-          parsed.address + parsed.valueBytes.length ===
-            fetch.address + fetch.length
+          (fetch.expectedLength == null ||
+            parsed.address + parsed.valueBytes.length ===
+              fetch.address + fetch.expectedLength)
         ) {
           fetch.resolve(parsed.valueBytes);
           pendingFetches.current.delete(fetch);
@@ -141,22 +143,24 @@ function useRolandDataTransferImpl() {
     if (!outputPort || !inputPort || !selectedDevice) {
       return {
         requestData: undefined,
+        requestNonDataCommand: undefined,
         setField: undefined,
         registerQueueAsPriority,
         unregisterQueueAsPriority,
       };
     }
     const myOutputPort = outputPort;
+
     const fetchContiguous = (
       address: number,
       length: number
     ): Promise<Uint8Array> => {
       return new Promise((resolve, reject) => {
-        const thisFetch = {
+        const thisFetch: PendingFetch = {
           resolve,
           reject,
           address,
-          length,
+          expectedLength: length,
           bytesReceived: 0,
           selectedDeviceKey,
           inputPortId: inputPort.id,
@@ -241,6 +245,79 @@ function useRolandDataTransferImpl() {
       }
     }
 
+    // Some Roland devices implement a variant of the RQ1 command that:
+    // 1. Has no length field in the request
+    // 2. Performs some action on the device
+    // 3. Potentially returns *multiple* responses at different addresses, not necessarily including the requested address
+    //
+    // Here we provide a way to send such commands and receive the responses.
+    // Note that the queue is blocked until all expected responses are received.
+    async function requestNonDataCommand(
+      address: number,
+      args: Uint8Array | readonly number[] = [],
+      responseAddresses: readonly number[] = [address],
+      signal?: AbortSignal,
+      // Commands are generally mutations so give them the same priority as writes by default
+      queueID: string = "write_utmost"
+    ): Promise<RawDataBag> {
+      const result: RawDataBag = {};
+      let receivedResponseCount = 0;
+      const responsePromises = responseAddresses.map((responseAddress) =>
+        new Promise<Uint8Array>((resolve, reject) => {
+          const thisFetch: PendingFetch = {
+            resolve,
+            reject,
+            address: responseAddress,
+            expectedLength: null /* unknown */,
+            bytesReceived: 0,
+            selectedDeviceKey,
+            inputPortId: inputPort!.id,
+            outputPortId: outputPort!.id,
+          };
+          pendingFetches.current.add(thisFetch);
+          setTimeout(() => {
+            pendingFetches.current.delete(thisFetch);
+            reject(new Error("Data request timed out"));
+          }, 5000);
+        }).then((valueBytes) => {
+          result[responseAddress] = valueBytes;
+          if (enableExperimentalFeatures) {
+            // Logging is an "experimental feature", until we possibly split it out into its own option
+            ++receivedResponseCount;
+            console.log(
+              `🧪 Received response at 0x${unpack7(responseAddress)
+                .toString(16)
+                .padStart(8, "0")} (${receivedResponseCount} of ${
+                responseAddresses.length
+              }) for command at 0x${unpack7(address)
+                .toString(16)
+                .padStart(8, "0")}: ${Array.from(valueBytes)
+                .map((x) => x.toString(16).padStart(2, "0"))
+                .join(" ")}`
+            );
+          }
+        })
+      );
+
+      await scheduler.current!.enqueue(async () => {
+        if (signal?.aborted) {
+          throw new Error("Aborted");
+        }
+        myOutputPort.send(
+          makeRawDataRequestMessage(
+            sysExConfig,
+            deviceId ?? ALL_DEVICES,
+            address,
+            args
+          )
+        );
+        await Promise.all(responsePromises);
+        await delay(GAP_BETWEEN_MESSAGES_MS);
+      }, queueID);
+
+      return result;
+    }
+
     function setField<T extends FieldDefinition<any>>(
       field: AtomReference<T>,
       newValue: Uint8Array | ReturnType<T["type"]["decode"]>
@@ -270,6 +347,7 @@ function useRolandDataTransferImpl() {
     }
     return {
       requestData,
+      requestNonDataCommand,
       setField,
       registerQueueAsPriority,
       unregisterQueueAsPriority,
@@ -326,6 +404,15 @@ export const RolandDataTransferContext = createContext<{
         signal?: AbortSignal,
         queueID?: string
       ) => Promise<RawDataBag>);
+  requestNonDataCommand:
+    | undefined
+    | ((
+        address: number,
+        args?: Uint8Array | readonly number[],
+        responseAddresses?: readonly number[],
+        signal?: AbortSignal,
+        queueID?: string
+      ) => Promise<RawDataBag>);
   setField:
     | undefined
     | (<T extends FieldDefinition<any>>(
@@ -336,6 +423,7 @@ export const RolandDataTransferContext = createContext<{
   unregisterQueueAsPriority: (queueID: string) => void;
 }>({
   requestData: undefined,
+  requestNonDataCommand: undefined,
   setField: undefined,
   registerQueueAsPriority: () => {},
   unregisterQueueAsPriority: () => {},

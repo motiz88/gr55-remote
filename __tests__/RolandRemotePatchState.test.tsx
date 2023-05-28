@@ -110,6 +110,9 @@ function MockRolandDataTransferContainer({
   const mockRolandDataTransferContext = useMemo(
     () => ({
       requestData,
+      requestNonDataCommand: () => {
+        throw new Error("Not implemented");
+      },
       setField,
       registerQueueAsPriority() {},
       unregisterQueueAsPriority() {},
