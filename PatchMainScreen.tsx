@@ -25,7 +25,7 @@ import {
 } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import {
   RolandRemotePatchContext as PATCH,
   RolandRemoteSystemContext as SYSTEM,

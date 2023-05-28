@@ -3,7 +3,7 @@ import { StyleSheet, Switch } from "react-native";
 
 import { MidiIoSetupContext } from "./MidiIo";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedPicker as Picker } from "./ThemedPicker";
 import { ThemedText as Text } from "./ThemedText";

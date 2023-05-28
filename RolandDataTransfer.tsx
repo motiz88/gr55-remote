@@ -19,7 +19,7 @@ import {
   RawDataBag,
 } from "./RolandAddressMap";
 import { RolandGR55SysExConfig } from "./RolandDevices";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import {
   parseDataResponseMessage,
   isValidChecksum,

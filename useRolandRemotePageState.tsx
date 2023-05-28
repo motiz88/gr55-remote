@@ -8,7 +8,7 @@ import {
   RawDataBag,
 } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransfer";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import useCancellablePromise from "./useCancellablePromise";
 
 export function useRolandRemotePageState(

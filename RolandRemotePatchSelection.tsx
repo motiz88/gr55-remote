@@ -13,7 +13,7 @@ import { MidiIoContext } from "./MidiIo";
 import { parse } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import useCancellablePromise from "./useCancellablePromise";
 
 const RolandRemotePatchSelectionContext = createContext<{

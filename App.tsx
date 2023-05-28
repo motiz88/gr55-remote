@@ -32,7 +32,7 @@ import {
 } from "./RolandDataTransfer";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandGR55RemotePatchDescriptionsContainer } from "./RolandGR55RemotePatchDescriptions";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContainer } from "./RolandIoSetup";
 import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
@@ -42,7 +42,6 @@ import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
-import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
 
@@ -50,15 +49,6 @@ const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
 const PatchDrawer = createDrawerNavigator();
 const RootTab = createBottomTabNavigator<RootTabParamList>();
-
-function RolandIoSetupContainer({ children }: { children?: React.ReactNode }) {
-  const rolandIoSetupState = useRolandIoSetup();
-  return (
-    <RolandIoSetupContext.Provider value={rolandIoSetupState}>
-      {children}
-    </RolandIoSetupContext.Provider>
-  );
-}
 
 function RolandRemotePatchStateContainer({
   children,

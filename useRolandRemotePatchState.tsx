@@ -9,7 +9,7 @@ import {
 
 import { AtomReference, FieldDefinition } from "./RolandAddressMap";
 import { RolandGR55SysExConfig } from "./RolandDevices";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
