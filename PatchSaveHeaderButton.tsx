@@ -19,7 +19,6 @@ export function PatchSaveHeaderButton({
   }, [setModifiedSinceSave]);
   return (
     <View style={{ paddingEnd: 8 }}>
-      {/* TODO: dim button when there are no changes to the current patch */}
       {enableExperimentalFeatures && (
         <Button disabled={!canSave} type="clear" onPress={handleSave}>
           <Entypo
