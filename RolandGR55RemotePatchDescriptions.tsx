@@ -44,6 +44,10 @@ export type RolandGR55PatchDescription = {
     readonly pc: number;
     readonly patchNumberLabel: string;
     readonly styleLabel: string;
+    readonly userPatch?: {
+      readonly patchNumber: number;
+      readonly baseAddress: number;
+    };
   };
   readonly data: {
     readonly name: string;
@@ -171,6 +175,7 @@ export function RolandGR55RemotePatchDescriptionsContainer({
             pc: patch.pc,
             patchNumberLabel: patch.patchNumberLabel,
             styleLabel: patch.styleLabel,
+            userPatch: patch.userPatch,
           },
           data: userPatchDescriptions
             ? userPatchDescriptions[patch.userPatch.patchNumber]

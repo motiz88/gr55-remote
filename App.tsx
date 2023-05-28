@@ -23,6 +23,7 @@ import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
 import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
+import { PatchSaveAsScreen } from "./PatchSaveAsScreen";
 import { PatchSaveHeaderButton } from "./PatchSaveHeaderButton";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
@@ -271,26 +272,36 @@ function PatchStackNavigator() {
           closeAllPopovers();
         },
       }}
-      screenOptions={{
-        headerRight: ({ tintColor }) => (
-          <PatchSaveHeaderButton tintColor={tintColor} />
-        ),
-      }}
     >
-      <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
-      <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
-      <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
-      <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
-      <PatchStack.Screen
-        name="PatchMasterOther"
-        component={PatchMasterOtherScreen}
-        options={{ title: "Other" }}
-      />
-      <PatchStack.Screen
-        name="PatchMasterPedalGkCtl"
-        component={PatchMasterPedalGkCtlScreen}
-        options={{ title: "Pedal / GK CTL" }}
-      />
+      <PatchStack.Group
+        screenOptions={{
+          headerRight: ({ tintColor }) => (
+            <PatchSaveHeaderButton tintColor={tintColor} />
+          ),
+        }}
+      >
+        <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
+        <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
+        <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
+        <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
+        <PatchStack.Screen
+          name="PatchMasterOther"
+          component={PatchMasterOtherScreen}
+          options={{ title: "Other" }}
+        />
+        <PatchStack.Screen
+          name="PatchMasterPedalGkCtl"
+          component={PatchMasterPedalGkCtlScreen}
+          options={{ title: "Pedal / GK CTL" }}
+        />
+      </PatchStack.Group>
+      <PatchStack.Group screenOptions={{ presentation: "modal" }}>
+        <PatchStack.Screen
+          name="PatchSaveAs"
+          component={PatchSaveAsScreen}
+          options={{ title: "Save As..." }}
+        />
+      </PatchStack.Group>
     </PatchStack.Navigator>
   );
 }

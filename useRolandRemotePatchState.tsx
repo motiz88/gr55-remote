@@ -62,6 +62,7 @@ export function useRolandRemotePatchState() {
   const saveAndSelectUserPatch = useCallback(
     async (userPatchNumber: number) => {
       if (sysExConfig.commands?.saveAndSelectUserPatch) {
+        // TODO: Report more precise status so that we can block at least the save UI while this is in progress.
         setModifiedSinceSave(false);
         await sysExConfig.commands?.saveAndSelectUserPatch?.(
           userPatchNumber,
