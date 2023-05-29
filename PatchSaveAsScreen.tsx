@@ -3,12 +3,14 @@ import { Button } from "@rneui/themed";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
+import { PatchListView } from "./PatchListView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
-import { Picker } from "./Picker";
+import { useFocusQueryPriority } from "./RolandDataTransfer";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
 import { useRolandGR55RemotePatchDescriptions } from "./RolandGR55RemotePatchDescriptions";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
+import { PatchId } from "./RolandRemotePatchSelection";
 import { ThemedText as Text } from "./ThemedText";
 import { PatchStackParamList } from "./navigation";
 import { usePatchMap } from "./usePatchMap";
@@ -32,23 +34,28 @@ export function PatchSaveAsScreen({
     }
     return result;
   }, [patches]);
-  const patchPickerItemsUserPatches = useMemo(() => {
-    return userPatchDescriptions.map((patch, index) => {
-      return (
-        <Picker.Item
-          label={`${patch.identity.styleLabel} ${
-            patch.identity.patchNumberLabel
-          } ${
-            patch.status === "pending" ? "..." : patch.data?.name ?? ""
-          }`.trimEnd()}
-          key={index}
-          value={index}
-        />
-      );
-    });
-  }, [userPatchDescriptions]);
+  useFocusQueryPriority("read_patch_list");
   const [selectedPatch, setSelectedPatch] = useState(
     route.params?.initialUserPatchNumber ?? 0
+  );
+  const selectedPatchId = useMemo(() => {
+    return {
+      bankSelectMSB: userPatchDescriptions[selectedPatch].identity.bankMSB,
+      pc: userPatchDescriptions[selectedPatch].identity.pc,
+    };
+  }, [selectedPatch, userPatchDescriptions]);
+  const setSelectedPatchId = useCallback(
+    (id: PatchId) => {
+      setSelectedPatch(
+        userPatchDescriptions.findIndex((patch) => {
+          return (
+            patch.identity.bankMSB === id.bankSelectMSB &&
+            patch.identity.pc === id.pc
+          );
+        })
+      );
+    },
+    [userPatchDescriptions]
   );
   const [patchName, , patchNameStatus] = useRemoteField(
     PATCH,
@@ -59,6 +66,13 @@ export function PatchSaveAsScreen({
     saveAndSelectUserPatch(selectedPatch);
     navigation.pop();
   }, [navigation, saveAndSelectUserPatch, selectedPatch]);
+  const canSave = useMemo(
+    () =>
+      patchNameStatus !== "pending" &&
+      patchMap != null &&
+      selectedPatchId != null,
+    [patchNameStatus, patchMap, selectedPatchId]
+  );
   if (!patchMap) {
     // TODO: Make it fit the screen, or just pop to the previous screen
     return <RolandGR55NotConnectedView navigation={navigation} />;
@@ -71,14 +85,19 @@ export function PatchSaveAsScreen({
         {patchNameStatus === "pending" ? (
           <PendingTextPlaceholder chars={16} />
         ) : (
-          <Text style={{ fontWeight: "bold" }}>{patchName}</Text>
+          <Text style={{ fontSize: 16, fontWeight: "bold" }}>{patchName}</Text>
         )}{" "}
-        to...
+        to:
       </Text>
-      <Picker selectedValue={selectedPatch} onValueChange={setSelectedPatch}>
-        {patchPickerItemsUserPatches}
-      </Picker>
-      <Button onPress={handleSave}>Save</Button>
+      {/* TODO: Layout flickers on first render on iPad */}
+      <PatchListView
+        data={patches!.filter((p) => p.identity.userPatch)}
+        selectedPatch={selectedPatchId}
+        onSelectedPatchChange={setSelectedPatchId}
+      />
+      <Button onPress={handleSave} disabled={!canSave}>
+        Save
+      </Button>
     </View>
   );
 }
@@ -86,5 +105,6 @@ export function PatchSaveAsScreen({
 const styles = StyleSheet.create({
   container: {
     padding: 8,
+    flex: 1,
   },
 });

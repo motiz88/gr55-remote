@@ -39,13 +39,15 @@ export const PatchListView = forwardRef(function (
     selectedPatch,
     onSelectedPatchChange,
     contentContainerStyle,
+    style,
   }: {
     data: RolandGR55PatchDescription[] | null;
     selectedPatch: PatchId | undefined;
     onSelectedPatchChange: (patch: PatchId) => void;
-    contentContainerStyle: React.ComponentProps<
+    contentContainerStyle?: React.ComponentProps<
       typeof FlatList
     >["contentContainerStyle"];
+    style?: React.ComponentProps<typeof View>["style"];
   },
   ref: React.ForwardedRef<{
     scrollToPatch: (patch: PatchId | undefined) => void;
@@ -169,11 +171,9 @@ export const PatchListView = forwardRef(function (
     }),
     [scrollToPatch]
   );
-  return (
+  const list: JSX.Element = (
     <FlatList
       ref={listRef}
-      onLayout={onLayout}
-      style={styles.container}
       contentContainerStyle={contentContainerStyle}
       data={listData.rows}
       renderItem={({ item }) => (
@@ -194,6 +194,11 @@ export const PatchListView = forwardRef(function (
       // The keyboard will not dismiss automatically, and the scroll view will not catch taps, but children of the scroll view can catch taps.
       keyboardShouldPersistTaps="handled"
     />
+  );
+  return (
+    <View onLayout={onLayout} style={[styles.container, style]}>
+      {list}
+    </View>
   );
 });
 
@@ -330,6 +335,7 @@ function PatchName({
 
 export const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 8,
   },
   row: {
