@@ -48,7 +48,7 @@ export function PatchSaveHeaderButton({
     });
   }, [navigation, userPatchNumber]);
   return (
-    <>
+    <View style={{ flexDirection: "row" }}>
       <View style={{ paddingEnd: 8 }}>
         {enableExperimentalFeatures && (
           <Button disabled={!canQuickSave} type="clear" onPress={handleSave}>
@@ -77,6 +77,6 @@ export function PatchSaveHeaderButton({
           </Button>
         )}
       </View>
-    </>
+    </View>
   );
 }
