@@ -299,7 +299,7 @@ function PatchStackNavigator() {
         <PatchStack.Screen
           name="PatchSaveAs"
           component={PatchSaveAsScreen}
-          options={{ title: "Save As..." }}
+          options={{ title: "Write user patch" }}
         />
       </PatchStack.Group>
     </PatchStack.Navigator>
