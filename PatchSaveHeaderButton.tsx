@@ -33,6 +33,7 @@ export function PatchSaveHeaderButton({
   }, [patchMap, selectedPatch]);
   const canQuickSave = isModifiedSinceSave && userPatchNumber != null;
   const navigation = useNavigation<GlobalNavigationProp>();
+  // TODO: Disable Save As action as needed
   const canSaveAs = true;
   const handleSave = useCallback(async () => {
     if (userPatchNumber == null) {
