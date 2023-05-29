@@ -12,6 +12,7 @@ import {
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { AlertsProvider } from "react-native-paper-alerts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
@@ -91,25 +92,28 @@ export default function App() {
                       <AppNavigationContainer>
                         <RolandGR55AssignsContainer>
                           <ThemeProvider>
-                            <ThemedContextualStyleProvider>
-                              <PopoversContainer>
-                                <KeyboardAvoidingView
-                                  behavior={
-                                    Platform.OS === "ios"
-                                      ? "padding"
-                                      : undefined
-                                  }
-                                  enabled={
-                                    // On Android we rely on android:windowSoftInputMode="resize".
-                                    // On web we currently let things render under the keyboard.
-                                    Platform.OS === "ios"
-                                  }
-                                  style={styles.keyboardAvoidingView}
-                                >
-                                  <RootTabNavigator />
-                                </KeyboardAvoidingView>
-                              </PopoversContainer>
-                            </ThemedContextualStyleProvider>
+                            {/* @ts-ignore AlertsProvider's types are busted :( */}
+                            <AlertsProvider>
+                              <ThemedContextualStyleProvider>
+                                <PopoversContainer>
+                                  <KeyboardAvoidingView
+                                    behavior={
+                                      Platform.OS === "ios"
+                                        ? "padding"
+                                        : undefined
+                                    }
+                                    enabled={
+                                      // On Android we rely on android:windowSoftInputMode="resize".
+                                      // On web we currently let things render under the keyboard.
+                                      Platform.OS === "ios"
+                                    }
+                                    style={styles.keyboardAvoidingView}
+                                  >
+                                    <RootTabNavigator />
+                                  </KeyboardAvoidingView>
+                                </PopoversContainer>
+                              </ThemedContextualStyleProvider>
+                            </AlertsProvider>
                           </ThemeProvider>
                         </RolandGR55AssignsContainer>
                       </AppNavigationContainer>
