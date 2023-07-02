@@ -3665,7 +3665,7 @@ export const PatchStruct = {
     ampLevel: new FieldDefinition(
       pack7(0x0003),
       "Amp Level",
-      new UByteField(0, 120)
+      new UByteField(0, 100)
     ),
     ampGainSwitch: new FieldDefinition(
       pack7(0x0004),
