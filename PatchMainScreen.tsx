@@ -68,7 +68,7 @@ export function PatchMainScreen({
           patchName={patchName}
           setPatchName={setPatchName}
         >
-          {children}
+          {patchName ?? "GR-55 Editor"}
         </PatchNameHeaderButton>
       );
     };
@@ -82,12 +82,13 @@ export function PatchMainScreen({
     } else if (selectedDevice && patchName) {
       navigation.setOptions({
         headerTitle: renderHeaderTitle,
-        title: patchName,
+        // TODO: Global solution for forking headerTitle (with patch name) from title (without patch name)
+        title: "Overview",
       });
     } else {
       navigation.setOptions({
         headerTitle: renderHeaderTitle,
-        title: "GR-55 Editor",
+        title: "Overview",
       });
     }
     navigation.setOptions({
