@@ -122,7 +122,14 @@ export function PatchMixerScreen({
   const [isDragging, setIsDragging] = useState(false);
   return (
     <PopoverAwareScrollView
-      scrollEnabled={false /*!isDragging */}
+      alwaysBounceVertical
+      disableScrollViewPanResponder
+      decelerationRate={0}
+      snapToAlignment="start"
+      centerContent
+      bounces={false}
+      canCancelContentTouches={false}
+      scrollEnabled={!isDragging}
       refreshControl={
         // TODO: Connect this to the actual refresh state
         // TODO: Refactor to avoid duplication with all the other screens
@@ -413,7 +420,7 @@ function MixerTrack({
   onDragInteractionEnd?: () => void;
   detailLabel?: React.ReactNode;
 }) {
-  const { colors, dark } = useNavigationTheme();
+  const { colors } = useNavigationTheme();
   return (
     <View
       style={{
@@ -432,6 +439,8 @@ function MixerTrack({
             label={send.label}
             color={send.color}
             field={send.field}
+            onDragInteractionStart={onDragInteractionStart}
+            onDragInteractionEnd={onDragInteractionEnd}
           />
         ))}
         {/* guitar out is like a send with an on/off switch instead of a level */}
@@ -475,7 +484,13 @@ function MixerTrack({
           alignItems: "center",
         }}
       >
-        {panField ? <MixerTrackPanKnob field={panField} /> : null}
+        {panField ? (
+          <MixerTrackPanKnob
+            field={panField}
+            onDragInteractionStart={onDragInteractionStart}
+            onDragInteractionEnd={onDragInteractionEnd}
+          />
+        ) : null}
       </View>
       <MixerTrackFaderMaybeConnected
         field={levelField}
@@ -513,7 +528,13 @@ function MixerTrack({
 
 function MixerTrackLegend() {
   return (
-    <View style={{ flexDirection: "column", width: 100, paddingHorizontal: 8 }}>
+    <View
+      style={{
+        flexDirection: "column",
+        width: 75,
+        paddingHorizontal: 8,
+      }}
+    >
       <View style={{ height: 135, paddingVertical: 8 }}>
         <Text style={{ textAlign: "right" }}>Sends</Text>
       </View>
@@ -544,7 +565,7 @@ function MixerTrackRightSpacer() {
     <View
       style={{
         flexDirection: "column",
-        width: 100,
+        width: 75,
         paddingHorizontal: 8,
         borderLeftWidth: 0.5,
         borderColor: colors.border,
@@ -1046,12 +1067,20 @@ function MixerTrackSendKnob({
   label,
   color,
   field,
+  onDragInteractionStart,
+  onDragInteractionEnd,
 }: {
   label: string;
   color: string;
   field: FieldReference<NumericField>;
+  onDragInteractionStart?: () => void;
+  onDragInteractionEnd?: () => void;
 }) {
-  const { panHandlers, style } = useRotaryKnob({ field });
+  const { panHandlers, style } = useRotaryKnob({
+    field,
+    onDragInteractionStart,
+    onDragInteractionEnd,
+  });
   const { dark } = useNavigationTheme();
   return (
     <View
@@ -1062,6 +1091,8 @@ function MixerTrackSendKnob({
         paddingHorizontal: 8,
         // backgroundColor: color,
       }}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      {...panHandlers}
     >
       <Text
         style={{
@@ -1074,7 +1105,6 @@ function MixerTrackSendKnob({
         {label}
       </Text>
       <Animated.View
-        {...panHandlers}
         style={[
           {
             borderRadius: 32,
@@ -1101,7 +1131,19 @@ function MixerTrackSendKnob({
   );
 }
 
-function useRotaryKnob({ field }: { field: FieldReference<NumericField> }) {
+function useRotaryKnob({
+  field,
+  onDragInteractionStart,
+  onDragInteractionEnd,
+}: {
+  field: FieldReference<NumericField>;
+  onDragInteractionStart?: () => void;
+  onDragInteractionEnd?: () => void;
+}) {
+  const handlers = useRef({
+    onDragInteractionStart,
+    onDragInteractionEnd,
+  });
   const [value, setValue] = useRemoteField(PATCH, field);
   const initialFrac =
     (value - field.definition.type.min) /
@@ -1112,16 +1154,16 @@ function useRotaryKnob({ field }: { field: FieldReference<NumericField> }) {
       useNativeDriver: true,
     });
   }
-  const isDragging = useRef(false);
+  const [isDragging, setIsDragging] = useState(false);
   useEffect(() => {
-    if (isDragging.current) {
+    if (isDragging) {
       return;
     }
     rotateAnim.current!.setValue(
       (value - field.definition.type.min) /
         (field.definition.type.max - field.definition.type.min)
     );
-  }, [field.definition.type.max, field.definition.type.min, value]);
+  }, [field.definition.type.max, field.definition.type.min, isDragging, value]);
   useEffect(() => {
     const listenerId = rotateAnim.current!.addListener(({ value }) => {
       setValue(
@@ -1146,8 +1188,11 @@ function useRotaryKnob({ field }: { field: FieldReference<NumericField> }) {
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        setIsDragging(true);
+        handlers.current.onDragInteractionStart?.();
+      },
       onPanResponderMove: (event, gestureState) => {
-        isDragging.current = true;
         // Calculate the angle relative to the vertical axis
         let newValue =
           Math.atan2(gestureState.dy, gestureState.dx) * (180 / Math.PI);
@@ -1160,14 +1205,18 @@ function useRotaryKnob({ field }: { field: FieldReference<NumericField> }) {
         rotateAnim.current!.setValue(newValue);
       },
       onPanResponderRelease: () => {
-        isDragging.current = false;
+        setIsDragging(false);
+        handlers.current.onDragInteractionEnd?.();
       },
       onPanResponderTerminate: () => {
-        isDragging.current = false;
+        setIsDragging(false);
+        handlers.current.onDragInteractionEnd?.();
       },
       onPanResponderEnd: () => {
-        isDragging.current = false;
+        setIsDragging(false);
+        handlers.current.onDragInteractionEnd?.();
       },
+      onPanResponderTerminationRequest: () => false,
     })
   );
 
@@ -1185,8 +1234,20 @@ function useRotaryKnob({ field }: { field: FieldReference<NumericField> }) {
   return { style, panHandlers: panResponder.current.panHandlers };
 }
 
-function MixerTrackPanKnob({ field }: { field: FieldReference<NumericField> }) {
-  const { panHandlers, style } = useRotaryKnob({ field });
+function MixerTrackPanKnob({
+  field,
+  onDragInteractionStart,
+  onDragInteractionEnd,
+}: {
+  field: FieldReference<NumericField>;
+  onDragInteractionStart?: () => void;
+  onDragInteractionEnd?: () => void;
+}) {
+  const { panHandlers, style } = useRotaryKnob({
+    field,
+    onDragInteractionStart,
+    onDragInteractionEnd,
+  });
 
   // const valueDegStr =
   //   ((2 * (value - field.definition.type.min)) /
