@@ -11,7 +11,7 @@ import {
 } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
 import { AlertsProvider } from "react-native-paper-alerts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -27,6 +27,7 @@ import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
 import { PatchSaveAsScreen } from "./PatchSaveAsScreen";
 import { PatchSaveHeaderButton } from "./PatchSaveHeaderButton";
 import { PatchToneScreen } from "./PatchToneScreen";
+import { PatchUndoRedoHeaderControls } from "./PatchUndoRedoHeaderControls";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import {
   useFocusQueryPriority,
@@ -39,6 +40,7 @@ import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { RolandRemotePatchEditHistoryContainer } from "./RolandRemotePatchEditHistory";
 import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelection";
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
@@ -88,36 +90,38 @@ export default function App() {
               <RolandRemoteSystemStateContainer>
                 <RolandRemotePatchSelectionContainer>
                   <RolandRemotePatchStateContainer>
-                    <RolandGR55RemotePatchDescriptionsContainer>
-                      <AppNavigationContainer>
-                        <RolandGR55AssignsContainer>
-                          <ThemeProvider>
-                            {/* @ts-ignore AlertsProvider's types are busted :( */}
-                            <AlertsProvider>
-                              <ThemedContextualStyleProvider>
-                                <PopoversContainer>
-                                  <KeyboardAvoidingView
-                                    behavior={
-                                      Platform.OS === "ios"
-                                        ? "padding"
-                                        : undefined
-                                    }
-                                    enabled={
-                                      // On Android we rely on android:windowSoftInputMode="resize".
-                                      // On web we currently let things render under the keyboard.
-                                      Platform.OS === "ios"
-                                    }
-                                    style={styles.keyboardAvoidingView}
-                                  >
-                                    <RootTabNavigator />
-                                  </KeyboardAvoidingView>
-                                </PopoversContainer>
-                              </ThemedContextualStyleProvider>
-                            </AlertsProvider>
-                          </ThemeProvider>
-                        </RolandGR55AssignsContainer>
-                      </AppNavigationContainer>
-                    </RolandGR55RemotePatchDescriptionsContainer>
+                    <RolandRemotePatchEditHistoryContainer>
+                      <RolandGR55RemotePatchDescriptionsContainer>
+                        <AppNavigationContainer>
+                          <RolandGR55AssignsContainer>
+                            <ThemeProvider>
+                              {/* @ts-ignore AlertsProvider's types are busted :( */}
+                              <AlertsProvider>
+                                <ThemedContextualStyleProvider>
+                                  <PopoversContainer>
+                                    <KeyboardAvoidingView
+                                      behavior={
+                                        Platform.OS === "ios"
+                                          ? "padding"
+                                          : undefined
+                                      }
+                                      enabled={
+                                        // On Android we rely on android:windowSoftInputMode="resize".
+                                        // On web we currently let things render under the keyboard.
+                                        Platform.OS === "ios"
+                                      }
+                                      style={styles.keyboardAvoidingView}
+                                    >
+                                      <RootTabNavigator />
+                                    </KeyboardAvoidingView>
+                                  </PopoversContainer>
+                                </ThemedContextualStyleProvider>
+                              </AlertsProvider>
+                            </ThemeProvider>
+                          </RolandGR55AssignsContainer>
+                        </AppNavigationContainer>
+                      </RolandGR55RemotePatchDescriptionsContainer>
+                    </RolandRemotePatchEditHistoryContainer>
                   </RolandRemotePatchStateContainer>
                 </RolandRemotePatchSelectionContainer>
               </RolandRemoteSystemStateContainer>
@@ -280,7 +284,10 @@ function PatchStackNavigator() {
       <PatchStack.Group
         screenOptions={{
           headerRight: ({ tintColor }) => (
-            <PatchSaveHeaderButton tintColor={tintColor} />
+            <View style={{ flexDirection: "row" }}>
+              <PatchUndoRedoHeaderControls tintColor={tintColor} />
+              <PatchSaveHeaderButton tintColor={tintColor} />
+            </View>
           ),
         }}
       >

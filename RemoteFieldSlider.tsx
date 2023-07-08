@@ -1,5 +1,5 @@
 import Slider from "@react-native-community/slider";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
@@ -28,6 +28,7 @@ export function RemoteFieldSlider({
   onSlidingStart?: (value: number) => void;
   onSlidingComplete?: (value: number) => void;
 }) {
+  const isSliding = useRef(false);
   const [value, setValue, status] = useMaybeControlledRemoteField(
     page,
     field,
@@ -36,6 +37,9 @@ export function RemoteFieldSlider({
   );
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
+      if (!isSliding.current) {
+        return;
+      }
       if (typeof valueOrValues === "number") {
         setValue(valueOrValues);
       } else {
@@ -46,6 +50,7 @@ export function RemoteFieldSlider({
   );
   const handleSlidingStart = useCallback(
     (valueOrValues: number | number[]) => {
+      isSliding.current = true;
       if (typeof valueOrValues === "number") {
         onSlidingStart?.(valueOrValues);
       } else {
@@ -61,6 +66,7 @@ export function RemoteFieldSlider({
       } else {
         onSlidingComplete?.(valueOrValues[0]);
       }
+      isSliding.current = false;
     },
     [onSlidingComplete]
   );

@@ -15,6 +15,7 @@ type EditHistoryAPIType<ActionT> = {
   startTransaction: () => void;
   endTransaction: () => void;
   push: (action: ActionT) => void;
+  clear: () => void;
 };
 
 type EditHistoryEntry<ActionT> = Readonly<{ actions: readonly ActionT[] }>;
@@ -30,15 +31,9 @@ type EditHistoryInternalState<ActionT> = Readonly<{
 
 function wrapWithLog<T extends (...args: any[]) => any>(fn: T): T {
   return ((...args: any[]) => {
-    // console.log(
-    //   `Calling ${fn.name} with`,
-    //   require("util").inspect(args, { depth: 10 })
-    // );
+    console.log(`Calling ${fn.name} with`, ...args);
     const result = fn(...args);
-    // console.log(
-    //   `Result of ${fn.name} is`,
-    //   require("util").inspect(result, { depth: 10 })
-    // );
+    console.log(`Result of ${fn.name} is`, result);
     return result;
   }) as any;
 }
@@ -55,6 +50,7 @@ function internalReducer<ActionT>(
     | { type: "redo" }
     | { type: "startTransaction" }
     | { type: "endTransaction" }
+    | { type: "clear" }
 ): EditHistoryInternalState<ActionT> {
   if (__DEV__) {
     invariant(state.transactionDepth >= 0, "transactionDepth >= 0");
@@ -173,6 +169,19 @@ function internalReducer<ActionT>(
         transactionState: null,
         transactionDepth: 0,
       };
+    case "clear":
+      if (state.transactionState) {
+        console.warn(
+          "Clearing edit history in the middle of a transaction - this is probably a bug"
+        );
+      }
+      return {
+        ...state,
+        history: [],
+        activeEntryIndex: -1,
+        transactionState: null,
+        transactionDepth: 0,
+      };
   }
 }
 
@@ -245,6 +254,9 @@ function useEditHistoryImpl<ActionT>(
     },
     [options.onMergeActions]
   );
+  const clear = useCallback(() => {
+    dispatch({ type: "clear" });
+  }, []);
   return useMemo(
     () => ({
       undo,
@@ -254,8 +266,18 @@ function useEditHistoryImpl<ActionT>(
       startTransaction,
       endTransaction,
       push,
+      clear,
     }),
-    [undo, redo, canUndo, canRedo, startTransaction, endTransaction, push]
+    [
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+      startTransaction,
+      endTransaction,
+      push,
+      clear,
+    ]
   );
 }
 
@@ -268,6 +290,7 @@ export function createEditHistory<ActionT>() {
     startTransaction: () => {},
     endTransaction: () => {},
     push: () => {},
+    clear: () => {},
   });
 
   function useEditHistory() {

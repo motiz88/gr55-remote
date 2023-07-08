@@ -170,6 +170,15 @@ describe("EditHistory", () => {
     return null;
   };
 
+  const ClearOnce = () => {
+    const editHistoryAPI = useEditHistory();
+    useEffect(() => {
+      editHistoryAPI.clear();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    return null;
+  };
+
   beforeEach(() => {
     ({ Container, useEditHistory } = createEditHistory<TestAction>());
 
@@ -356,6 +365,53 @@ describe("EditHistory", () => {
     });
 
     expect(root!.toJSON()).toEqual(["State: ", "0", "Cannot undo", "Can redo"]);
+
+    // Advance and then clear
+    act(() => {
+      root!.update(
+        <Test>
+          State: <Reader />
+          <UI />
+          <RedoOnce />
+        </Test>
+      );
+    });
+
+    expect(root!.toJSON()).toEqual(["State: ", "42", "Can undo", "Can redo"]);
+
+    act(() => {
+      root!.update(
+        <Test>
+          State: <Reader />
+          <UI />
+          <ClearOnce />
+        </Test>
+      );
+    });
+
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "42",
+      "Cannot undo",
+      "Cannot redo",
+    ]);
+
+    act(() => {
+      root!.update(
+        <Test>
+          State: <Reader />
+          <UI />
+          <UndoOnce />
+        </Test>
+      );
+    });
+
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "42",
+      "Cannot undo",
+      "Cannot redo",
+    ]);
   });
 
   test("transactions", () => {

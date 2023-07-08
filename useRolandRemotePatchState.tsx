@@ -1,17 +1,11 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 import { AtomReference, FieldDefinition } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetup";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
+import { usePrevious } from "./usePrevious";
 import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 export function useRolandRemotePatchState() {
@@ -89,12 +83,4 @@ export function useRolandRemotePatchState() {
       saveAndSelectUserPatch,
     ]
   );
-}
-
-function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
 }

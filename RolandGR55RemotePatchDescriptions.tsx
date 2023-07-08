@@ -18,7 +18,6 @@ import { RolandRemotePatchContext } from "./RolandRemotePageContext";
 import { pack7 } from "./RolandSysExProtocol";
 import useCancellablePromise from "./useCancellablePromise";
 import { usePatchMap } from "./usePatchMap";
-import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 
 const CompactPatchDefinition = new StructDefinition(
   pack7(0x000000),
@@ -148,7 +147,7 @@ export function RolandGR55RemotePatchDescriptionsContainer({
     [setInvalidationCount]
   );
 
-  const remotePatchState = useRolandRemotePatchState();
+  const remotePatchState = useContext(RolandRemotePatchContext);
   const remotePatchStateInner = useMemo(
     () => ({
       ...remotePatchState,
