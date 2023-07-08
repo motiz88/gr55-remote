@@ -76,6 +76,7 @@ export function PatchSaveHeaderButton({
     () => [
       {
         title: "Quick Save",
+        // TODO: Fix https://github.com/react-native-menu/menu/issues/536
         subtitle: patch
           ? patch.styleLabel + " " + patch.patchNumberLabel
           : undefined,
