@@ -1,3 +1,5 @@
+import { Feather } from "@expo/vector-icons";
+import { useTheme as useNavigationTheme } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button } from "@rneui/themed";
 import React, {
@@ -12,6 +14,7 @@ import { StyleSheet, View } from "react-native";
 
 import { PatchListView } from "./PatchListView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
+import { roundTripEncode } from "./RolandAddressMap";
 import { useFocusQueryPriority } from "./RolandDataTransfer";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
@@ -22,6 +25,7 @@ import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { PatchStackParamList } from "./navigation";
 import { usePatchMap } from "./usePatchMap";
+import { usePrompt } from "./usePrompt";
 import { useRemoteField } from "./useRemoteField";
 
 export function PatchSaveAsScreen({
@@ -70,15 +74,26 @@ export function PatchSaveAsScreen({
     },
     [userPatchDescriptions]
   );
-  const [patchName, , patchNameStatus] = useRemoteField(
+  const [patchName, setPatchName, patchNameStatus] = useRemoteField(
     PATCH,
     GR55.temporaryPatch.common.patchName
   );
+  // We allow the user to edit the patch name before saving, but we don't want to
+  // write the patch name to the temporary patch until the user actually saves.
+  const [localPatchName, setLocalPatchName] = useState(patchName);
   const handleSave = useCallback(() => {
+    // TODO: When we have auto-save, this should *not* be replicated to the "current" patch like other field changes would be.
+    setPatchName(localPatchName);
     // TODO: Await this and indicate progress
     saveAndSelectUserPatch(selectedPatch);
     navigation.pop();
-  }, [navigation, saveAndSelectUserPatch, selectedPatch]);
+  }, [
+    localPatchName,
+    navigation,
+    saveAndSelectUserPatch,
+    selectedPatch,
+    setPatchName,
+  ]);
   const canSave = useMemo(
     () => patchNameStatus !== "pending" && patchMap != null,
     [patchNameStatus, patchMap]
@@ -132,6 +147,11 @@ export function PatchSaveAsScreen({
     }
     patchListRef.current?.scrollToPatch(selectedPatchId);
   }, [selectedPatchId]);
+  const navTheme = useNavigationTheme();
+  const { prompt } = usePrompt();
+  useEffect(() => {
+    setLocalPatchName(patchName);
+  }, [patchName]);
   if (!patchMap || !userPatches) {
     // TODO: Make it fit the screen, or just pop to the previous screen
     return <RolandGR55NotConnectedView navigation={navigation} />;
@@ -152,8 +172,45 @@ export function PatchSaveAsScreen({
             ) : patchNameStatus === "pending" ? (
               <PendingTextPlaceholder chars={16} />
             ) : (
-              <Text style={styles.patchNameText}>{patchName}</Text>
+              <Text style={styles.patchNameText}>{localPatchName}</Text>
             )}{" "}
+            <Button
+              accessibilityLabel="Rename patch"
+              type="clear"
+              onPress={async () => {
+                const newPatchName = await prompt(
+                  "Edit patch name",
+                  localPatchName || "Untitled"
+                );
+                if (newPatchName == null || newPatchName === "") {
+                  return;
+                }
+                setLocalPatchName(
+                  // Round-trip encode in order to provide an accurate preview
+                  roundTripEncode(
+                    newPatchName,
+                    GR55.temporaryPatch.common.patchName.definition.type
+                  )
+                );
+              }}
+              buttonStyle={{
+                padding: 0,
+                paddingHorizontal: 0,
+                marginRight: -2,
+              }}
+              containerStyle={{
+                height: undefined,
+              }}
+              titleStyle={{}}
+              hitSlop={{
+                top: 24,
+                bottom: 24,
+                left: 24,
+                right: 24,
+              }}
+            >
+              <Feather name="edit" size={18} color={navTheme.colors.text} />
+            </Button>{" "}
             will be written to{" "}
             <Text style={styles.patchNameText} onPress={scrollToSelection}>
               {destinationStyleLabel!}
@@ -167,7 +224,7 @@ export function PatchSaveAsScreen({
                 </>
               ) : (
                 <>
-                  {destinationPatch.data?.name === patchName ? null : (
+                  {destinationPatch.data?.name === localPatchName ? null : (
                     <>
                       {" "}
                       <Text style={[styles.overwrittenPatchNameText]}>
