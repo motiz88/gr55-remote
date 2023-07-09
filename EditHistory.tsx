@@ -7,7 +7,7 @@ import {
   useReducer,
 } from "react";
 
-type EditHistoryAPIType<ActionT> = {
+export type EditHistoryAPIType<ActionT> = {
   undo: () => void;
   redo: () => void;
   canUndo: boolean;

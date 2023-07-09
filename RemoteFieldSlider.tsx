@@ -6,6 +6,7 @@ import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useEditHistoryForPage } from "./RolandRemotePageEditHistoryRegistry";
 import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
@@ -35,6 +36,7 @@ export function RemoteFieldSlider({
     valueProp,
     onValueChangeProp
   );
+  const editHistory = useEditHistoryForPage(page);
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
       if (!isSliding.current) {
@@ -51,13 +53,16 @@ export function RemoteFieldSlider({
   const handleSlidingStart = useCallback(
     (valueOrValues: number | number[]) => {
       isSliding.current = true;
+      if (editHistory) {
+        editHistory.startTransaction();
+      }
       if (typeof valueOrValues === "number") {
         onSlidingStart?.(valueOrValues);
       } else {
         onSlidingStart?.(valueOrValues[0]);
       }
     },
-    [onSlidingStart]
+    [editHistory, onSlidingStart]
   );
   const handleSlidingComplete = useCallback(
     (valueOrValues: number | number[]) => {
@@ -67,8 +72,11 @@ export function RemoteFieldSlider({
         onSlidingComplete?.(valueOrValues[0]);
       }
       isSliding.current = false;
+      if (editHistory) {
+        editHistory.endTransaction();
+      }
     },
-    [onSlidingComplete]
+    [editHistory, onSlidingComplete]
   );
   const prettyValue = field.definition.type.format(value);
   return (

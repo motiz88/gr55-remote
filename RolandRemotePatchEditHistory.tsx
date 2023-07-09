@@ -9,6 +9,7 @@ import {
 } from "./RolandAddressMap";
 import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
+import { RolandRemotePageEditHistoryRegistryProvider } from "./RolandRemotePageEditHistoryRegistry";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useUserOptions } from "./UserOptions";
 import { usePrevious } from "./usePrevious";
@@ -83,7 +84,12 @@ function RolandRemotePatchEditHistoryMiddleware({
 
   return (
     <PATCH.Provider value={remotePatchStateWithEditHistory}>
-      {children}
+      <RolandRemotePageEditHistoryRegistryProvider
+        page={PATCH}
+        editHistory={editHistory}
+      >
+        {children}
+      </RolandRemotePageEditHistoryRegistryProvider>
     </PATCH.Provider>
   );
 }
