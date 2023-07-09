@@ -15,7 +15,6 @@ import { RolandDataTransferContext } from "./RolandDataTransferContext";
 import { RolandGR55SysExConfig } from "./RolandDevices";
 import { RolandIoSetupContext } from "./RolandIoSetupContext";
 import useCancellablePromise from "./useCancellablePromise";
-import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 const RolandRemotePatchSelectionContext = createContext<{
   selectedPatch?: {
@@ -36,12 +35,11 @@ export function RolandRemotePatchSelectionContainer({
   const sysExConfig = selectedDevice?.sysExConfig ?? RolandGR55SysExConfig;
   const addressMap = sysExConfig.addressMap;
 
-  const remotePageState = useRolandRemotePageState(addressMap?.setup);
   const { inputPort, outputPort } = useContext(MidiIoContext);
 
   const nextBankSelectMSB = useRef<number>();
 
-  const { requestData } = useContext(RolandDataTransferContext);
+  const { requestData, setField } = useContext(RolandDataTransferContext);
 
   const [selectedPatch, setSelectedPatch] = useState<{
     bankSelectMSB: number;
@@ -120,19 +118,42 @@ export function RolandRemotePatchSelectionContainer({
     return () => {
       inputPort.removeEventListener("midimessage", handleMidiMessage as any);
     };
-  }, [inputPort, selectedDevice, inputPort?.state, remotePageState]);
+  }, [inputPort, selectedDevice, inputPort?.state]);
 
   const setAndSendSelectedPatch = useCallback(
     (patch: { bankSelectMSB: number; pc: number }) => {
-      if (!selectedDevice || !outputPort) {
+      if (!selectedDevice || !outputPort || !setField) {
         return;
       }
       setSelectedPatch(patch);
-      outputPort.send([0xb0, 0x00, patch.bankSelectMSB]);
-      // TODO: Read PATCH CH from device and send on that channel
-      outputPort.send([0xc0, patch.pc]);
+      // Instead of a standard program change, send a SysEx write to the setup page.
+      // On the GR-55 this is better than a standard program change because it takes
+      // effect regardless of the current screen selected on the device, and bypasses
+      // the PC RX SWITCH setting (which might be set to OFF).
+      // See https://www.vguitarforums.com/smf/index.php?topic=35932.0
+      // TODO: If we ever support devices that don't expose this via SysEx, we'll need
+      // to fall back to a standard program change.
+      // TODO: Use RemotePage abstraction for setup page.
+      setField(
+        {
+          address:
+            addressMap!.setup.address +
+            addressMap!.setup.definition.$.patchBsMsb.offset,
+          definition: addressMap!.setup.definition.$.patchBsMsb,
+        },
+        patch.bankSelectMSB
+      );
+      setField(
+        {
+          address:
+            addressMap!.setup.address +
+            addressMap!.setup.definition.$.patchPc.offset,
+          definition: addressMap!.setup.definition.$.patchPc,
+        },
+        patch.pc
+      );
     },
-    [outputPort, selectedDevice]
+    [addressMap, outputPort, selectedDevice, setField]
   );
   const ctx = useMemo(
     () => ({
