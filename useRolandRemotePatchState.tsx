@@ -45,10 +45,11 @@ export function useRolandRemotePatchState() {
   const setRemoteField = useCallback(
     <T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      value: Uint8Array | ReturnType<T["type"]["decode"]>
+      value: Uint8Array | ReturnType<T["type"]["decode"]>,
+      previousValue: Uint8Array | ReturnType<T["type"]["decode"]> | void
     ) => {
       setModifiedSinceSave(true);
-      remotePageState.setRemoteField(field, value);
+      remotePageState.setRemoteField(field, value, previousValue);
     },
     [remotePageState]
   );

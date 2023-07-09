@@ -14,7 +14,8 @@ export type RolandRemotePageState = {
   ) => void;
   setRemoteField: <T extends FieldDefinition<any>>(
     field: AtomReference<T>,
-    value: Uint8Array | ReturnType<T["type"]["decode"]>
+    value: Uint8Array,
+    previousValue: Uint8Array | void
   ) => void;
   subscribeToField: <T extends FieldDefinition<any>>(
     field: AtomReference<T>,

@@ -1152,3 +1152,9 @@ export function roundTripEncode<T>(value: T, type: FieldType<T>): T {
   type.encode(value, bytes, 0, type.size);
   return type.decode(bytes, 0, type.size);
 }
+
+export function encode<T>(value: T, type: FieldType<T>): Uint8Array {
+  const bytes = new Uint8Array(type.size);
+  type.encode(value, bytes, 0, type.size);
+  return bytes;
+}

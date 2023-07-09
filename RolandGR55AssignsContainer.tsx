@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo } from "react";
 
+import { encode } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useAssignsMap } from "./useAssignsMap";
@@ -143,7 +144,10 @@ export function RolandGR55AssignsContainer({
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
       const assignDef = assignsMap.getByIndex(assignDefIndex);
-      setRemoteField(assign.target, assignDefIndex);
+      setRemoteField(
+        assign.target,
+        encode(assignDefIndex, assign.target.definition.type)
+      );
 
       const reinterpretedMin = assignDef.reinterpretAssignValueField(
         assign.targetMin
@@ -151,8 +155,20 @@ export function RolandGR55AssignsContainer({
       const reinterpretedMax = assignDef.reinterpretAssignValueField(
         assign.targetMax
       );
-      setRemoteField(reinterpretedMin, reinterpretedMin.definition.type.min);
-      setRemoteField(reinterpretedMax, reinterpretedMax.definition.type.max);
+      setRemoteField(
+        reinterpretedMin,
+        encode(
+          reinterpretedMin.definition.type.min,
+          reinterpretedMin.definition.type
+        )
+      );
+      setRemoteField(
+        reinterpretedMax,
+        encode(
+          reinterpretedMax.definition.type.max,
+          reinterpretedMax.definition.type
+        )
+      );
     },
     [assignsMap, setRemoteField]
   );

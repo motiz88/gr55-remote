@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { throttle } from "throttle-debounce";
 
-import { FieldReference, FieldType } from "./RolandAddressMap";
+import { FieldReference, FieldType, encode } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
 import { GAP_BETWEEN_MESSAGES_MS } from "./RolandSysExProtocol";
 
@@ -41,12 +41,9 @@ function useRemoteFieldImpl<T>(
     if (valueBytes) {
       return valueBytes;
     }
-    valueBytes = new Uint8Array(field.definition.size);
-    field.definition.type.encode(
+    valueBytes = encode(
       defaultValue ?? field.definition.type.emptyValue,
-      valueBytes,
-      0,
-      field.definition.size
+      field.definition.type
     );
     return valueBytes;
   });
@@ -71,18 +68,14 @@ function useRemoteFieldImpl<T>(
 
   const setAndSendValue = useCallback(
     (newValue: T) => {
-      const newValueBytes = new Uint8Array(field.definition.size);
-      field.definition.type.encode(
-        newValue,
-        newValueBytes,
-        0,
-        field.definition.size
-      );
+      const previousValueBytes =
+        localOverrides?.[field.address] ?? pageData?.[field.address];
+      const newValueBytes = encode(newValue, field.definition.type);
       setValueBytes(newValueBytes);
       setLocalOverride(field, newValueBytes);
-      setFieldThrottled(field, newValueBytes);
+      setFieldThrottled(field, newValueBytes, previousValueBytes);
     },
-    [setFieldThrottled, field, setLocalOverride]
+    [field, setLocalOverride, setFieldThrottled, localOverrides, pageData]
   );
   const value = useMemo(() => {
     try {
