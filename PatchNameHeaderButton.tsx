@@ -6,7 +6,7 @@ import * as React from "react";
 import { View } from "react-native";
 
 import { useUserOptions } from "./UserOptions";
-import { usePrompt } from "./usePrompt";
+import { useRenamePatchPrompt } from "./useRenamePatchPrompt";
 
 export function PatchNameHeaderButton({
   children,
@@ -22,7 +22,10 @@ export function PatchNameHeaderButton({
   const theme = useNavigationTheme();
   const [{ enableExperimentalFeatures }] = useUserOptions();
 
-  const { prompt } = usePrompt();
+  const { renamePatch } = useRenamePatchPrompt({
+    patchName,
+    setPatchName,
+  });
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -31,16 +34,7 @@ export function PatchNameHeaderButton({
         <Button
           accessibilityLabel="Rename patch"
           type="clear"
-          onPress={async () => {
-            const newPatchName = await prompt(
-              "Edit patch name",
-              patchName || "Untitled"
-            );
-            if (newPatchName == null || newPatchName === "") {
-              return;
-            }
-            setPatchName(newPatchName);
-          }}
+          onPress={renamePatch}
         >
           <Feather
             name="edit"
