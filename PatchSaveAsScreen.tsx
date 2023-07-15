@@ -14,7 +14,6 @@ import { StyleSheet, View } from "react-native";
 
 import { PatchListView } from "./PatchListView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
-import { roundTripEncode } from "./RolandAddressMap";
 import { useFocusQueryPriority } from "./RolandDataTransfer";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
@@ -25,8 +24,8 @@ import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { PatchStackParamList } from "./navigation";
 import { usePatchMap } from "./usePatchMap";
-import { usePrompt } from "./usePrompt";
 import { useRemoteField } from "./useRemoteField";
+import { useRenamePatchPrompt } from "./useRenamePatchPrompt";
 
 export function PatchSaveAsScreen({
   navigation,
@@ -81,6 +80,10 @@ export function PatchSaveAsScreen({
   // We allow the user to edit the patch name before saving, but we don't want to
   // write the patch name to the temporary patch until the user actually saves.
   const [localPatchName, setLocalPatchName] = useState(patchName);
+  const { renamePatch } = useRenamePatchPrompt({
+    patchName: localPatchName,
+    setPatchName: setLocalPatchName,
+  });
   const handleSave = useCallback(() => {
     // TODO: When we have auto-save, this should *not* be replicated to the "current" patch like other field changes would be.
     setPatchName(localPatchName);
@@ -148,7 +151,6 @@ export function PatchSaveAsScreen({
     patchListRef.current?.scrollToPatch(selectedPatchId);
   }, [selectedPatchId]);
   const navTheme = useNavigationTheme();
-  const { prompt } = usePrompt();
   useEffect(() => {
     setLocalPatchName(patchName);
   }, [patchName]);
@@ -177,22 +179,7 @@ export function PatchSaveAsScreen({
             <Button
               accessibilityLabel="Rename patch"
               type="clear"
-              onPress={async () => {
-                const newPatchName = await prompt(
-                  "Edit patch name",
-                  localPatchName || "Untitled"
-                );
-                if (newPatchName == null || newPatchName === "") {
-                  return;
-                }
-                setLocalPatchName(
-                  // Round-trip encode in order to provide an accurate preview
-                  roundTripEncode(
-                    newPatchName,
-                    GR55.temporaryPatch.common.patchName.definition.type
-                  )
-                );
-              }}
+              onPress={renamePatch}
               buttonStyle={{
                 padding: 0,
                 paddingHorizontal: 0,
