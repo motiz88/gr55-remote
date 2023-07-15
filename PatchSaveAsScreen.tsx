@@ -1,5 +1,3 @@
-import { Feather } from "@expo/vector-icons";
-import { useTheme as useNavigationTheme } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button } from "@rneui/themed";
 import React, {
@@ -150,7 +148,6 @@ export function PatchSaveAsScreen({
     }
     patchListRef.current?.scrollToPatch(selectedPatchId);
   }, [selectedPatchId]);
-  const navTheme = useNavigationTheme();
   useEffect(() => {
     setLocalPatchName(patchName);
   }, [patchName]);
@@ -174,30 +171,10 @@ export function PatchSaveAsScreen({
             ) : patchNameStatus === "pending" ? (
               <PendingTextPlaceholder chars={16} />
             ) : (
-              <Text style={styles.patchNameText}>{localPatchName}</Text>
+              <Text onPress={renamePatch} style={styles.patchNameText}>
+                {localPatchName}
+              </Text>
             )}{" "}
-            <Button
-              accessibilityLabel="Rename patch"
-              type="clear"
-              onPress={renamePatch}
-              buttonStyle={{
-                padding: 0,
-                paddingHorizontal: 0,
-                marginRight: -2,
-              }}
-              containerStyle={{
-                height: undefined,
-              }}
-              titleStyle={{}}
-              hitSlop={{
-                top: 24,
-                bottom: 24,
-                left: 24,
-                right: 24,
-              }}
-            >
-              <Feather name="edit" size={18} color={navTheme.colors.text} />
-            </Button>{" "}
             will be written to{" "}
             <Text style={styles.patchNameText} onPress={scrollToSelection}>
               {destinationStyleLabel!}

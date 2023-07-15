@@ -1,4 +1,3 @@
-import { Feather } from "@expo/vector-icons";
 import HeaderTitle from "@react-navigation/elements/src/Header/HeaderTitle";
 import { useTheme as useNavigationTheme } from "@react-navigation/native";
 import { Button } from "@rneui/themed";
@@ -27,22 +26,22 @@ export function PatchNameHeaderButton({
     setPatchName,
   });
 
+  const headerText = (
+    <HeaderTitle tintColor={theme.colors.text}>{children}</HeaderTitle>
+  );
+
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <HeaderTitle tintColor={tintColor}>{children}</HeaderTitle>
-      {enableExperimentalFeatures && (
+      {enableExperimentalFeatures ? (
         <Button
           accessibilityLabel="Rename patch"
           type="clear"
           onPress={renamePatch}
         >
-          <Feather
-            name="edit"
-            size={18}
-            style={{ paddingHorizontal: 6, paddingTop: 7, paddingBottom: 3 }}
-            color={theme.colors.primary}
-          />
+          {headerText}
         </Button>
+      ) : (
+        headerText
       )}
     </View>
   );
