@@ -8,7 +8,7 @@ export function usePrompt() {
     (message: string, defaultValue: string): Promise<string | null | void> =>
       new Promise((resolve) => {
         if (Platform.OS === "web") {
-          resolve(prompt(message, defaultValue));
+          resolve(global.prompt(message, defaultValue));
           return;
         }
         if (Platform.OS === "ios") {
