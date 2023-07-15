@@ -18,20 +18,26 @@ export function PatchUndoRedoHeaderControls({
     <View style={{ flexDirection: "row" }}>
       {enableExperimentalFeatures && (
         <>
-          <Button type="clear" onPress={editHistory.undo}>
+          <Button
+            type="clear"
+            onPress={editHistory.undo}
+            disabled={!editHistory.canUndo}
+          >
             <Ionicons
               name="arrow-undo"
               size={24}
               color={editHistory.canUndo ? tintColor : "lightgray"}
-              disabled={!editHistory.canUndo}
             />
           </Button>
-          <Button type="clear" onPress={editHistory.redo}>
+          <Button
+            type="clear"
+            onPress={editHistory.redo}
+            disabled={!editHistory.canRedo}
+          >
             <Ionicons
               name="arrow-redo"
               size={24}
               color={editHistory.canRedo ? tintColor : "lightgray"}
-              disabled={!editHistory.canRedo}
             />
           </Button>
         </>
