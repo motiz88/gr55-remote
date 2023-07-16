@@ -324,7 +324,8 @@ function useRolandDataTransferImpl() {
 
     function setField<T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      newValue: Uint8Array | ReturnType<T["type"]["decode"]>
+      newValue: Uint8Array | ReturnType<T["type"]["decode"]>,
+      queueID: string = "write_utmost"
     ): void {
       let valueBytes;
       if (newValue instanceof Uint8Array) {
@@ -360,7 +361,7 @@ function useRolandDataTransferImpl() {
         }
         myOutputPort.send(data);
         await delay(GAP_BETWEEN_MESSAGES_MS);
-      }, "write_utmost");
+      }, queueID);
     }
     return {
       requestData,
@@ -434,7 +435,8 @@ export const RolandDataTransferContext = createContext<{
     | undefined
     | (<T extends FieldDefinition<any>>(
         field: AtomReference<T>,
-        newValue: Uint8Array | ReturnType<T["type"]["decode"]>
+        newValue: Uint8Array | ReturnType<T["type"]["decode"]>,
+        queueID?: string
       ) => void);
   registerQueueAsPriority: (queueID: string) => void;
   unregisterQueueAsPriority: (queueID: string) => void;
