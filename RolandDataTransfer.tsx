@@ -235,7 +235,9 @@ function useRolandDataTransferImpl() {
             "🧪 " +
               `${signal?.aborted ? "(ABORTED) " : ""}${
                 didError && !signal?.aborted ? "(ERROR) " : ""
-              }Request for ${definition.description} (0x${unpack7(baseAddress)
+              }[${queueID}] Request for ${definition.description} (0x${unpack7(
+                baseAddress
+              )
                 .toString(16)
                 .padStart(8, "0")}) queued for ${Math.round(
                 totalQueueTime
@@ -303,20 +305,39 @@ function useRolandDataTransferImpl() {
         })
       );
 
+      const lastQueueStartTimestamp = performance.now();
+
       await scheduler.current!.enqueue(async () => {
-        if (signal?.aborted) {
-          throw new Error("Aborted");
+        const totalQueueTime = performance.now() - lastQueueStartTimestamp;
+        try {
+          if (signal?.aborted) {
+            throw new Error("Aborted");
+          }
+          myOutputPort.send(
+            makeRawDataRequestMessage(
+              sysExConfig,
+              deviceId ?? ALL_DEVICES,
+              address,
+              args
+            )
+          );
+          await Promise.all(responsePromises);
+          await delay(GAP_BETWEEN_MESSAGES_MS);
+        } finally {
+          if (enableExperimentalFeatures) {
+            // Logging is an "experimental feature", until we possibly split it out into its own option
+            console.log(
+              "🧪 " +
+                `${
+                  signal?.aborted ? "(ABORTED) " : ""
+                }[${queueID}] Command at (0x${unpack7(address)
+                  .toString(16)
+                  .padStart(8, "0")}) queued for ${Math.round(
+                  totalQueueTime
+                )}ms`
+            );
+          }
         }
-        myOutputPort.send(
-          makeRawDataRequestMessage(
-            sysExConfig,
-            deviceId ?? ALL_DEVICES,
-            address,
-            args
-          )
-        );
-        await Promise.all(responsePromises);
-        await delay(GAP_BETWEEN_MESSAGES_MS);
       }, queueID);
 
       return result;
@@ -352,9 +373,9 @@ function useRolandDataTransferImpl() {
           // Performance logging is an "experimental feature", until we possibly split it out into its own option
           console.log(
             "🧪 " +
-              `Write of ${field.definition.description} (0x${unpack7(
-                field.address
-              )
+              `[${queueID}] Write of ${
+                field.definition.description
+              } (0x${unpack7(field.address)
                 .toString(16)
                 .padStart(8, "0")}) queued for ${Math.round(totalQueueTime)}ms`
           );
