@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 
 import { createEditHistory } from "./EditHistory";
 import {
@@ -31,7 +31,9 @@ function RolandRemotePatchEditHistoryMiddleware({
   children: React.ReactNode;
 }) {
   const editHistory = useEditHistory();
+  const { push: pushToHistory, clear: clearHistory } = editHistory;
   const remotePatchState = useContext(PATCH);
+  const { reloadData: reloadRemoteData, setLocalOverride } = remotePatchState;
 
   const { setField } = useContext(RolandDataTransferContext);
   const { selectedPatch } = useRolandRemotePatchSelection();
@@ -44,9 +46,9 @@ function RolandRemotePatchEditHistoryMiddleware({
       previousPatch?.bankSelectMSB !== selectedPatch.bankSelectMSB ||
       previousPatch?.pc !== selectedPatch.pc
     ) {
-      editHistory.clear();
+      clearHistory();
     }
-  }, [selectedPatch, previousPatch, editHistory]);
+  }, [selectedPatch, previousPatch, clearHistory]);
 
   const setRemoteField = useCallback(
     <T extends FieldDefinition<FieldType<any>>>(
@@ -54,9 +56,9 @@ function RolandRemotePatchEditHistoryMiddleware({
       value: Uint8Array,
       previousValue: Uint8Array | void
     ) => {
-      remotePatchState.setLocalOverride(field, value);
+      setLocalOverride(field, value);
       if (!previousValue || !equals(previousValue, value)) {
-        editHistory.push({
+        pushToHistory({
           type: "setRemoteField",
           field,
           fromValue:
@@ -68,19 +70,22 @@ function RolandRemotePatchEditHistoryMiddleware({
       }
       setField?.(field, value);
     },
-    [remotePatchState, editHistory, setField]
+    [pushToHistory, setField, setLocalOverride]
   );
 
   const reloadData = useCallback(() => {
-    editHistory.clear();
-    remotePatchState.reloadData();
-  }, [editHistory, remotePatchState]);
+    clearHistory();
+    reloadRemoteData();
+  }, [clearHistory, reloadRemoteData]);
 
-  const remotePatchStateWithEditHistory = {
-    ...remotePatchState,
-    setRemoteField,
-    reloadData,
-  };
+  const remotePatchStateWithEditHistory = useMemo(
+    () => ({
+      ...remotePatchState,
+      setRemoteField,
+      reloadData,
+    }),
+    [reloadData, remotePatchState, setRemoteField]
+  );
 
   return (
     <PATCH.Provider value={remotePatchStateWithEditHistory}>

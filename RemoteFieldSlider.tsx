@@ -37,6 +37,8 @@ export function RemoteFieldSlider({
     onValueChangeProp
   );
   const editHistory = useEditHistoryForPage(page);
+  const startTransaction = editHistory?.startTransaction;
+  const endTransaction = editHistory?.endTransaction;
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
       if (!isSliding.current) {
@@ -53,16 +55,14 @@ export function RemoteFieldSlider({
   const handleSlidingStart = useCallback(
     (valueOrValues: number | number[]) => {
       isSliding.current = true;
-      if (editHistory) {
-        editHistory.startTransaction();
-      }
+      startTransaction?.();
       if (typeof valueOrValues === "number") {
         onSlidingStart?.(valueOrValues);
       } else {
         onSlidingStart?.(valueOrValues[0]);
       }
     },
-    [editHistory, onSlidingStart]
+    [startTransaction, onSlidingStart]
   );
   const handleSlidingComplete = useCallback(
     (valueOrValues: number | number[]) => {
@@ -72,11 +72,9 @@ export function RemoteFieldSlider({
         onSlidingComplete?.(valueOrValues[0]);
       }
       isSliding.current = false;
-      if (editHistory) {
-        editHistory.endTransaction();
-      }
+      endTransaction?.();
     },
-    [editHistory, onSlidingComplete]
+    [endTransaction, onSlidingComplete]
   );
   const prettyValue = field.definition.type.format(value);
   return (

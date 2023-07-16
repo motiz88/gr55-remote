@@ -137,6 +137,8 @@ export function RolandGR55AssignsContainer({
   );
   const assignsMap = useAssignsMap();
   const editHistory = useRolandRemotePatchEditHistory();
+  const startTransaction = editHistory?.startTransaction;
+  const endTransaction = editHistory?.endTransaction;
   const setAssignTarget = useCallback(
     (
       assign: typeof GR55.temporaryPatch.common.assign1,
@@ -145,7 +147,7 @@ export function RolandGR55AssignsContainer({
       if (!assignsMap) {
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
-      editHistory.startTransaction();
+      startTransaction?.();
       try {
         const assignDef = assignsMap.getByIndex(assignDefIndex);
         // TODO: Ideally this should be encapsulated in PATCH (port this entire handler to useRemoteField?)
@@ -188,17 +190,24 @@ export function RolandGR55AssignsContainer({
           previousTargetMaxBytes
         );
       } finally {
-        editHistory.endTransaction();
+        endTransaction?.();
       }
     },
-    [assignsMap, editHistory, localOverrides, pageData, setRemoteField]
+    [
+      assignsMap,
+      endTransaction,
+      localOverrides,
+      pageData,
+      setRemoteField,
+      startTransaction,
+    ]
   );
   const createAssign = useCallback(
     (assignDefIndex: number): number => {
       if (!assignsMap) {
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
-      editHistory.startTransaction();
+      startTransaction?.();
       try {
         let assign;
         switch (firstAvailableAssignIndex) {
@@ -242,12 +251,12 @@ export function RolandGR55AssignsContainer({
         setAssignTarget(assign, assignDefIndex);
         return firstAvailableAssignIndex;
       } finally {
-        editHistory.endTransaction();
+        endTransaction?.();
       }
     },
     [
       assignsMap,
-      editHistory,
+      endTransaction,
       firstAvailableAssignIndex,
       setAssign1Switch,
       setAssign2Switch,
@@ -258,6 +267,7 @@ export function RolandGR55AssignsContainer({
       setAssign7Switch,
       setAssign8Switch,
       setAssignTarget,
+      startTransaction,
     ]
   );
   const deleteAssigns = useCallback(
