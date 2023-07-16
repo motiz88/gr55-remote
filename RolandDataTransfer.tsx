@@ -199,6 +199,7 @@ function useRolandDataTransferImpl() {
         totalFetchTime = 0;
       let chunkCount = 0,
         atomCount = 0;
+      let didError = false;
       try {
         return await fetchAndTokenize(definition, baseAddress, (...args) =>
           scheduler.current!.enqueue(async () => {
@@ -224,14 +225,17 @@ function useRolandDataTransferImpl() {
             return result;
           }, queueID)
         );
+      } catch (e) {
+        didError = true;
+        throw e;
       } finally {
         if (enableExperimentalFeatures) {
           // Performance logging is an "experimental feature", until we possibly split it out into its own option
           console.log(
             "🧪 " +
-              `${signal?.aborted ? "(ABORTED) " : ""}Request for ${
-                definition.description
-              } (0x${unpack7(baseAddress)
+              `${signal?.aborted ? "(ABORTED) " : ""}${
+                didError && !signal?.aborted ? "(ERROR) " : ""
+              }Request for ${definition.description} (0x${unpack7(baseAddress)
                 .toString(16)
                 .padStart(8, "0")}) queued for ${Math.round(
                 totalQueueTime
@@ -340,7 +344,20 @@ function useRolandDataTransferImpl() {
         field.address,
         valueBytes
       );
+      const lastQueueStartTimestamp = performance.now();
       scheduler.current!.enqueue(async () => {
+        if (enableExperimentalFeatures) {
+          const totalQueueTime = performance.now() - lastQueueStartTimestamp;
+          // Performance logging is an "experimental feature", until we possibly split it out into its own option
+          console.log(
+            "🧪 " +
+              `Write of ${field.definition.description} (0x${unpack7(
+                field.address
+              )
+                .toString(16)
+                .padStart(8, "0")}) queued for ${Math.round(totalQueueTime)}ms`
+          );
+        }
         myOutputPort.send(data);
         await delay(GAP_BETWEEN_MESSAGES_MS);
       }, "write_utmost");
