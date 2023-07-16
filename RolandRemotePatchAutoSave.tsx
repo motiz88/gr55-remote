@@ -120,7 +120,7 @@ export function RolandRemotePatchAutoSaveContainer({
             selectedDevice.sysExConfig.addressMap.temporaryPatch.address +
             baseAddressByUserPatchNumber!.get(userPatchNumber)!,
         };
-        setField!(mirroredField, value);
+        setField!(mirroredField, value, "write_deferred");
       },
     }),
     [

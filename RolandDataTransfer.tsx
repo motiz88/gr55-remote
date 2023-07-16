@@ -51,14 +51,18 @@ function useRolandDataTransferImpl() {
   const scheduler = useRef<MultiQueueScheduler<string>>();
   if (!scheduler.current) {
     scheduler.current = new MultiQueueScheduler([
-      "write_utmost",
+      "write_immediate",
+      "write_deferred",
+      "write_after_deferred",
       "read_utmost",
       "read_default",
     ]);
   }
   const updateSchedulerPriorities = useCallback(() => {
     scheduler.current!.setPriorityOrder([
-      "write_utmost",
+      "write_immediate",
+      "write_deferred",
+      "write_after_deferred",
       "read_utmost",
       ...refCountByQueueId.current.keys(),
       "read_default",
@@ -264,7 +268,7 @@ function useRolandDataTransferImpl() {
       responseAddresses: readonly number[] = [address],
       signal?: AbortSignal,
       // Commands are generally mutations so give them the same priority as writes by default
-      queueID: string = "write_utmost"
+      queueID: string = "write_immediate"
     ): Promise<RawDataBag> {
       const result: RawDataBag = {};
       let receivedResponseCount = 0;
@@ -346,7 +350,7 @@ function useRolandDataTransferImpl() {
     function setField<T extends FieldDefinition<any>>(
       field: AtomReference<T>,
       newValue: Uint8Array | ReturnType<T["type"]["decode"]>,
-      queueID: string = "write_utmost"
+      queueID: string = "write_immediate"
     ): void {
       let valueBytes;
       if (newValue instanceof Uint8Array) {

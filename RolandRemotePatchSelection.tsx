@@ -140,7 +140,10 @@ export function RolandRemotePatchSelectionContainer({
             addressMap!.setup.definition.$.patchBsMsb.offset,
           definition: addressMap!.setup.definition.$.patchBsMsb,
         },
-        patch.bankSelectMSB
+        patch.bankSelectMSB,
+        // Only load a new patch after we've finished any pending deferred writes
+        // (which in particular might be to that patch).
+        "write_after_deferred"
       );
       setField(
         {
@@ -149,7 +152,10 @@ export function RolandRemotePatchSelectionContainer({
             addressMap!.setup.definition.$.patchPc.offset,
           definition: addressMap!.setup.definition.$.patchPc,
         },
-        patch.pc
+        patch.pc,
+        // Only load a new patch after we've finished any pending deferred writes
+        // (which in particular might be to that patch).
+        "write_after_deferred"
       );
     },
     [addressMap, outputPort, selectedDevice, setField]
