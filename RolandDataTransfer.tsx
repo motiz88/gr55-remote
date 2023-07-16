@@ -59,6 +59,21 @@ function useRolandDataTransferImpl() {
     ]);
   }
   const updateSchedulerPriorities = useCallback(() => {
+    // Scheduling priorities explained:
+    // 1. Always send write commands before read commands, so reads are never stale
+    //    with respect to a pending user action.
+    // 2. Writes as part of user interactions are time-sensitive and therefore have
+    //    "write_immediate" priority, which is the default. Other writes (e.g.
+    //    auto-save) can be deferred to keep the time-sensitive writes flowing.
+    //    We use "write_after_deferred" when we need to know all deferred writes are
+    //    complete (e.g.)
+    // 3. We reserve the "read_utmost" priority for reading fundamental system parameters
+    //    that we can't function without (e.g. SYSTEM page on GR-55).
+    // 4. Just above "read_default" are the dynamic read priorities, controlled by
+    //    registerQueueAsPriority / unregisterQueueAsPriority (e.g. based on the current
+    //    screen).
+    // 5. Any named queues not included in the current priority order are read from last
+    //    (no particular order is guaranteed).
     scheduler.current!.setPriorityOrder([
       "write_immediate",
       "write_deferred",
