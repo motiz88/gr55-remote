@@ -7,7 +7,6 @@ import {
   FieldType,
   encode,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { RolandRemotePageEditHistoryRegistryProvider } from "./RolandRemotePageEditHistoryRegistry";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
@@ -33,9 +32,9 @@ function RolandRemotePatchEditHistoryMiddleware({
   const editHistory = useEditHistory();
   const { push: pushToHistory, clear: clearHistory } = editHistory;
   const remotePatchState = useContext(PATCH);
-  const { reloadData: reloadRemoteData, setLocalOverride } = remotePatchState;
+  const { reloadData: reloadDataImpl, setRemoteField: setRemoteFieldImpl } =
+    remotePatchState;
 
-  const { setField } = useContext(RolandDataTransferContext);
   const { selectedPatch } = useRolandRemotePatchSelection();
   const previousPatch = usePrevious(selectedPatch);
   useEffect(() => {
@@ -56,7 +55,6 @@ function RolandRemotePatchEditHistoryMiddleware({
       value: Uint8Array,
       previousValue: Uint8Array | void
     ) => {
-      setLocalOverride(field, value);
       if (!previousValue || !equals(previousValue, value)) {
         pushToHistory({
           type: "setRemoteField",
@@ -68,15 +66,15 @@ function RolandRemotePatchEditHistoryMiddleware({
           toValue: value,
         });
       }
-      setField?.(field, value);
+      setRemoteFieldImpl(field, value, previousValue);
     },
-    [pushToHistory, setField, setLocalOverride]
+    [pushToHistory, setRemoteFieldImpl]
   );
 
   const reloadData = useCallback(() => {
     clearHistory();
-    reloadRemoteData();
-  }, [clearHistory, reloadRemoteData]);
+    reloadDataImpl();
+  }, [clearHistory, reloadDataImpl]);
 
   const remotePatchStateWithEditHistory = useMemo(
     () => ({
@@ -123,6 +121,7 @@ export function RolandRemotePatchEditHistoryContainer({
   const remotePatchState = useContext(PATCH);
   const onUndoAction = useCallback(
     (action: Action) => {
+      // TODO: If possible, reset isModifiedSinceSave when rolling back to a state that was saved to begin with.
       if (action.type === "setRemoteField") {
         remotePatchState.setRemoteField(action.field, action.fromValue);
       }
