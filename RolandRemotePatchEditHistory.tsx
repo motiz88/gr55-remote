@@ -108,13 +108,6 @@ function onMergeActions(
     nextAction.type === "setRemoteField" &&
     previousAction.field === nextAction.field
   ) {
-    console.log(
-      "RolandRemotePatchEditHistory: Merging setRemoteField actions",
-      {
-        previousAction,
-        nextAction,
-      }
-    );
     return {
       ...nextAction,
       fromValue: previousAction.fromValue,

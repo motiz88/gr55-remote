@@ -29,15 +29,6 @@ type EditHistoryInternalState<ActionT> = Readonly<{
   transactionDepth: number;
 }>;
 
-function wrapWithLog<T extends (...args: any[]) => any>(fn: T): T {
-  return ((...args: any[]) => {
-    console.log(`Calling ${fn.name} with`, ...args);
-    const result = fn(...args);
-    console.log(`Result of ${fn.name} is`, result);
-    return result;
-  }) as any;
-}
-
 function internalReducer<ActionT>(
   state: EditHistoryInternalState<ActionT>,
   op:
@@ -195,7 +186,7 @@ function useEditHistoryImpl<ActionT>(
     onUndoAction?: (action: ActionT) => void;
   }>
 ) {
-  const [state, dispatch] = useReducer(wrapWithLog(internalReducer<ActionT>), {
+  const [state, dispatch] = useReducer(internalReducer<ActionT>, {
     history: [],
     activeEntryIndex: -1,
     transactionState: null,
