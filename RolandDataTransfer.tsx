@@ -170,7 +170,7 @@ function useRolandDataTransferImpl() {
         setTimeout(() => {
           pendingFetches.current.delete(thisFetch);
           reject(new Error("Data request timed out"));
-        }, 5000);
+        }, 1000);
         try {
           myOutputPort.send(
             makeDataRequestMessage(
