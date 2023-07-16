@@ -2,10 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { MenuAction, MenuView } from "@react-native-menu/menu";
 import { useNavigation } from "@react-navigation/native";
 import { Button } from "@rneui/themed";
-import { useContext, useCallback, useMemo, useState } from "react";
+import { useContext, useCallback, useMemo } from "react";
 import { Platform, View } from "react-native";
 
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
+import { useRolandRemotePatchAutoSave } from "./RolandRemotePatchAutoSave";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useUserOptions } from "./UserOptions";
 import { GlobalNavigationProp } from "./navigation";
@@ -47,9 +48,9 @@ export function PatchSaveHeaderButton({
       initialUserPatchNumber: userPatchNumber,
     });
   }, [navigation, userPatchNumber]);
-  // TODO: Implement auto-save
-  const canAutoSave = false;
-  const [autoSave, setAutoSave] = useState(false);
+  const canAutoSave = userPatchNumber != null;
+  const { isAutoSaveEnabled: autoSave, setAutoSaveEnabled: setAutoSave } =
+    useRolandRemotePatchAutoSave();
   const handlePressAction = useCallback(
     ({
       nativeEvent,
@@ -66,11 +67,11 @@ export function PatchSaveHeaderButton({
           handleSaveAs();
           break;
         case "auto_save":
-          setAutoSave((value) => !value);
+          setAutoSave(!autoSave);
           break;
       }
     },
-    [handleSave, handleSaveAs]
+    [autoSave, handleSave, handleSaveAs, setAutoSave]
   );
   const actions: MenuAction[] = useMemo(
     () => [
@@ -100,8 +101,6 @@ export function PatchSaveHeaderButton({
         state: autoSave ? "on" : "off",
         attributes: {
           disabled: !canAutoSave,
-          // TODO: Implement auto-save
-          hidden: true,
         },
       },
       {

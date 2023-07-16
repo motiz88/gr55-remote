@@ -40,6 +40,7 @@ import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { RolandRemotePatchAutoSaveContainer } from "./RolandRemotePatchAutoSave";
 import { RolandRemotePatchEditHistoryContainer } from "./RolandRemotePatchEditHistory";
 import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelection";
 import { ThemeProvider } from "./Theme";
@@ -90,38 +91,40 @@ export default function App() {
               <RolandRemoteSystemStateContainer>
                 <RolandRemotePatchSelectionContainer>
                   <RolandRemotePatchStateContainer>
-                    <RolandRemotePatchEditHistoryContainer>
-                      <RolandGR55RemotePatchDescriptionsContainer>
-                        <AppNavigationContainer>
-                          <RolandGR55AssignsContainer>
-                            <ThemeProvider>
-                              {/* @ts-ignore AlertsProvider's types are busted :( */}
-                              <AlertsProvider>
-                                <ThemedContextualStyleProvider>
-                                  <PopoversContainer>
-                                    <KeyboardAvoidingView
-                                      behavior={
-                                        Platform.OS === "ios"
-                                          ? "padding"
-                                          : undefined
-                                      }
-                                      enabled={
-                                        // On Android we rely on android:windowSoftInputMode="resize".
-                                        // On web we currently let things render under the keyboard.
-                                        Platform.OS === "ios"
-                                      }
-                                      style={styles.keyboardAvoidingView}
-                                    >
-                                      <RootTabNavigator />
-                                    </KeyboardAvoidingView>
-                                  </PopoversContainer>
-                                </ThemedContextualStyleProvider>
-                              </AlertsProvider>
-                            </ThemeProvider>
-                          </RolandGR55AssignsContainer>
-                        </AppNavigationContainer>
-                      </RolandGR55RemotePatchDescriptionsContainer>
-                    </RolandRemotePatchEditHistoryContainer>
+                    <RolandGR55RemotePatchDescriptionsContainer>
+                      <RolandRemotePatchAutoSaveContainer>
+                        <RolandRemotePatchEditHistoryContainer>
+                          <AppNavigationContainer>
+                            <RolandGR55AssignsContainer>
+                              <ThemeProvider>
+                                {/* @ts-ignore AlertsProvider's types are busted :( */}
+                                <AlertsProvider>
+                                  <ThemedContextualStyleProvider>
+                                    <PopoversContainer>
+                                      <KeyboardAvoidingView
+                                        behavior={
+                                          Platform.OS === "ios"
+                                            ? "padding"
+                                            : undefined
+                                        }
+                                        enabled={
+                                          // On Android we rely on android:windowSoftInputMode="resize".
+                                          // On web we currently let things render under the keyboard.
+                                          Platform.OS === "ios"
+                                        }
+                                        style={styles.keyboardAvoidingView}
+                                      >
+                                        <RootTabNavigator />
+                                      </KeyboardAvoidingView>
+                                    </PopoversContainer>
+                                  </ThemedContextualStyleProvider>
+                                </AlertsProvider>
+                              </ThemeProvider>
+                            </RolandGR55AssignsContainer>
+                          </AppNavigationContainer>
+                        </RolandRemotePatchEditHistoryContainer>
+                      </RolandRemotePatchAutoSaveContainer>
+                    </RolandGR55RemotePatchDescriptionsContainer>
                   </RolandRemotePatchStateContainer>
                 </RolandRemotePatchSelectionContainer>
               </RolandRemoteSystemStateContainer>
