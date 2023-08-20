@@ -27,6 +27,7 @@ type RolandRemotePatchState = RolandRemotePageState & {
   isModifiedSinceSave: boolean;
   setModifiedSinceSave: (value: boolean) => void;
   saveAndSelectUserPatch: (userPatchNumber: number) => Promise<void>;
+  persistUserDataToMemory: (signal?: AbortSignal) => Promise<void>;
 };
 
 const rolandRemotePageEmptyState = {
@@ -45,6 +46,7 @@ const rolandRemotePatchEmptyState = {
   isModifiedSinceSave: false,
   setModifiedSinceSave: () => {},
   saveAndSelectUserPatch: async () => {},
+  persistUserDataToMemory: async () => {},
 };
 
 export const RolandRemotePatchContext =

@@ -13,17 +13,26 @@ import { RolandIoSetupContext } from "./RolandIoSetup";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useUserOptions } from "./UserOptions";
+import useCancellablePromise from "./useCancellablePromise";
 import { usePatchMap } from "./usePatchMap";
 
 type RolandRemotePatchAutoSaveContextType = Readonly<{
+  autoSaveSyncStatus: "pending" | "resolved" | "rejected" | null;
   isAutoSaveEnabled: boolean;
   setAutoSaveEnabled: (autoSaveEnabled: boolean) => void;
+  setAndPersistRemoteField: (
+    field: AtomReference<FieldDefinition<any>>,
+    value: Uint8Array,
+    previousValue: void | Uint8Array
+  ) => void;
 }>;
 
 const RolandRemotePatchAutoSaveContext =
   createContext<RolandRemotePatchAutoSaveContextType>({
+    autoSaveSyncStatus: null,
     isAutoSaveEnabled: false,
     setAutoSaveEnabled() {},
+    setAndPersistRemoteField() {},
   });
 
 export function RolandRemotePatchAutoSaveContainer({
@@ -83,54 +92,97 @@ export function RolandRemotePatchAutoSaveContainer({
     // TODO: Remove/refine
     setAutoSaveEnabled(enableExperimentalFeatures);
   }, [enableExperimentalFeatures, setAutoSaveEnabled]);
+  const [
+    autoSavePersistenceInvalidationCount,
+    setAutoSavePersistenceInvalidationCount,
+  ] = useState(0);
+  const { persistUserDataToMemory } = remotePatchState;
+  const [, , autoSaveSyncStatus] = useCancellablePromise(
+    useCallback(
+      async (signal) => {
+        // Manually register a dependency on the invalidation count to retrigger the command as necessary.
+        // eslint-disable-next-line no-unused-expressions
+        autoSavePersistenceInvalidationCount;
+        if (!isAutoSaveEnabled) {
+          return;
+        }
+        // persistUserDataToMemory is potentially slow on the device side, which hogs the queue
+        // and prevents other commands from being sent. Delay the command to keep the app responsive
+        // immediately after an interaction.
+        await delay(2500);
+        // We might have been aborted during the delay.
+        if (signal?.aborted) {
+          throw new Error("Aborted");
+        }
+        // TODO: Report a different status between this point and "resolved", to avoid implying that
+        // saving takes a long time while we're just waiting above.
+        return persistUserDataToMemory(signal);
+      },
+      [
+        autoSavePersistenceInvalidationCount,
+        isAutoSaveEnabled,
+        persistUserDataToMemory,
+      ]
+    )
+  );
+  const setAndPersistRemoteField = useCallback(
+    (
+      field: AtomReference<FieldDefinition<any>>,
+      value: Uint8Array,
+      previousValue: void | Uint8Array
+    ) => {
+      if (!isAutoSaveEnabled) {
+        return;
+      }
+      if (userPatchNumber == null) {
+        return;
+      }
+      if (selectedDevice == null) {
+        return;
+      }
+      if (selectedDevice.sysExConfig?.addressMap == null) {
+        return;
+      }
+      const mirroredField = {
+        ...field,
+        address:
+          field.address -
+          selectedDevice.sysExConfig.addressMap.temporaryPatch.address +
+          baseAddressByUserPatchNumber!.get(userPatchNumber)!,
+      };
+      setField!(mirroredField, value, "write_deferred");
+      setAutoSavePersistenceInvalidationCount((x) => x + 1);
+    },
+    [
+      baseAddressByUserPatchNumber,
+      isAutoSaveEnabled,
+      selectedDevice,
+      setField,
+      userPatchNumber,
+    ]
+  );
   const context = useMemo(
     () => ({
+      autoSaveSyncStatus,
       isAutoSaveEnabled,
       setAutoSaveEnabled,
+      setAndPersistRemoteField,
     }),
-    [isAutoSaveEnabled, setAutoSaveEnabled]
+    [
+      autoSaveSyncStatus,
+      isAutoSaveEnabled,
+      setAndPersistRemoteField,
+      setAutoSaveEnabled,
+    ]
   );
   const remotePatchStateWithAutoSave = useMemo(
     () => ({
       ...remotePatchState,
       isModifiedSinceSave:
         remotePatchState.isModifiedSinceSave && !isAutoSaveEnabled,
-      setRemoteField(
-        field: AtomReference<FieldDefinition<any>>,
-        value: Uint8Array,
-        previousValue: void | Uint8Array
-      ) {
-        remotePatchState.setRemoteField(field, value, previousValue);
-        if (!isAutoSaveEnabled) {
-          return;
-        }
-        if (userPatchNumber == null) {
-          return;
-        }
-        if (selectedDevice == null) {
-          return;
-        }
-        if (selectedDevice.sysExConfig?.addressMap == null) {
-          return;
-        }
-        const mirroredField = {
-          ...field,
-          address:
-            field.address -
-            selectedDevice.sysExConfig.addressMap.temporaryPatch.address +
-            baseAddressByUserPatchNumber!.get(userPatchNumber)!,
-        };
-        setField!(mirroredField, value, "write_deferred");
-      },
+      // setRemoteField: setAndPersistRemoteField,
     }),
-    [
-      baseAddressByUserPatchNumber,
-      isAutoSaveEnabled,
-      remotePatchState,
-      selectedDevice,
-      setField,
-      userPatchNumber,
-    ]
+    [isAutoSaveEnabled, remotePatchState /*, setAndPersistRemoteField */]
   );
   return (
     <RolandRemotePatchAutoSaveContext.Provider value={context}>
@@ -143,4 +195,8 @@ export function RolandRemotePatchAutoSaveContainer({
 
 export function useRolandRemotePatchAutoSave() {
   return useContext(RolandRemotePatchAutoSaveContext);
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

@@ -120,6 +120,7 @@ export function PatchSaveHeaderButton({
   return (
     <View style={{ flexDirection: "row" }}>
       {/* <View style={{ paddingEnd: 8 }}> */}
+      {/* TODO: use autoSaveSyncStatus to show a useful indicator */}
       {enableExperimentalFeatures && (
         <MenuView
           title={

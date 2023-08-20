@@ -188,7 +188,13 @@ function useRolandDataTransferImpl() {
         pendingFetches.current.add(thisFetch);
         setTimeout(() => {
           pendingFetches.current.delete(thisFetch);
-          reject(new Error("Data request timed out"));
+          reject(
+            new Error(
+              `Data request for ${unpack7(address)
+                .toString(16)
+                .padStart(8, "0")} timed out`
+            )
+          );
         }, 1000);
         try {
           myOutputPort.send(
@@ -281,59 +287,69 @@ function useRolandDataTransferImpl() {
       address: number,
       args: Uint8Array | readonly number[] = [],
       responseAddresses: readonly number[] = [address],
+      command: "RQ1" | "DT1" = "RQ1",
       signal?: AbortSignal,
       // Commands are generally mutations so give them the same priority as writes by default
       queueID: string = "write_immediate"
     ): Promise<RawDataBag> {
       const result: RawDataBag = {};
-      let receivedResponseCount = 0;
-      const responsePromises = responseAddresses.map((responseAddress) =>
-        new Promise<Uint8Array>((resolve, reject) => {
-          const thisFetch: PendingFetch = {
-            resolve,
-            reject,
-            address: responseAddress,
-            expectedLength: null /* unknown */,
-            bytesReceived: 0,
-            selectedDeviceKey,
-            inputPortId: inputPort!.id,
-            outputPortId: outputPort!.id,
-          };
-          pendingFetches.current.add(thisFetch);
-          setTimeout(() => {
-            pendingFetches.current.delete(thisFetch);
-            reject(new Error("Data request timed out"));
-          }, 5000);
-        }).then((valueBytes) => {
-          result[responseAddress] = valueBytes;
-          if (enableExperimentalFeatures) {
-            // Logging is an "experimental feature", until we possibly split it out into its own option
-            ++receivedResponseCount;
-            console.log(
-              `🧪 Received response at 0x${unpack7(responseAddress)
-                .toString(16)
-                .padStart(8, "0")} (${receivedResponseCount} of ${
-                responseAddresses.length
-              }) for command at 0x${unpack7(address)
-                .toString(16)
-                .padStart(8, "0")}: ${Array.from(valueBytes)
-                .map((x) => x.toString(16).padStart(2, "0"))
-                .join(" ")}`
-            );
-          }
-        })
-      );
 
       const lastQueueStartTimestamp = performance.now();
 
       await scheduler.current!.enqueue(async () => {
         const totalQueueTime = performance.now() - lastQueueStartTimestamp;
+
+        let receivedResponseCount = 0;
+        const responsePromises = responseAddresses.map((responseAddress) =>
+          new Promise<Uint8Array>((resolve, reject) => {
+            const thisFetch: PendingFetch = {
+              resolve,
+              reject,
+              address: responseAddress,
+              expectedLength: null /* unknown */,
+              bytesReceived: 0,
+              selectedDeviceKey,
+              inputPortId: inputPort!.id,
+              outputPortId: outputPort!.id,
+            };
+            pendingFetches.current.add(thisFetch);
+            setTimeout(() => {
+              pendingFetches.current.delete(thisFetch);
+              reject(
+                new Error(
+                  `Command request for ${unpack7(address)
+                    .toString(16)
+                    .padStart(8, "0")} timed out`
+                )
+              );
+            }, 5000);
+          }).then((valueBytes) => {
+            result[responseAddress] = valueBytes;
+            if (enableExperimentalFeatures) {
+              // Logging is an "experimental feature", until we possibly split it out into its own option
+              ++receivedResponseCount;
+              console.log(
+                `🧪 Received response at 0x${unpack7(responseAddress)
+                  .toString(16)
+                  .padStart(8, "0")} (${receivedResponseCount} of ${
+                  responseAddresses.length
+                }) for command at 0x${unpack7(address)
+                  .toString(16)
+                  .padStart(8, "0")}: ${Array.from(valueBytes)
+                  .map((x) => x.toString(16).padStart(2, "0"))
+                  .join(" ")}`
+              );
+            }
+          })
+        );
         try {
           if (signal?.aborted) {
             throw new Error("Aborted");
           }
           myOutputPort.send(
-            makeRawDataRequestMessage(
+            (command === "RQ1"
+              ? makeRawDataRequestMessage
+              : makeDataSetMessage)(
               sysExConfig,
               deviceId ?? ALL_DEVICES,
               address,
@@ -468,6 +484,7 @@ export const RolandDataTransferContext = createContext<{
         address: number,
         args?: Uint8Array | readonly number[],
         responseAddresses?: readonly number[],
+        command?: "RQ1" | "DT1",
         signal?: AbortSignal,
         queueID?: string
       ) => Promise<RawDataBag>);

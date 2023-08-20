@@ -9,6 +9,7 @@ import {
 } from "./RolandAddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { RolandRemotePageEditHistoryRegistryProvider } from "./RolandRemotePageEditHistoryRegistry";
+import { useRolandRemotePatchAutoSave } from "./RolandRemotePatchAutoSave";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
 import { useUserOptions } from "./UserOptions";
 import { usePrevious } from "./usePrevious";
@@ -34,6 +35,7 @@ function RolandRemotePatchEditHistoryMiddleware({
   const remotePatchState = useContext(PATCH);
   const { reloadData: reloadDataImpl, setRemoteField: setRemoteFieldImpl } =
     remotePatchState;
+  const { setAndPersistRemoteField } = useRolandRemotePatchAutoSave();
 
   const { selectedPatch } = useRolandRemotePatchSelection();
   const previousPatch = usePrevious(selectedPatch);
@@ -118,23 +120,31 @@ export function RolandRemotePatchEditHistoryContainer({
 }: {
   children: React.ReactNode;
 }) {
-  const remotePatchState = useContext(PATCH);
+  const { setAndPersistRemoteField } = useRolandRemotePatchAutoSave();
   const onUndoAction = useCallback(
     (action: Action) => {
       // TODO: If possible, reset isModifiedSinceSave when rolling back to a state that was saved to begin with.
       if (action.type === "setRemoteField") {
-        remotePatchState.setRemoteField(action.field, action.fromValue);
+        setAndPersistRemoteField(action.field, action.fromValue);
       }
     },
-    [remotePatchState]
+    [setAndPersistRemoteField]
   );
   const onRedoAction = useCallback(
     (action: Action) => {
       if (action.type === "setRemoteField") {
-        remotePatchState.setRemoteField(action.field, action.toValue);
+        setAndPersistRemoteField(action.field, action.toValue);
       }
     },
-    [remotePatchState]
+    [setAndPersistRemoteField]
+  );
+  const onCommitAction = useCallback(
+    (action: Action) => {
+      if (action.type === "setRemoteField") {
+        setAndPersistRemoteField(action.field, action.toValue);
+      }
+    },
+    [setAndPersistRemoteField]
   );
   const [{ enableExperimentalFeatures }] = useUserOptions();
   if (!enableExperimentalFeatures) {
@@ -145,6 +155,7 @@ export function RolandRemotePatchEditHistoryContainer({
       onMergeActions={onMergeActions}
       onRedoAction={onRedoAction}
       onUndoAction={onUndoAction}
+      onCommitAction={onCommitAction}
     >
       <RolandRemotePatchEditHistoryMiddleware>
         {children}

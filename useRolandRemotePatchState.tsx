@@ -69,6 +69,19 @@ export function useRolandRemotePatchState() {
     [rolandDataTransfer, sysExConfig.commands]
   );
 
+  const persistUserDataToMemory = useCallback(
+    async (signal?: AbortSignal) => {
+      if (sysExConfig.commands?.persistUserDataToMemory) {
+        await sysExConfig.commands?.persistUserDataToMemory?.(
+          rolandDataTransfer,
+          signal,
+          "write_after_deferred"
+        );
+      }
+    },
+    [rolandDataTransfer, sysExConfig.commands]
+  );
+
   return useMemo(
     () => ({
       ...remotePageState,
@@ -76,12 +89,14 @@ export function useRolandRemotePatchState() {
       isModifiedSinceSave,
       setModifiedSinceSave,
       saveAndSelectUserPatch,
+      persistUserDataToMemory,
     }),
     [
       isModifiedSinceSave,
       remotePageState,
       setRemoteField,
       saveAndSelectUserPatch,
+      persistUserDataToMemory,
     ]
   );
 }

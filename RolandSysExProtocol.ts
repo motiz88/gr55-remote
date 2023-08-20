@@ -24,7 +24,14 @@ export interface RolandSysExConfig {
   readonly commands?: {
     readonly saveAndSelectUserPatch?: (
       userPatchNumber: number,
-      dataTransfer: React.ContextType<typeof RolandDataTransferContext>
+      dataTransfer: React.ContextType<typeof RolandDataTransferContext>,
+      signal?: AbortSignal,
+      queueID?: string
+    ) => Promise<void>;
+    readonly persistUserDataToMemory?: (
+      dataTransfer: React.ContextType<typeof RolandDataTransferContext>,
+      signal?: AbortSignal,
+      queueID?: string
     ) => Promise<void>;
   };
 }
