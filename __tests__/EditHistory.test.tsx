@@ -15,8 +15,8 @@ describe("EditHistory", () => {
   let useEditHistory: TestEditHistory["useEditHistory"];
 
   const TestContext = React.createContext<
-    [number, Dispatch<SetStateAction<number>>]
-  >([NaN, () => {}]);
+    [number, Dispatch<SetStateAction<number>>, number]
+  >([NaN, () => {}, NaN]);
 
   const onMergeActions = jest.fn(
     (previousAction: TestAction, nextAction: TestAction): TestAction | void => {
@@ -41,14 +41,17 @@ describe("EditHistory", () => {
 
   const Test = ({ children }: { children: React.ReactNode }) => {
     const [state, setState] = React.useState(0);
+    const [committedState, setCommittedState] = React.useState(0);
     const onRedoAction = React.useCallback((action: TestAction) => {
       // console.log("redo", action);
       switch (action.type) {
         case "assign":
           setState(action.to);
+          setCommittedState(action.to);
           break;
         case "multiply":
           setState((s) => s * action.by);
+          setCommittedState((s) => s * action.by);
           break;
       }
     }, []);
@@ -57,9 +60,22 @@ describe("EditHistory", () => {
       switch (action.type) {
         case "assign":
           setState(action.from);
+          setCommittedState(action.from);
           break;
         case "multiply":
           setState((s) => s / action.by);
+          setCommittedState((s) => s / action.by);
+          break;
+      }
+    }, []);
+    const onCommitAction = React.useCallback((action: TestAction) => {
+      // console.log("commit", action);
+      switch (action.type) {
+        case "assign":
+          setCommittedState(action.to);
+          break;
+        case "multiply":
+          setCommittedState((s) => s * action.by);
           break;
       }
     }, []);
@@ -68,8 +84,9 @@ describe("EditHistory", () => {
         onRedoAction={onRedoAction}
         onUndoAction={onUndoAction}
         onMergeActions={onMergeActions}
+        onCommitAction={onCommitAction}
       >
-        <TestContext.Provider value={[state, setState]}>
+        <TestContext.Provider value={[state, setState, committedState]}>
           {children}
         </TestContext.Provider>
       </Container>
@@ -90,6 +107,12 @@ describe("EditHistory", () => {
     const [state] = React.useContext(TestContext);
     // console.log({ state });
     return <>{state}</>;
+  };
+
+  const CommittedReader = () => {
+    const [, , committedState] = React.useContext(TestContext);
+    // console.log({ committedState });
+    return <>{committedState}</>;
   };
 
   const AssignOnce = ({ value }: { value: number }) => {
@@ -191,12 +214,15 @@ describe("EditHistory", () => {
       root = create(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
         </Test>
       );
     });
     expect(root!.toJSON()).toEqual([
       "State: ",
+      "0",
+      "Committed: ",
       "0",
       "Cannot undo",
       "Cannot redo",
@@ -206,6 +232,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
@@ -214,6 +241,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "0",
+      "Committed: ",
+      "0",
       "Cannot undo",
       "Cannot redo",
     ]);
@@ -222,6 +251,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <AssignOnce value={42} />
         </Test>
@@ -231,6 +261,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "42",
+      "Committed: ",
+      "42",
       "Can undo",
       "Cannot redo",
     ]);
@@ -239,18 +271,27 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "0", "Cannot undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "0",
+      "Committed: ",
+      "0",
+      "Cannot undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <RedoOnce />
         </Test>
@@ -259,6 +300,8 @@ describe("EditHistory", () => {
 
     expect(root!.toJSON()).toEqual([
       "State: ",
+      "42",
+      "Committed: ",
       "42",
       "Can undo",
       "Cannot redo",
@@ -270,6 +313,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <RedoOnce key="force1" />
         </Test>
@@ -279,6 +323,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "42",
+      "Committed: ",
+      "42",
       "Can undo",
       "Cannot redo",
     ]);
@@ -287,6 +333,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <MultiplyOnce by={2} />
           <MultiplyOnce by={50} />
@@ -297,6 +344,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "4200",
+      "Committed: ",
+      "4200",
       "Can undo",
       "Cannot redo",
     ]);
@@ -305,18 +354,27 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "84", "Can undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "84",
+      "Committed: ",
+      "84",
+      "Can undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <MultiplyOnce by={500} />
         </Test>
@@ -326,6 +384,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "42000",
+      "Committed: ",
+      "42000",
       "Can undo",
       "Cannot redo",
     ]);
@@ -334,55 +394,88 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "84", "Can undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "84",
+      "Committed: ",
+      "84",
+      "Can undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce key="force" />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "42", "Can undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "42",
+      "Committed: ",
+      "42",
+      "Can undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce key="force2" />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "0", "Cannot undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "0",
+      "Committed: ",
+      "0",
+      "Cannot undo",
+      "Can redo",
+    ]);
 
     // Advance and then clear
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <RedoOnce />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "42", "Can undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "42",
+      "Committed: ",
+      "42",
+      "Can undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <ClearOnce />
         </Test>
@@ -392,6 +485,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "42",
+      "Committed: ",
+      "42",
       "Cannot undo",
       "Cannot redo",
     ]);
@@ -400,6 +495,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
@@ -408,6 +504,8 @@ describe("EditHistory", () => {
 
     expect(root!.toJSON()).toEqual([
       "State: ",
+      "42",
+      "Committed: ",
       "42",
       "Cannot undo",
       "Cannot redo",
@@ -420,6 +518,7 @@ describe("EditHistory", () => {
       root = create(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <StartTransactionOnce />
         </Test>
@@ -427,6 +526,8 @@ describe("EditHistory", () => {
     });
     expect(root!.toJSON()).toEqual([
       "State: ",
+      "0",
+      "Committed: ",
       "0",
       "Cannot undo",
       "Cannot redo",
@@ -436,6 +537,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <AssignOnce value={42} />
         </Test>
@@ -445,6 +547,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "42",
+      "Committed: ",
+      "0",
       "Cannot undo",
       "Cannot redo",
     ]);
@@ -453,6 +557,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <AssignOnce value={1010} key="force" />
         </Test>
@@ -462,6 +567,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "1010",
+      "Committed: ",
+      "0",
       "Cannot undo",
       "Cannot redo",
     ]);
@@ -470,6 +577,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <MultiplyOnce by={2} />
         </Test>
@@ -479,6 +587,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "2020",
+      "Committed: ",
+      "0",
       "Cannot undo",
       "Cannot redo",
     ]);
@@ -487,6 +597,7 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <EndTransactionOnce />
         </Test>
@@ -496,6 +607,8 @@ describe("EditHistory", () => {
     expect(root!.toJSON()).toEqual([
       "State: ",
       "2020",
+      "Committed: ",
+      "2020",
       "Can undo",
       "Cannot redo",
     ]);
@@ -504,18 +617,27 @@ describe("EditHistory", () => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <UndoOnce />
         </Test>
       );
     });
 
-    expect(root!.toJSON()).toEqual(["State: ", "0", "Cannot undo", "Can redo"]);
+    expect(root!.toJSON()).toEqual([
+      "State: ",
+      "0",
+      "Committed: ",
+      "0",
+      "Cannot undo",
+      "Can redo",
+    ]);
 
     act(() => {
       root!.update(
         <Test>
           State: <Reader />
+          Committed: <CommittedReader />
           <UI />
           <RedoOnce />
         </Test>
@@ -524,6 +646,8 @@ describe("EditHistory", () => {
 
     expect(root!.toJSON()).toEqual([
       "State: ",
+      "2020",
+      "Committed: ",
       "2020",
       "Can undo",
       "Cannot redo",

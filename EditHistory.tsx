@@ -29,6 +29,8 @@ type EditHistoryInternalState<ActionT> = Readonly<{
   transactionDepth: number;
 }>;
 
+type InternalOp<ActionT> = Parameters<typeof internalReducer<ActionT>>[1];
+
 function internalReducer<ActionT>(
   state: EditHistoryInternalState<ActionT>,
   op:
@@ -184,6 +186,7 @@ function useEditHistoryImpl<ActionT>(
     ) => ActionT | void;
     onRedoAction?: (action: ActionT) => void;
     onUndoAction?: (action: ActionT) => void;
+    onCommitAction?: (action: ActionT) => void;
   }>
 ) {
   const [state, dispatch] = useReducer(internalReducer<ActionT>, {
@@ -194,47 +197,57 @@ function useEditHistoryImpl<ActionT>(
   });
 
   const isInTransaction = state.transactionDepth > 0;
+  const { onUndoAction, onRedoAction, onCommitAction } = options;
 
   const undo = useCallback(() => {
     // Fire onUndoAction for each action in the entry in reverse order, if not in a transaction
-    if (
-      !isInTransaction &&
-      options.onUndoAction &&
-      state.activeEntryIndex >= 0
-    ) {
+    if (!isInTransaction && onUndoAction && state.activeEntryIndex >= 0) {
       for (
         let i = state.history[state.activeEntryIndex].actions.length - 1;
         i >= 0;
         i--
       ) {
         const action = state.history[state.activeEntryIndex].actions[i];
-        options.onUndoAction(action);
+        onUndoAction(action);
       }
     }
     dispatch({ type: "undo" });
-  }, [options, state.activeEntryIndex, state.history, isInTransaction]);
+  }, [isInTransaction, onUndoAction, state.activeEntryIndex, state.history]);
 
   const redo = useCallback(() => {
     // Fire onRedoAction for each action in the entry, if not in a transaction
     if (
       !isInTransaction &&
-      options.onRedoAction &&
+      onRedoAction &&
       state.activeEntryIndex + 1 < state.history.length
     ) {
       for (const action of state.history[state.activeEntryIndex + 1].actions) {
-        options.onRedoAction(action);
+        onRedoAction(action);
       }
     }
     dispatch({ type: "redo" });
-  }, [isInTransaction, options, state.activeEntryIndex, state.history]);
+  }, [isInTransaction, onRedoAction, state.activeEntryIndex, state.history]);
   const canUndo = state.activeEntryIndex >= 0;
   const canRedo = state.activeEntryIndex < state.history.length - 1;
   const startTransaction = useCallback(() => {
     dispatch({ type: "startTransaction" });
   }, []);
   const endTransaction = useCallback(() => {
-    dispatch({ type: "endTransaction" });
-  }, []);
+    const op: InternalOp<ActionT> = { type: "endTransaction" };
+    dispatch(op);
+    const likelyNextState = internalReducer(state, op);
+    if (
+      !likelyNextState.transactionState &&
+      likelyNextState.history.length &&
+      onCommitAction
+    ) {
+      const lastEntry =
+        likelyNextState.history[likelyNextState.history.length - 1];
+      for (const action of lastEntry.actions) {
+        onCommitAction(action);
+      }
+    }
+  }, [onCommitAction, state]);
   const push = useCallback(
     (action: ActionT) => {
       dispatch({
@@ -242,8 +255,11 @@ function useEditHistoryImpl<ActionT>(
         action,
         onMergeActions: options.onMergeActions,
       });
+      if (!isInTransaction && onCommitAction) {
+        onCommitAction(action);
+      }
     },
-    [options.onMergeActions]
+    [isInTransaction, onCommitAction, options.onMergeActions]
   );
   const clear = useCallback(() => {
     dispatch({ type: "clear" });
@@ -293,6 +309,7 @@ export function createEditHistory<ActionT>() {
     onMergeActions,
     onRedoAction,
     onUndoAction,
+    onCommitAction,
   }: Readonly<{
     onRedoAction?: (action: ActionT) => void;
     onUndoAction?: (action: ActionT) => void;
@@ -300,12 +317,14 @@ export function createEditHistory<ActionT>() {
       previousAction: ActionT,
       nextAction: ActionT
     ) => ActionT | void;
+    onCommitAction?: (action: ActionT) => void;
     children: React.ReactNode;
   }>) {
     const ctx = useEditHistoryImpl<ActionT>({
       onMergeActions,
       onRedoAction,
       onUndoAction,
+      onCommitAction,
     });
     return (
       <EditHistoryAPI.Provider value={ctx}>{children}</EditHistoryAPI.Provider>
