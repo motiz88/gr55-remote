@@ -24,6 +24,7 @@ import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
 import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
+import { PatchMixerScreen } from "./PatchMixerScreen";
 import { PatchToneScreen } from "./PatchToneScreen";
 import { PopoversContainer, usePopovers } from "./Popovers";
 import { RolandDataTransferContext } from "./RolandDataTransferContext";
@@ -163,6 +164,7 @@ export default function App() {
 function PatchDrawerContent(
   props: DrawerContentComponentProps
 ): React.ReactNode {
+  const [{ enableExperimentalFeatures }] = useUserOptions();
   return (
     <DrawerContentScrollView {...props}>
       <DrawerItemList {...props} />
@@ -224,6 +226,13 @@ function PatchDrawerContent(
         label="Other"
         onPress={() => props.navigation.navigate("PatchMasterOther")}
       />
+      {enableExperimentalFeatures ? (
+        <DrawerItem
+          style={{ paddingLeft: 0 }}
+          label="Mixer 🧪"
+          onPress={() => props.navigation.navigate("PatchMixer")}
+        />
+      ) : null}
     </DrawerContentScrollView>
   );
 }
@@ -321,6 +330,11 @@ function PatchStackNavigator() {
         name="PatchMasterPedalGkCtl"
         component={PatchMasterPedalGkCtlScreen}
         options={{ title: "Pedal / GK CTL" }}
+      />
+      <PatchStack.Screen
+        name="PatchMixer"
+        component={PatchMixerScreen}
+        options={{ title: "Mixer" }}
       />
     </PatchStack.Navigator>
   );

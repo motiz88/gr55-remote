@@ -17,6 +17,7 @@ export type PatchStackParamList = {
   PatchAssigns: object;
   PatchMasterOther: object;
   PatchMasterPedalGkCtl: object;
+  PatchMixer: object;
 };
 
 export type PatchEffectsTabParamList = {

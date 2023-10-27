@@ -87,7 +87,6 @@ export function PatchMainScreen({
   if (!selectedDevice) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }
-
   return (
     <PopoverAwareScrollView
       refreshControl={
@@ -262,7 +261,7 @@ export function PatchMainScreen({
   );
 }
 
-function FieldLabel({
+export function FieldLabel({
   page,
   field,
 }: {
@@ -276,7 +275,7 @@ function FieldLabel({
   return <Text>{value}</Text>;
 }
 
-function PCMToneLabel({
+export function PCMToneLabel({
   tone,
 }: {
   tone: typeof GR55.temporaryPatch.patchPCMTone1;
@@ -284,7 +283,7 @@ function PCMToneLabel({
   return <FieldLabel page={PATCH} field={tone.toneSelect} />;
 }
 
-function ModelToneLabel() {
+export function ModelToneLabel() {
   const modelingTone = GR55.temporaryPatch.modelingTone;
 
   // TODO: Check whether we need to read the bass mode switch from the patch or system page.
