@@ -665,7 +665,7 @@ export type ParsedStruct<MembersMap extends { [key: string]: AtomDefinition }> =
   };
 
 export type ParsedField<Type extends FieldType<any>> = {
-  readonly value: ReturnType<Type["decode"]>;
+  readonly value: ValueOf<Type>;
 };
 
 export class StructDefinition<
@@ -1076,6 +1076,12 @@ async function fetchAndTokenizeImpl<Definition extends AtomDefinition>(
       definition.description
   );
 }
+
+export type ValueOf<T> = T extends FieldType<any>
+  ? ReturnType<T["decode"]>
+  : T extends AtomReference<any>
+  ? ValueOf<T["definition"]["type"]>
+  : never;
 
 export type AbsoluteAddressMap<T extends AtomDefinition> =
   T extends StructDefinition<infer MembersMap>
