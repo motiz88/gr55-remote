@@ -3,9 +3,9 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
+  ScrollView,
   ScrollViewProps,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
 
 import { usePopovers } from "./Popovers";
 
