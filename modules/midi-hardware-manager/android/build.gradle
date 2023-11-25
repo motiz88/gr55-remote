@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'maven-publish'
 
-group = 'com.motiz88.reactnativemidi'
+group = 'com.motiz88.gr55remote.midihardwaremanager'
 version = '0.2.0'
 
 buildscript {
@@ -62,7 +62,7 @@ android {
     jvmTarget = JavaVersion.VERSION_11.majorVersion
   }
 
-  namespace "com.motiz88.reactnativemidi"
+  namespace "com.motiz88.gr55remote.midihardwaremanager"
   defaultConfig {
     minSdkVersion safeExtGet("minSdkVersion", 21)
     targetSdkVersion safeExtGet("targetSdkVersion", 33)

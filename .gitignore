@@ -15,3 +15,4 @@ web-build/
 /android/
 /ios/
 .netlify/
+**/android/build

@@ -1,4 +1,4 @@
-package com.motiz88.reactnativemidi
+package com.motiz88.gr55remote.midihardwaremanager
 
 import android.content.Context
 import expo.modules.kotlin.AppContext

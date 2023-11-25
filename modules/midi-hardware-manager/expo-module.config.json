@@ -4,6 +4,8 @@
     "modules": ["MidiHardwareManagerModule"]
   },
   "android": {
-    "modules": ["com.motiz88.reactnativemidi.MidiHardwareManagerModule"]
+    "modules": [
+      "com.motiz88.gr55remote.midihardwaremanager.MidiHardwareManagerModule"
+    ]
   }
 }
