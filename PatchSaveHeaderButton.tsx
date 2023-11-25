@@ -50,29 +50,23 @@ export function PatchSaveHeaderButton({
   return (
     <View style={{ flexDirection: "row" }}>
       <View style={{ paddingEnd: 8 }}>
-        {enableExperimentalFeatures && (
-          <Button disabled={!canQuickSave} type="clear" onPress={handleSave}>
+        {enableExperimentalFeatures && canSaveAs && (
+          <Button disabled={!canSaveAs} type="clear" onPress={handleSaveAs}>
             <MaterialCommunityIcons
-              name={
-                userPatchNumber != null
-                  ? canQuickSave
-                    ? "content-save"
-                    : "content-save-check"
-                  : "content-save-off"
-              }
+              name="pencil-plus"
               size={24}
-              color={canQuickSave ? tintColor : "lightgray"}
+              color={canSaveAs ? tintColor : "lightgray"}
             />
           </Button>
         )}
       </View>
       <View style={{ paddingEnd: 8 }}>
-        {enableExperimentalFeatures && (
-          <Button disabled={!canSaveAs} type="clear" onPress={handleSaveAs}>
+        {enableExperimentalFeatures && userPatchNumber != null && (
+          <Button disabled={!canQuickSave} type="clear" onPress={handleSave}>
             <MaterialCommunityIcons
-              name="content-save-edit"
+              name={canQuickSave ? "pencil" : "check"}
               size={24}
-              color={canSaveAs ? tintColor : "lightgray"}
+              color={canQuickSave ? tintColor : "lightgray"}
             />
           </Button>
         )}
