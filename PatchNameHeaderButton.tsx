@@ -19,7 +19,6 @@ export function PatchNameHeaderButton({
   setPatchName: (newValue: string) => void;
 }) {
   const theme = useNavigationTheme();
-  const [{ enableExperimentalFeatures }] = useUserOptions();
 
   const { renamePatch } = useRenamePatchPrompt({
     patchName,
@@ -32,17 +31,13 @@ export function PatchNameHeaderButton({
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
-      {enableExperimentalFeatures ? (
-        <Button
-          accessibilityLabel="Rename patch"
-          type="clear"
-          onPress={renamePatch}
-        >
-          {headerText}
-        </Button>
-      ) : (
-        headerText
-      )}
+      <Button
+        accessibilityLabel="Rename patch"
+        type="clear"
+        onPress={renamePatch}
+      >
+        {headerText}
+      </Button>
     </View>
   );
 }
