@@ -3,6 +3,7 @@ import {
   RolandGR55PatchAssignsMapBassMode,
   RolandGR55PatchAssignsMapGuitarMode,
 } from "./RolandGR55AssignsMap";
+import * as RolandGR55Commands from "./RolandGR55Commands";
 import {
   RolandGR55PatchMapBassMode,
   RolandGR55PatchMapGuitarMode,
@@ -27,6 +28,7 @@ export const RolandGR55SysExConfig: RolandSysExConfig = {
     patchMapGuitarMode: RolandGR55PatchMapGuitarMode,
     patchMapBassMode: RolandGR55PatchMapBassMode,
   },
+  commands: RolandGR55Commands,
 };
 
 export const AllSysExConfigs: readonly RolandSysExConfig[] = [

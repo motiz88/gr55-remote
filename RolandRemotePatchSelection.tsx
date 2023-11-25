@@ -9,19 +9,21 @@ import {
   useState,
 } from "react";
 
-import { MidiIoContext } from "./MidiIoContext";
+import { MidiIoContext } from "./MidiIo";
 import { parse } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { RolandGR55SysExConfig } from "./RolandDevices";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import useCancellablePromise from "./useCancellablePromise";
 
+export type PatchId = Readonly<{
+  bankSelectMSB: number;
+  pc: number;
+}>;
+
 const RolandRemotePatchSelectionContext = createContext<{
-  selectedPatch?: {
-    bankSelectMSB: number;
-    pc: number;
-  };
-  setSelectedPatch: (patch: { bankSelectMSB: number; pc: number }) => void;
+  selectedPatch?: PatchId;
+  setSelectedPatch: (patch: PatchId) => void;
 }>({
   setSelectedPatch: () => {},
 });
@@ -41,10 +43,7 @@ export function RolandRemotePatchSelectionContainer({
 
   const { requestData, setField } = useContext(RolandDataTransferContext);
 
-  const [selectedPatch, setSelectedPatch] = useState<{
-    bankSelectMSB: number;
-    pc: number;
-  }>();
+  const [selectedPatch, setSelectedPatch] = useState<PatchId>();
 
   useCancellablePromise(
     useCallback(
@@ -121,7 +120,7 @@ export function RolandRemotePatchSelectionContainer({
   }, [inputPort, selectedDevice, inputPort?.state]);
 
   const setAndSendSelectedPatch = useCallback(
-    (patch: { bankSelectMSB: number; pc: number }) => {
+    (patch: PatchId) => {
       if (!selectedDevice || !outputPort || !setField) {
         return;
       }
@@ -159,8 +158,7 @@ export function RolandRemotePatchSelectionContainer({
     () => ({
       selectedPatch: selectedPatch
         ? {
-            bankSelectMSB: selectedPatch.bankSelectMSB,
-            pc: selectedPatch.pc,
+            ...selectedPatch,
           }
         : undefined,
       setSelectedPatch: setAndSendSelectedPatch,

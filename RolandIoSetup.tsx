@@ -1,13 +1,19 @@
 import type { MIDIMessageEvent } from "@motiz88/react-native-midi";
-import { useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useStateWithStoredDefault } from "./AsyncStorageUtils";
-import { MidiIoContext } from "./MidiIoContext";
+import { MidiIoContext } from "./MidiIo";
 import { AllSysExConfigs, RolandGR55SysExConfig } from "./RolandDevices";
-import { DeviceDescriptor } from "./RolandIoSetupContext";
 import * as RolandSysExProtocol from "./RolandSysExProtocol";
 
-export function useRolandIoSetup() {
+function useRolandIoSetupImpl() {
   const [includeFakeDevice, setIncludeFakeDevice] =
     useStateWithStoredDefault<boolean>(
       "@motiz88/gr55-remote/RolandIoSetup/includeFakeDevice",
@@ -132,3 +138,38 @@ export function useRolandIoSetup() {
   );
   return rolandIoSetupContext;
 }
+
+export function RolandIoSetupContainer({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
+  const rolandIoSetupState = useRolandIoSetupImpl();
+  return (
+    <RolandIoSetupContext.Provider value={rolandIoSetupState}>
+      {children}
+    </RolandIoSetupContext.Provider>
+  );
+}
+
+export type DeviceDescriptor = {
+  sysExConfig: RolandSysExProtocol.RolandSysExConfig | null;
+  description: string;
+  identity: RolandSysExProtocol.DeviceIdentity;
+};
+
+export const RolandIoSetupContext = createContext<{
+  connectedDevices: ReadonlyMap<string, Readonly<DeviceDescriptor>>;
+  selectedDevice: Readonly<DeviceDescriptor> | undefined;
+  selectedDeviceKey: string | undefined;
+  setSelectedDeviceKey: (key?: string) => void;
+  includeFakeDevice: boolean;
+  setIncludeFakeDevice: (includeFakeDevice: boolean) => void;
+}>({
+  connectedDevices: new Map(),
+  selectedDevice: undefined,
+  selectedDeviceKey: undefined,
+  setSelectedDeviceKey: () => {},
+  includeFakeDevice: false,
+  setIncludeFakeDevice: () => {},
+});

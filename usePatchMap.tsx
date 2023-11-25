@@ -2,7 +2,7 @@ import { useContext } from "react";
 
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import type { RolandGR55PatchMap } from "./RolandGR55PatchMap";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import { RolandRemoteSystemContext as SYSTEM } from "./RolandRemotePageContext";
 import { useRemoteField } from "./useRemoteField";
 

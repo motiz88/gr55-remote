@@ -1,4 +1,5 @@
 import type { RolandAddressMap } from "./RolandAddressMap";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
 import { AssignsMap } from "./RolandGR55Assigns";
 import type { RolandGR55PatchMap } from "./RolandGR55PatchMap";
 
@@ -17,6 +18,14 @@ export interface RolandSysExConfig {
     readonly assignsMapGuitarMode: AssignsMap;
     readonly patchMapBassMode: RolandGR55PatchMap;
     readonly patchMapGuitarMode: RolandGR55PatchMap;
+  };
+
+  // Commands that may have device-specific implementations
+  readonly commands?: {
+    readonly saveAndSelectUserPatch?: (
+      userPatchNumber: number,
+      dataTransfer: React.ContextType<typeof RolandDataTransferContext>
+    ) => Promise<void>;
   };
 }
 
@@ -85,18 +94,14 @@ export function makeDataSetMessage(
   ];
 }
 
-export function makeDataRequestMessage(
+export function makeRawDataRequestMessage(
   deviceConstants: RolandSysExConfig,
   deviceID: number,
   address: number,
-  lengthPacked: number
+  rawArgs: readonly number[] | Uint8Array = []
 ) {
   const addressArray = convertAddressToByteArray(
     unpack7(address),
-    deviceConstants.addressBytes
-  );
-  const lengthArray = convertAddressToByteArray(
-    unpack7(lengthPacked),
     deviceConstants.addressBytes
   );
   return [
@@ -106,10 +111,27 @@ export function makeDataRequestMessage(
     ...deviceConstants.modelId,
     MESSAGE_DATA_REQUEST_1,
     ...addressArray,
-    ...lengthArray,
-    rolandChecksum([...addressArray, ...lengthArray]),
+    ...rawArgs,
+    rolandChecksum([...addressArray, ...rawArgs]),
     0xf7,
   ];
+}
+
+export function makeDataRequestMessage(
+  deviceConstants: RolandSysExConfig,
+  deviceID: number,
+  address: number,
+  lengthPacked: number
+) {
+  return makeRawDataRequestMessage(
+    deviceConstants,
+    deviceID,
+    address,
+    convertAddressToByteArray(
+      unpack7(lengthPacked),
+      deviceConstants.addressBytes
+    )
+  );
 }
 
 export type ParsedDataResponse = {

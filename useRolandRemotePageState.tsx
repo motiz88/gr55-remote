@@ -7,8 +7,8 @@ import {
   FieldType,
   RawDataBag,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import useCancellablePromise from "./useCancellablePromise";
 
 export function useRolandRemotePageState(

@@ -606,8 +606,8 @@ export class EnumField<
   ) {
     this.description = `enum ${this.rawField.description}`;
     this.size = this.rawField.size;
-    let minEncoded: number | void;
-    let maxEncoded: number | void;
+    let minEncoded: number | void = undefined;
+    let maxEncoded: number | void = undefined;
     for (const encoded of Object.keys(labels)) {
       const encodedNumber = Number(encoded);
       if (minEncoded == null || encodedNumber < minEncoded) {
@@ -1145,4 +1145,10 @@ export function isBooleanFieldReference(
   field: FieldReference<FieldType<any>>
 ): field is FieldReference<BooleanField> {
   return isBooleanField(field.definition.type);
+}
+
+export function roundTripEncode<T>(value: T, type: FieldType<T>): T {
+  const bytes = new Uint8Array(type.size);
+  type.encode(value, bytes, 0, type.size);
+  return type.decode(bytes, 0, type.size);
 }
