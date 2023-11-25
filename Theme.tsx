@@ -26,6 +26,10 @@ export const DefaultTheme = {
     pendingTextPlaceholder: "rgb(216, 216, 216)",
     searchBarText: "#000000",
     saveAsSummaryBackground: "#a3ff9e",
+    slider: {
+      trackMinimum: "#3f3f3f",
+      trackMaximum: "#b3b3b3",
+    },
   },
 };
 
@@ -43,6 +47,10 @@ export const DarkTheme = {
     pendingTextPlaceholder: "rgb(39, 39, 41)",
     searchBarText: "#ffffff",
     saveAsSummaryBackground: "#1A4D26",
+    slider: {
+      trackMinimum: "#c3c3c3",
+      trackMaximum: "#3f3f3f",
+    },
   },
 };
 

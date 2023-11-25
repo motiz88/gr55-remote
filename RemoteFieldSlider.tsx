@@ -1,4 +1,3 @@
-import Slider from "@react-native-community/slider";
 import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -6,6 +5,7 @@ import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { Slider } from "./Slider";
 import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
@@ -121,17 +121,14 @@ function SliderControl({
         onSlidingComplete={handleSlidingComplete}
         value={isPending ? field.definition.type.max : value}
         minimumTrackTintColor={
-          isPending ? theme.colors.pendingTextPlaceholder : undefined
-        }
-        maximumTrackTintColor={
-          isPending ? theme.colors.pendingTextPlaceholder : undefined
-        }
-        thumbTintColor={
           isPending
             ? theme.colors.pendingTextPlaceholder
-            : isAssigned
-            ? "cornflowerblue"
-            : "white"
+            : theme.colors.slider.trackMinimum
+        }
+        maximumTrackTintColor={
+          isPending
+            ? theme.colors.pendingTextPlaceholder
+            : theme.colors.slider.trackMaximum
         }
         disabled={isPending}
       />
@@ -148,5 +145,9 @@ const styles = StyleSheet.create({
   },
   labelRow: {
     flexDirection: "row",
+  },
+  sliderThumb: {
+    opacity: 0,
+    width: 0,
   },
 });
