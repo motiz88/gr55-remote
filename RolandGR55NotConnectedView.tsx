@@ -37,7 +37,9 @@ export function RolandGR55NotConnectedView({
             navigation.getParent(
               "RootTab"
             ) as BottomTabNavigationProp<RootTabParamList>
-          ).navigate("IoSetup", {})
+          ).navigate("SetupStack", {
+            screen: "IoSetup",
+          })
         }
         title="Go to setup"
       />

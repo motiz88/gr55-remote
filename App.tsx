@@ -16,6 +16,10 @@ import { AlertsProvider } from "react-native-paper-alerts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
+import {
+  BluetoothSettingsScreen,
+  canShowBluetoothSettings,
+} from "./BluetoothSettingsScreen";
 import { IoSetupScreen } from "./IoSetupScreen";
 import { LibraryPatchListScreen } from "./LibraryPatchListScreen";
 import { MidiIoSetupContainer } from "./MidiIo";
@@ -43,7 +47,11 @@ import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelectio
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
-import { PatchStackParamList, RootTabParamList } from "./navigation";
+import {
+  PatchStackParamList,
+  RootTabParamList,
+  SetupStackParamList,
+} from "./navigation";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
 
@@ -51,6 +59,7 @@ const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
 const PatchDrawer = createDrawerNavigator();
 const RootTab = createBottomTabNavigator<RootTabParamList>();
+const SetupStack = createNativeStackNavigator<SetupStackParamList>();
 
 function RolandRemotePatchStateContainer({
   children,
@@ -249,9 +258,10 @@ function RootTabNavigator() {
         }}
       />
       <RootTab.Screen
-        name="IoSetup"
-        component={IoSetupScreen}
+        name="SetupStack"
+        component={SetupStackNavigator}
         options={{
+          headerShown: false,
           title: "Setup",
           tabBarIcon: ({ color }) => (
             <Ionicons name="settings" size={24} color={color} />
@@ -307,6 +317,25 @@ function PatchStackNavigator() {
         />
       </PatchStack.Group>
     </PatchStack.Navigator>
+  );
+}
+
+function SetupStackNavigator() {
+  return (
+    <SetupStack.Navigator initialRouteName="IoSetup" id="SetupStack">
+      <SetupStack.Screen
+        name="IoSetup"
+        component={IoSetupScreen}
+        options={{ title: "Setup" }}
+      />
+      {canShowBluetoothSettings ? (
+        <SetupStack.Screen
+          name="BluetoothSettings"
+          component={BluetoothSettingsScreen}
+          options={{ title: "Bluetooth Settings", presentation: "modal" }}
+        />
+      ) : null}
+    </SetupStack.Navigator>
   );
 }
 

@@ -1,6 +1,10 @@
-import { useCallback, useContext } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { Button } from "@rneui/themed";
+import { useCallback, useContext, useEffect } from "react";
 import { StyleSheet, Switch } from "react-native";
 
+import { canShowBluetoothSettings } from "./BluetoothSettingsScreen";
 import { MidiIoSetupContext } from "./MidiIo";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RolandIoSetupContext } from "./RolandIoSetup";
@@ -8,8 +12,11 @@ import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedPicker as Picker } from "./ThemedPicker";
 import { ThemedText as Text } from "./ThemedText";
 import { useUserOptions } from "./UserOptions";
+import { SetupStackParamList } from "./navigation";
 
-export function IoSetupScreen() {
+export function IoSetupScreen({
+  navigation,
+}: NativeStackScreenProps<SetupStackParamList, "IoSetup", "SetupStack">) {
   const {
     inputs,
     outputs,
@@ -32,6 +39,27 @@ export function IoSetupScreen() {
       }),
     [setUserOptions]
   );
+
+  useEffect(() => {
+    if (canShowBluetoothSettings) {
+      const navigateToBluetoothSettings = () => {
+        navigation.navigate("BluetoothSettings", {});
+      };
+      navigation.setOptions({
+        headerRight: ({ tintColor }) => {
+          return (
+            <Button type="clear" onPress={navigateToBluetoothSettings}>
+              <MaterialCommunityIcons
+                name="bluetooth"
+                size={24}
+                color={tintColor}
+              />
+            </Button>
+          );
+        },
+      });
+    }
+  }, [navigation]);
 
   return (
     <PopoverAwareScrollView

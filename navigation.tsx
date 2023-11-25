@@ -3,7 +3,7 @@ import { NavigationProp } from "@react-navigation/native";
 export type RootTabParamList = {
   PatchDrawer: object;
   LibraryPatchList: object;
-  IoSetup: object;
+  SetupStack: object;
 };
 
 export type PatchDrawerParamList = {
@@ -57,6 +57,11 @@ export type PatchAssignsTabParamList = {
   Assign6: object;
   Assign7: object;
   Assign8: object;
+};
+
+export type SetupStackParamList = {
+  IoSetup: object;
+  BluetoothSettings: object;
 };
 
 export type GlobalNavigationProp = NavigationProp<
