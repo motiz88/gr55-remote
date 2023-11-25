@@ -47,6 +47,7 @@ import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelectio
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
+import { setNetworkSessionsEnabled } from "./modules/midi-hardware-manager";
 import {
   PatchStackParamList,
   RootTabParamList,
@@ -88,6 +89,9 @@ function RolandRemoteSystemStateContainer({
 }
 
 export default function App() {
+  React.useEffect(() => {
+    setNetworkSessionsEnabled(true);
+  }, []);
   return (
     <SafeAreaProvider>
       <UserOptionsContainer>
