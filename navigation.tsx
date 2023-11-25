@@ -17,6 +17,7 @@ export type PatchStackParamList = {
   PatchAssigns: object;
   PatchMasterOther: object;
   PatchMasterPedalGkCtl: object;
+  PatchSaveAs: { readonly initialUserPatchNumber: void | number };
 };
 
 export type PatchEffectsTabParamList = {

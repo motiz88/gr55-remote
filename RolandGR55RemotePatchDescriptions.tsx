@@ -13,7 +13,8 @@ import {
   getAddresses,
   parse,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
+import { RolandRemotePatchContext } from "./RolandRemotePageContext";
 import { pack7 } from "./RolandSysExProtocol";
 import useCancellablePromise from "./useCancellablePromise";
 import { usePatchMap } from "./usePatchMap";
@@ -42,6 +43,10 @@ export type RolandGR55PatchDescription = {
     readonly pc: number;
     readonly patchNumberLabel: string;
     readonly styleLabel: string;
+    readonly userPatch?: {
+      readonly patchNumber: number;
+      readonly baseAddress: number;
+    };
   };
   readonly data: {
     readonly name: string;
@@ -53,72 +58,108 @@ const RolandGR55RemotePatchDescriptions = React.createContext<{
   readonly reloadData: () => void;
 }>({ patches: null, reloadData: () => {} });
 
-function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
-  typeof RolandGR55RemotePatchDescriptions
-> {
+export function RolandGR55RemotePatchDescriptionsContainer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const patchMap = usePatchMap();
   const { requestData } = useContext(RolandDataTransferContext);
   const userPatchDescriptionsMut = useRef<{ name: string }[]>([]);
+  const [userPatchDescriptions, setUserPatchDescriptions] = useState<
+    { name: string }[]
+  >([]);
   const [invalidationCount, setInvalidationCount] = useState(0);
-  const [
-    userPatchDescriptions,
-    userPatchDescriptionsError,
-    userPatchDescriptionsStatus,
-  ] = useCancellablePromise(
-    useCallback(
-      async (signal) => {
-        // Manually register a dependency on the invalidation count to force a refetch in invalidateData.
-        // eslint-disable-next-line no-unused-expressions
-        invalidationCount;
-        if (!patchMap || !requestData) {
-          throw new Error(
-            "No patch map or request data available. Is a GR-55 connected?"
-          );
-        }
-        const promises = [];
-        userPatchDescriptionsMut.current = [];
-        for (const patch of patchMap.patchList) {
-          const { userPatch } = patch;
-          if (!userPatch) {
-            continue;
+  const [, userPatchDescriptionsError, userPatchDescriptionsStatus] =
+    useCancellablePromise(
+      useCallback(
+        async (signal) => {
+          // Manually register a dependency on the invalidation count to force a refetch in invalidateData.
+          // eslint-disable-next-line no-unused-expressions
+          invalidationCount;
+          if (!patchMap || !requestData) {
+            throw new Error(
+              "No patch map or request data available. Is a GR-55 connected?"
+            );
           }
-          promises.push(
-            (async () => {
-              const compactPatchData = await requestData(
-                CompactPatchDefinition,
-                userPatch.baseAddress,
-                signal,
-                "read_patch_list"
-              );
-              const [patchName] = parse(
-                compactPatchData[
-                  userPatch.baseAddress +
-                    CompactPatchDefinitionAddresses.common.patchName.address
-                ],
-                CompactPatchDefinitionAddresses.common.patchName.definition,
-                0
-              );
-              userPatchDescriptionsMut.current[userPatch.patchNumber] = {
-                name: patchName.value,
-              };
-            })()
-          );
-        }
-        await Promise.all(promises);
-        return userPatchDescriptionsMut.current;
-      },
-      [patchMap, requestData, invalidationCount]
-    )
-  );
+          const promises = [];
+          for (const patch of patchMap.patchList) {
+            const { userPatch } = patch;
+            if (!userPatch) {
+              continue;
+            }
+            if (userPatchDescriptionsMut.current[userPatch.patchNumber]) {
+              continue;
+            }
+            promises.push(
+              (async () => {
+                const compactPatchData = await requestData(
+                  CompactPatchDefinition,
+                  userPatch.baseAddress,
+                  signal,
+                  "read_patch_list"
+                );
+                const [patchName] = parse(
+                  compactPatchData[
+                    userPatch.baseAddress +
+                      CompactPatchDefinitionAddresses.common.patchName.address
+                  ],
+                  CompactPatchDefinitionAddresses.common.patchName.definition,
+                  0
+                );
+                userPatchDescriptionsMut.current[userPatch.patchNumber] = {
+                  name: patchName.value,
+                };
+              })()
+            );
+          }
+          await Promise.all(promises);
+          setUserPatchDescriptions((prev) => {
+            // merge prev and current
+            const size = Math.max(
+              prev.length,
+              userPatchDescriptionsMut.current.length
+            );
+            const result: typeof prev = [];
+            for (let i = 0; i < size; i++) {
+              result.push(userPatchDescriptionsMut.current[i] ?? prev[i]);
+            }
+            return result;
+          });
+        },
+        [patchMap, requestData, invalidationCount]
+      )
+    );
 
   const invalidateData = useMemo(
     () => () => {
+      userPatchDescriptionsMut.current = [];
       setInvalidationCount((x) => x + 1);
     },
     []
   );
 
-  return useMemo(() => {
+  const invalidatePatch = useCallback(
+    (userPatchNumber: number) => {
+      delete userPatchDescriptionsMut.current[userPatchNumber];
+      setInvalidationCount((x) => x + 1);
+    },
+    [setInvalidationCount]
+  );
+
+  const remotePatchState = useContext(RolandRemotePatchContext);
+  const remotePatchStateInner = useMemo(
+    () => ({
+      ...remotePatchState,
+      async saveAndSelectUserPatch(userPatchNumber: number) {
+        await remotePatchState.saveAndSelectUserPatch(userPatchNumber);
+        invalidatePatch(userPatchNumber);
+      },
+    }),
+    [invalidatePatch, remotePatchState]
+  );
+
+  const state = useMemo(() => {
     if (!patchMap) {
       return { patches: null, reloadData: invalidateData };
     }
@@ -133,6 +174,7 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
             pc: patch.pc,
             patchNumberLabel: patch.patchNumberLabel,
             styleLabel: patch.styleLabel,
+            userPatch: patch.userPatch,
           },
           data: userPatchDescriptions
             ? userPatchDescriptions[patch.userPatch.patchNumber]
@@ -162,18 +204,11 @@ function useRolandGR55RemotePatchDescriptionsState(): React.ContextType<
     userPatchDescriptionsError,
     userPatchDescriptionsStatus,
   ]);
-}
-
-export function RolandGR55RemotePatchDescriptionsContainer({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const state = useRolandGR55RemotePatchDescriptionsState();
-
   return (
     <RolandGR55RemotePatchDescriptions.Provider value={state}>
-      {children}
+      <RolandRemotePatchContext.Provider value={remotePatchStateInner}>
+        {children}
+      </RolandRemotePatchContext.Provider>
     </RolandGR55RemotePatchDescriptions.Provider>
   );
 }

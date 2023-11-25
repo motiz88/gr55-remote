@@ -6,6 +6,11 @@ import {
 } from "@rneui/themed";
 import { createContext, useContext, useMemo } from "react";
 import { Platform, useColorScheme } from "react-native";
+import {
+  MD2LightTheme,
+  MD2DarkTheme,
+  Provider as PaperProvider,
+} from "react-native-paper";
 
 export const DefaultTheme = {
   colors: {
@@ -20,6 +25,7 @@ export const DefaultTheme = {
     },
     pendingTextPlaceholder: "rgb(216, 216, 216)",
     searchBarText: "#000000",
+    saveAsSummaryBackground: "#a3ff9e",
   },
 };
 
@@ -36,6 +42,7 @@ export const DarkTheme = {
     },
     pendingTextPlaceholder: "rgb(39, 39, 41)",
     searchBarText: "#ffffff",
+    saveAsSummaryBackground: "#1A4D26",
   },
 };
 
@@ -61,7 +68,6 @@ export const rneTheme = createRNETheme({
     }),
   },
   darkColors: {
-    primary: "rgb(10, 132, 255)",
     background: "rgb(28, 28, 30)",
     black: "rgb(255, 255, 255)",
     white: "rgb(28, 28, 30)",
@@ -79,8 +85,25 @@ export const rneTheme = createRNETheme({
       ios: darkColors.platform.ios,
       android: darkColors.platform.android,
     }),
+    primary: "rgb(0, 122, 255)",
   },
 });
+
+const paperThemeDark = {
+  ...MD2DarkTheme,
+  colors: {
+    ...MD2DarkTheme.colors,
+    primary: rneTheme.darkColors?.primary,
+  },
+};
+
+const paperThemeLight = {
+  ...MD2LightTheme,
+  colors: {
+    ...MD2LightTheme.colors,
+    primary: rneTheme.lightColors?.primary,
+  },
+};
 
 const ThemeContext = createContext(DefaultTheme);
 
@@ -102,7 +125,11 @@ export function ThemeProvider({ children }: { children?: React.ReactNode }) {
   return (
     <ThemeContext.Provider value={theme}>
       <RNEThemeProvider key={scheme} theme={rneThemeWithMode}>
-        {children}
+        <PaperProvider
+          theme={scheme === "dark" ? paperThemeDark : paperThemeLight}
+        >
+          {children}
+        </PaperProvider>
       </RNEThemeProvider>
     </ThemeContext.Provider>
   );

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 
 import { RolandGR55SysExConfig } from "./RolandDevices";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import { useRolandRemotePageState } from "./useRolandRemotePageState";
 
 export function useRolandRemoteSystemState() {

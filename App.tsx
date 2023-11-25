@@ -11,40 +11,42 @@ import {
 } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from "react-native";
+import { AlertsProvider } from "react-native-paper-alerts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import AppNavigationContainer from "./AppNavigationContainer";
 import { IoSetupScreen } from "./IoSetupScreen";
 import { LibraryPatchListScreen } from "./LibraryPatchListScreen";
-import { MidiIoContext } from "./MidiIoContext";
-import { MidiIoSetupContext } from "./MidiIoSetupContext";
+import { MidiIoSetupContainer } from "./MidiIo";
 import { PatchAssignsScreen } from "./PatchAssignsScreen";
 import { PatchEffectsScreen } from "./PatchEffectsScreen";
 import { PatchMainScreen } from "./PatchMainScreen";
 import { PatchMasterOtherScreen } from "./PatchMasterOtherScreen";
 import { PatchMasterPedalGkCtlScreen } from "./PatchMasterPedalGkCtlScreen";
+import { PatchSaveAsScreen } from "./PatchSaveAsScreen";
+import { PatchSaveHeaderButton } from "./PatchSaveHeaderButton";
 import { PatchToneScreen } from "./PatchToneScreen";
+import { PatchUndoRedoHeaderControls } from "./PatchUndoRedoHeaderControls";
 import { PopoversContainer, usePopovers } from "./Popovers";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
+import {
+  useFocusQueryPriority,
+  RolandDataTransferContainer,
+} from "./RolandDataTransfer";
 import { RolandGR55AssignsContainer } from "./RolandGR55AssignsContainer";
 import { RolandGR55RemotePatchDescriptionsContainer } from "./RolandGR55RemotePatchDescriptions";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandIoSetupContainer } from "./RolandIoSetup";
 import {
   RolandRemotePatchContext,
   RolandRemoteSystemContext,
 } from "./RolandRemotePageContext";
+import { RolandRemotePatchAutoSaveContainer } from "./RolandRemotePatchAutoSave";
+import { RolandRemotePatchEditHistoryContainer } from "./RolandRemotePatchEditHistory";
 import { RolandRemotePatchSelectionContainer } from "./RolandRemotePatchSelection";
 import { ThemeProvider } from "./Theme";
 import { ThemedContextualStyleProvider } from "./ThemedContextualStyleProvider";
 import { UserOptionsContainer, useUserOptions } from "./UserOptions";
 import { PatchStackParamList, RootTabParamList } from "./navigation";
-import { useMidiIoSetup } from "./useMidiIoSetup";
-import {
-  useFocusQueryPriority,
-  useRolandDataTransfer,
-} from "./useRolandDataTransfer";
-import { useRolandIoSetup } from "./useRolandIoSetup";
 import { useRolandRemotePatchState } from "./useRolandRemotePatchState";
 import { useRolandRemoteSystemState } from "./useRolandRemoteSystemState";
 
@@ -52,26 +54,6 @@ const PatchStack = createNativeStackNavigator<PatchStackParamList>();
 
 const PatchDrawer = createDrawerNavigator();
 const RootTab = createBottomTabNavigator<RootTabParamList>();
-
-function MidiIoSetupContainer({ children }: { children?: React.ReactNode }) {
-  const midiIoSetupState = useMidiIoSetup();
-  return (
-    <MidiIoSetupContext.Provider value={midiIoSetupState}>
-      <MidiIoContext.Provider value={midiIoSetupState.midiIoContext}>
-        {children}
-      </MidiIoContext.Provider>
-    </MidiIoSetupContext.Provider>
-  );
-}
-
-function RolandIoSetupContainer({ children }: { children?: React.ReactNode }) {
-  const rolandIoSetupState = useRolandIoSetup();
-  return (
-    <RolandIoSetupContext.Provider value={rolandIoSetupState}>
-      {children}
-    </RolandIoSetupContext.Provider>
-  );
-}
 
 function RolandRemotePatchStateContainer({
   children,
@@ -99,19 +81,6 @@ function RolandRemoteSystemStateContainer({
   );
 }
 
-function RolandDataTransferContainer({
-  children,
-}: {
-  children?: React.ReactNode;
-}) {
-  const rolandDataTransfer = useRolandDataTransfer();
-  return (
-    <RolandDataTransferContext.Provider value={rolandDataTransfer}>
-      {children}
-    </RolandDataTransferContext.Provider>
-  );
-}
-
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -120,37 +89,44 @@ export default function App() {
           <RolandIoSetupContainer>
             <RolandDataTransferContainer>
               <RolandRemoteSystemStateContainer>
-                <RolandGR55RemotePatchDescriptionsContainer>
-                  <RolandRemotePatchSelectionContainer>
-                    <RolandRemotePatchStateContainer>
-                      <AppNavigationContainer>
-                        <RolandGR55AssignsContainer>
-                          <ThemeProvider>
-                            <ThemedContextualStyleProvider>
-                              <PopoversContainer>
-                                <KeyboardAvoidingView
-                                  behavior={
-                                    Platform.OS === "ios"
-                                      ? "padding"
-                                      : undefined
-                                  }
-                                  enabled={
-                                    // On Android we rely on android:windowSoftInputMode="resize".
-                                    // On web we currently let things render under the keyboard.
-                                    Platform.OS === "ios"
-                                  }
-                                  style={styles.keyboardAvoidingView}
-                                >
-                                  <RootTabNavigator />
-                                </KeyboardAvoidingView>
-                              </PopoversContainer>
-                            </ThemedContextualStyleProvider>
-                          </ThemeProvider>
-                        </RolandGR55AssignsContainer>
-                      </AppNavigationContainer>
-                    </RolandRemotePatchStateContainer>
-                  </RolandRemotePatchSelectionContainer>
-                </RolandGR55RemotePatchDescriptionsContainer>
+                <RolandRemotePatchSelectionContainer>
+                  <RolandRemotePatchStateContainer>
+                    <RolandGR55RemotePatchDescriptionsContainer>
+                      <RolandRemotePatchAutoSaveContainer>
+                        <RolandRemotePatchEditHistoryContainer>
+                          <AppNavigationContainer>
+                            <RolandGR55AssignsContainer>
+                              <ThemeProvider>
+                                {/* @ts-ignore AlertsProvider's types are busted :( */}
+                                <AlertsProvider>
+                                  <ThemedContextualStyleProvider>
+                                    <PopoversContainer>
+                                      <KeyboardAvoidingView
+                                        behavior={
+                                          Platform.OS === "ios"
+                                            ? "padding"
+                                            : undefined
+                                        }
+                                        enabled={
+                                          // On Android we rely on android:windowSoftInputMode="resize".
+                                          // On web we currently let things render under the keyboard.
+                                          Platform.OS === "ios"
+                                        }
+                                        style={styles.keyboardAvoidingView}
+                                      >
+                                        <RootTabNavigator />
+                                      </KeyboardAvoidingView>
+                                    </PopoversContainer>
+                                  </ThemedContextualStyleProvider>
+                                </AlertsProvider>
+                              </ThemeProvider>
+                            </RolandGR55AssignsContainer>
+                          </AppNavigationContainer>
+                        </RolandRemotePatchEditHistoryContainer>
+                      </RolandRemotePatchAutoSaveContainer>
+                    </RolandGR55RemotePatchDescriptionsContainer>
+                  </RolandRemotePatchStateContainer>
+                </RolandRemotePatchSelectionContainer>
               </RolandRemoteSystemStateContainer>
             </RolandDataTransferContainer>
           </RolandIoSetupContainer>
@@ -308,20 +284,38 @@ function PatchStackNavigator() {
         },
       }}
     >
-      <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
-      <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
-      <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
-      <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
-      <PatchStack.Screen
-        name="PatchMasterOther"
-        component={PatchMasterOtherScreen}
-        options={{ title: "Other" }}
-      />
-      <PatchStack.Screen
-        name="PatchMasterPedalGkCtl"
-        component={PatchMasterPedalGkCtlScreen}
-        options={{ title: "Pedal / GK CTL" }}
-      />
+      <PatchStack.Group
+        screenOptions={{
+          headerRight: ({ tintColor }) => (
+            <View style={{ flexDirection: "row" }}>
+              <PatchUndoRedoHeaderControls tintColor={tintColor} />
+              <PatchSaveHeaderButton tintColor={tintColor} />
+            </View>
+          ),
+        }}
+      >
+        <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
+        <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />
+        <PatchStack.Screen name="PatchEffects" component={PatchEffectsScreen} />
+        <PatchStack.Screen name="PatchAssigns" component={PatchAssignsScreen} />
+        <PatchStack.Screen
+          name="PatchMasterOther"
+          component={PatchMasterOtherScreen}
+          options={{ title: "Other" }}
+        />
+        <PatchStack.Screen
+          name="PatchMasterPedalGkCtl"
+          component={PatchMasterPedalGkCtlScreen}
+          options={{ title: "Pedal / GK CTL" }}
+        />
+      </PatchStack.Group>
+      <PatchStack.Group screenOptions={{ presentation: "modal" }}>
+        <PatchStack.Screen
+          name="PatchSaveAs"
+          component={PatchSaveAsScreen}
+          options={{ title: "Write user patch" }}
+        />
+      </PatchStack.Group>
     </PatchStack.Navigator>
   );
 }

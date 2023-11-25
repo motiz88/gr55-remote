@@ -1,11 +1,12 @@
 import Slider from "@react-native-community/slider";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { RemoteFieldRow } from "./RemoteFieldRow";
 import { FieldReference, NumericField } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
+import { useEditHistoryForPage } from "./RolandRemotePageEditHistoryRegistry";
 import { useTheme } from "./Theme";
 import { ThemedText as Text } from "./ThemedText";
 import { useMaybeControlledRemoteField } from "./useRemoteField";
@@ -28,14 +29,21 @@ export function RemoteFieldSlider({
   onSlidingStart?: (value: number) => void;
   onSlidingComplete?: (value: number) => void;
 }) {
+  const isSliding = useRef(false);
   const [value, setValue, status] = useMaybeControlledRemoteField(
     page,
     field,
     valueProp,
     onValueChangeProp
   );
+  const editHistory = useEditHistoryForPage(page);
+  const startTransaction = editHistory?.startTransaction;
+  const endTransaction = editHistory?.endTransaction;
   const handleValueChange = useCallback(
     (valueOrValues: number | number[]) => {
+      if (!isSliding.current) {
+        return;
+      }
       if (typeof valueOrValues === "number") {
         setValue(valueOrValues);
       } else {
@@ -46,13 +54,15 @@ export function RemoteFieldSlider({
   );
   const handleSlidingStart = useCallback(
     (valueOrValues: number | number[]) => {
+      isSliding.current = true;
+      startTransaction?.();
       if (typeof valueOrValues === "number") {
         onSlidingStart?.(valueOrValues);
       } else {
         onSlidingStart?.(valueOrValues[0]);
       }
     },
-    [onSlidingStart]
+    [startTransaction, onSlidingStart]
   );
   const handleSlidingComplete = useCallback(
     (valueOrValues: number | number[]) => {
@@ -61,8 +71,10 @@ export function RemoteFieldSlider({
       } else {
         onSlidingComplete?.(valueOrValues[0]);
       }
+      isSliding.current = false;
+      endTransaction?.();
     },
-    [onSlidingComplete]
+    [endTransaction, onSlidingComplete]
   );
   const prettyValue = field.definition.type.format(value);
   return (

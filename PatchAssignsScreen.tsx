@@ -297,7 +297,7 @@ function AssignSection({
 }) {
   const { setAssignTarget } = useRolandGR55Assigns();
   const [source, setSource] = useRemoteField(PATCH, assign.source);
-  const [target, setTarget] = useRemoteField(PATCH, assign.target);
+  const [target] = useRemoteField(PATCH, assign.target);
   const targetField = useAssignTargetField(assignsMap, assign.target);
   const { targetMinField, targetMaxField } = useAssign(
     assignsMap,
@@ -310,9 +310,8 @@ function AssignSection({
       // NOTE: At least with Picker, this fires only for true user events, as expected.
       // setAssignTarget resets the range as a side effect.
       setAssignTarget(assign, nextTarget);
-      setTarget(nextTarget);
     },
-    [setAssignTarget, assign, setTarget]
+    [setAssignTarget, assign]
   );
 
   return (

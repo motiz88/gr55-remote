@@ -7,8 +7,8 @@ import {
   FieldType,
   RawDataBag,
 } from "./RolandAddressMap";
-import { RolandDataTransferContext } from "./RolandDataTransferContext";
-import { RolandIoSetupContext } from "./RolandIoSetupContext";
+import { RolandDataTransferContext } from "./RolandDataTransfer";
+import { RolandIoSetupContext } from "./RolandIoSetup";
 import useCancellablePromise from "./useCancellablePromise";
 
 export function useRolandRemotePageState(
@@ -113,7 +113,8 @@ export function useRolandRemotePageState(
   const setRemoteField = useCallback(
     <T extends FieldDefinition<any>>(
       field: AtomReference<T>,
-      value: Uint8Array | ReturnType<T["type"]["decode"]>
+      value: Uint8Array | ReturnType<T["type"]["decode"]>,
+      previousValue: Uint8Array | ReturnType<T["type"]["decode"]> | void
     ) => {
       setField?.(field, value);
       setLocalOverride(field, value);

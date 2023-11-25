@@ -2,12 +2,14 @@ type AsyncTask<T> = () => Promise<T>;
 
 interface TaskQueue<T, QueueID> {
   id: QueueID;
-  tasks: {
-    task: AsyncTask<T>;
-    resolver: (value: T) => void;
-    rejecter: (reason?: any) => void;
-  }[];
+  tasks: TaskData<T>[];
 }
+
+type TaskData<T> = {
+  task: AsyncTask<T>;
+  resolver: (value: T) => void;
+  rejecter: (reason?: any) => void;
+};
 
 export class MultiQueueScheduler<QueueID extends string> {
   private queues: Map<QueueID, TaskQueue<any, QueueID>> = new Map();
@@ -25,9 +27,12 @@ export class MultiQueueScheduler<QueueID extends string> {
     }
 
     return new Promise<T>((resolve, reject) => {
-      this.queues
-        .get(queueID)!
-        .tasks.push({ task, resolver: resolve, rejecter: reject });
+      const taskData = {
+        task,
+        resolver: resolve,
+        rejecter: reject,
+      };
+      this.queues.get(queueID)!.tasks.push(taskData);
       this.processNextTask();
     });
   }
@@ -44,7 +49,6 @@ export class MultiQueueScheduler<QueueID extends string> {
       while (true) {
         const nextTaskData = this.getNextTask();
         if (!nextTaskData) break;
-
         try {
           const result = await nextTaskData.task();
           nextTaskData.resolver(result);
@@ -57,11 +61,7 @@ export class MultiQueueScheduler<QueueID extends string> {
     });
   }
 
-  private getNextTask(): {
-    task: AsyncTask<any>;
-    resolver: (value: any) => void;
-    rejecter: (reason?: any) => void;
-  } | null {
+  private getNextTask(): TaskData<unknown> | null {
     for (const queueID of this.priorityOrder) {
       const queue = this.queues.get(queueID);
       if (queue && queue.tasks.length > 0) {

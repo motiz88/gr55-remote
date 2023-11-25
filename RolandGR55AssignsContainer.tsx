@@ -1,7 +1,9 @@
 import { createContext, useCallback, useContext, useMemo } from "react";
 
+import { encode } from "./RolandAddressMap";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
+import { useRolandRemotePatchEditHistory } from "./RolandRemotePatchEditHistory";
 import { useAssignsMap } from "./useAssignsMap";
 import { useRemoteField } from "./useRemoteField";
 
@@ -74,7 +76,7 @@ export function RolandGR55AssignsContainer({
     PATCH,
     GR55.temporaryPatch.common.assign8.switch
   );
-  const { setRemoteField } = useContext(PATCH);
+  const { setRemoteField, localOverrides, pageData } = useContext(PATCH);
   const firstAvailableAssignIndex = [
     assign1Switch,
     assign2Switch,
@@ -134,6 +136,9 @@ export function RolandGR55AssignsContainer({
     ]
   );
   const assignsMap = useAssignsMap();
+  const editHistory = useRolandRemotePatchEditHistory();
+  const startTransaction = editHistory?.startTransaction;
+  const endTransaction = editHistory?.endTransaction;
   const setAssignTarget = useCallback(
     (
       assign: typeof GR55.temporaryPatch.common.assign1,
@@ -142,69 +147,116 @@ export function RolandGR55AssignsContainer({
       if (!assignsMap) {
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
-      const assignDef = assignsMap.getByIndex(assignDefIndex);
-      setRemoteField(assign.target, assignDefIndex);
+      startTransaction?.();
+      try {
+        const assignDef = assignsMap.getByIndex(assignDefIndex);
+        // TODO: Ideally this should be encapsulated in PATCH (port this entire handler to useRemoteField?)
+        const previousAssignTargetBytes =
+          localOverrides?.[assign.target.address] ??
+          pageData?.[assign.target.address];
+        const previousTargetMinBytes =
+          localOverrides?.[assign.targetMin.address] ??
+          pageData?.[assign.targetMin.address];
+        const previousTargetMaxBytes =
+          localOverrides?.[assign.targetMax.address] ??
+          pageData?.[assign.targetMax.address];
 
-      const reinterpretedMin = assignDef.reinterpretAssignValueField(
-        assign.targetMin
-      );
-      const reinterpretedMax = assignDef.reinterpretAssignValueField(
-        assign.targetMax
-      );
-      setRemoteField(reinterpretedMin, reinterpretedMin.definition.type.min);
-      setRemoteField(reinterpretedMax, reinterpretedMax.definition.type.max);
+        setRemoteField(
+          assign.target,
+          encode(assignDefIndex, assign.target.definition.type),
+          previousAssignTargetBytes
+        );
+
+        const reinterpretedMin = assignDef.reinterpretAssignValueField(
+          assign.targetMin
+        );
+        const reinterpretedMax = assignDef.reinterpretAssignValueField(
+          assign.targetMax
+        );
+        setRemoteField(
+          reinterpretedMin,
+          encode(
+            reinterpretedMin.definition.type.min,
+            reinterpretedMin.definition.type
+          ),
+          previousTargetMinBytes
+        );
+        setRemoteField(
+          reinterpretedMax,
+          encode(
+            reinterpretedMax.definition.type.max,
+            reinterpretedMax.definition.type
+          ),
+          previousTargetMaxBytes
+        );
+      } finally {
+        endTransaction?.();
+      }
     },
-    [assignsMap, setRemoteField]
+    [
+      assignsMap,
+      endTransaction,
+      localOverrides,
+      pageData,
+      setRemoteField,
+      startTransaction,
+    ]
   );
   const createAssign = useCallback(
     (assignDefIndex: number): number => {
       if (!assignsMap) {
         throw new Error("No assigns map available, is a GR-55 connected?");
       }
-      let assign;
-      switch (firstAvailableAssignIndex) {
-        case 0:
-          setAssign1Switch(true);
-          assign = GR55.temporaryPatch.common.assign1;
-          break;
-        case 1:
-          setAssign2Switch(true);
-          assign = GR55.temporaryPatch.common.assign2;
-          break;
-        case 2:
-          setAssign3Switch(true);
-          assign = GR55.temporaryPatch.common.assign3;
-          break;
-        case 3:
-          setAssign4Switch(true);
-          assign = GR55.temporaryPatch.common.assign4;
-          break;
-        case 4:
-          setAssign5Switch(true);
-          assign = GR55.temporaryPatch.common.assign5;
-          break;
-        case 5:
-          setAssign6Switch(true);
-          assign = GR55.temporaryPatch.common.assign6;
-          break;
-        case 6:
-          setAssign7Switch(true);
-          assign = GR55.temporaryPatch.common.assign7;
-          break;
-        case 7:
-          setAssign8Switch(true);
-          assign = GR55.temporaryPatch.common.assign8;
-          break;
-        default:
-          throw new Error(
-            "No more assign slots available, should not be reachable"
-          );
+      startTransaction?.();
+      try {
+        let assign;
+        switch (firstAvailableAssignIndex) {
+          case 0:
+            setAssign1Switch(true);
+            assign = GR55.temporaryPatch.common.assign1;
+            break;
+          case 1:
+            setAssign2Switch(true);
+            assign = GR55.temporaryPatch.common.assign2;
+            break;
+          case 2:
+            setAssign3Switch(true);
+            assign = GR55.temporaryPatch.common.assign3;
+            break;
+          case 3:
+            setAssign4Switch(true);
+            assign = GR55.temporaryPatch.common.assign4;
+            break;
+          case 4:
+            setAssign5Switch(true);
+            assign = GR55.temporaryPatch.common.assign5;
+            break;
+          case 5:
+            setAssign6Switch(true);
+            assign = GR55.temporaryPatch.common.assign6;
+            break;
+          case 6:
+            setAssign7Switch(true);
+            assign = GR55.temporaryPatch.common.assign7;
+            break;
+          case 7:
+            setAssign8Switch(true);
+            assign = GR55.temporaryPatch.common.assign8;
+            break;
+          default:
+            throw new Error(
+              "No more assign slots available, should not be reachable"
+            );
+        }
+        setAssignTarget(assign, assignDefIndex);
+        return firstAvailableAssignIndex;
+      } finally {
+        endTransaction?.();
       }
-      setAssignTarget(assign, assignDefIndex);
-      return firstAvailableAssignIndex;
     },
     [
       assignsMap,
+      endTransaction,
       firstAvailableAssignIndex,
       setAssign1Switch,
       setAssign2Switch,
@@ -215,6 +267,7 @@ export function RolandGR55AssignsContainer({
       setAssign7Switch,
       setAssign8Switch,
       setAssignTarget,
+      startTransaction,
     ]
   );
   const deleteAssigns = useCallback(
