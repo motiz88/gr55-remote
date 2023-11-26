@@ -3,11 +3,12 @@ import { requireNativeModule } from "expo-modules-core";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 
-const MidiHardwareManager = requireNativeModule("MidiHardwareManager");
+const MidiHardwareManager =
+  Platform.OS === "web" ? null : requireNativeModule("MidiHardwareManager");
 
 export function setNetworkSessionsEnabled(enabled: boolean) {
   if (Platform.OS === "ios") {
-    MidiHardwareManager.setNetworkSessionsEnabled(enabled);
+    MidiHardwareManager!.setNetworkSessionsEnabled(enabled);
   }
 }
 
@@ -63,7 +64,7 @@ export async function openBluetoothDevice(
   info: OpenBluetoothDeviceInfo
 ): Promise<MidiDeviceToken> {
   if (Platform.OS === "android") {
-    const token = await MidiHardwareManager.openBluetoothDevice(info.id);
+    const token = await MidiHardwareManager!.openBluetoothDevice(info.id);
     openedDevicesStore.add(info.id, token, info);
     openedDevicesEmitter.emit(
       "devicesUpdated",
@@ -76,7 +77,7 @@ export async function openBluetoothDevice(
 
 export function closeDevice(token: MidiDeviceToken) {
   if (Platform.OS === "android") {
-    MidiHardwareManager.closeDevice(token);
+    MidiHardwareManager!.closeDevice(token);
     openedDevicesStore.remove(token);
     openedDevicesEmitter.emit(
       "devicesUpdated",
@@ -90,7 +91,7 @@ export function closeDeviceById(id: string) {
     const tokens = openedDevicesStore.tokensById.get(id);
     if (tokens) {
       for (const token of tokens) {
-        MidiHardwareManager.closeDevice(token);
+        MidiHardwareManager!.closeDevice(token);
         openedDevicesStore.remove(token);
       }
       openedDevicesEmitter.emit(
