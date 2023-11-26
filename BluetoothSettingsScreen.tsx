@@ -3,7 +3,7 @@ import { Button } from "@rneui/themed";
 import { useEffect } from "react";
 import { Platform } from "react-native";
 
-import { MidiHardwareManagerView } from "./modules/midi-hardware-manager";
+import { BluetoothDevicesView } from "./BluetoothDevicesView";
 import { SetupStackParamList } from "./navigation";
 
 export function BluetoothSettingsScreen({
@@ -27,10 +27,11 @@ export function BluetoothSettingsScreen({
       ),
     });
   }, [navigation]);
-  return <MidiHardwareManagerView style={{ flex: 1 }} />;
+  return <BluetoothDevicesView style={{ flex: 1 }} />;
 }
 
 export const canShowBluetoothSettings = Platform.select({
   ios: true,
+  android: true,
   default: false,
 });
