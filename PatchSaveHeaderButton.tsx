@@ -6,7 +6,6 @@ import { View } from "react-native";
 
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useRolandRemotePatchSelection } from "./RolandRemotePatchSelection";
-import { useUserOptions } from "./UserOptions";
 import { GlobalNavigationProp } from "./navigation";
 import { usePatchMap } from "./usePatchMap";
 
@@ -17,7 +16,6 @@ export function PatchSaveHeaderButton({
 }) {
   const { isModifiedSinceSave, saveAndSelectUserPatch } = useContext(PATCH);
 
-  const [{ enableExperimentalFeatures }] = useUserOptions();
   const patchMap = usePatchMap();
   const { selectedPatch } = useRolandRemotePatchSelection();
   const userPatchNumber = useMemo(() => {
@@ -50,7 +48,7 @@ export function PatchSaveHeaderButton({
   return (
     <View style={{ flexDirection: "row" }}>
       <View style={{ paddingEnd: 8 }}>
-        {enableExperimentalFeatures && canSaveAs && (
+        {canSaveAs && (
           <Button disabled={!canSaveAs} type="clear" onPress={handleSaveAs}>
             <MaterialCommunityIcons
               name="pencil-plus"
@@ -61,7 +59,7 @@ export function PatchSaveHeaderButton({
         )}
       </View>
       <View style={{ paddingEnd: 8 }}>
-        {enableExperimentalFeatures && userPatchNumber != null && (
+        {userPatchNumber != null && (
           <Button disabled={!canQuickSave} type="clear" onPress={handleSave}>
             <MaterialCommunityIcons
               name={canQuickSave ? "pencil" : "check"}

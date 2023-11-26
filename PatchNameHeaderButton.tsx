@@ -4,7 +4,6 @@ import { Button } from "@rneui/themed";
 import * as React from "react";
 import { View } from "react-native";
 
-import { useUserOptions } from "./UserOptions";
 import { useRenamePatchPrompt } from "./useRenamePatchPrompt";
 
 export function PatchNameHeaderButton({
