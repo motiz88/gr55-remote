@@ -561,7 +561,7 @@ function ToneSummaryView({
           alignItems: "center",
         }}
       >
-        <View style={{ flex: 1, flexDirection: "row" }}>
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
           <View style={{ marginEnd: 8 }}>
             <RemoteFieldSwitch page={PATCH} field={muteField} inline />
           </View>
