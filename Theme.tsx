@@ -27,8 +27,11 @@ export const DefaultTheme = {
     searchBarText: "#000000",
     saveAsSummaryBackground: "#a3ff9e",
     slider: {
-      trackMinimum: "#3f3f3f",
-      trackMaximum: "#b3b3b3",
+      trackMaximum: "rgb(227, 227, 228)",
+      trackMinimum: "rgb(180, 180, 180)",
+      labelText: "black",
+      labelTextShadow: "rgb(227, 227, 228)",
+      labelTextBackground: "transparent",
     },
   },
 };
@@ -48,8 +51,11 @@ export const DarkTheme = {
     searchBarText: "#ffffff",
     saveAsSummaryBackground: "#1A4D26",
     slider: {
-      trackMinimum: "#c3c3c3",
-      trackMaximum: "#3f3f3f",
+      trackMinimum: "rgb(91, 91, 96)",
+      trackMaximum: "rgb(29, 29, 32)",
+      labelText: "white",
+      labelTextShadow: "black",
+      labelTextBackground: "transparent",
     },
   },
 };

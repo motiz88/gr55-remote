@@ -66,7 +66,7 @@ export function RemoteFieldSlider({
   );
   const prettyValue = field.definition.type.format(value);
   return (
-    <RemoteFieldRow page={page} field={field} inline={inline}>
+    <RemoteFieldRow page={page} field={field} inline={inline} vcenterLabel>
       <SliderControl
         prettyValue={prettyValue}
         field={field}
@@ -105,13 +105,6 @@ function SliderControl({
 
   return (
     <View style={styles.sliderContainer}>
-      <View style={styles.labelRow}>
-        {isPending ? (
-          <PendingTextPlaceholder chars={4} />
-        ) : (
-          <Text>{prettyValue}</Text>
-        )}
-      </View>
       <Slider
         minimumValue={field.definition.type.min}
         maximumValue={field.definition.type.max}
@@ -132,19 +125,50 @@ function SliderControl({
         }
         disabled={isPending}
       />
+      <View style={styles.labelRow}>
+        {isPending ? (
+          <PendingTextPlaceholder chars={4} />
+        ) : (
+          <Text
+            style={[
+              styles.labelText,
+              {
+                color: theme.colors.slider.labelText,
+                textShadowColor: theme.colors.slider.labelTextShadow,
+                backgroundColor: theme.colors.slider.labelTextBackground,
+              },
+            ]}
+          >
+            {prettyValue}
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   sliderContainer: {
-    flex: 1,
+    flex: 0,
+    marginVertical: -4,
   },
   sliderTrack: {
     height: 32,
   },
   labelRow: {
     flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    pointerEvents: "none",
+  },
+  labelText: {
+    textAlign: "center",
+    opacity: 1,
+    textShadowRadius: 2,
+    textShadowOffset: { width: 0, height: 0 },
   },
   sliderThumb: {
     opacity: 0,
