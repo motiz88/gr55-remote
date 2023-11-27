@@ -21,14 +21,6 @@ export function useTopTabNavigatorDefaults() {
           blur: () => {
             closeAllPopovers();
           },
-          focus: () => {
-            if (Platform.OS === "web") {
-              // HACK: Force @react-native-community/slider to update its position.
-              // The fix in https://github.com/callstack/react-native-slider/pull/472 doens't work
-              // on its own, because TabView uses CSS transform instead of scrolling to move between tabs.
-              document.dispatchEvent(new Event("scroll"));
-            }
-          },
         },
         tabBar: renderAdjustingMaterialTopTabBar,
       } as const),

@@ -1,36 +1,35 @@
 import { Slider as MiblanchardSlider } from "@miblanchard/react-native-slider";
-import { ComponentProps } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 
-const THUMB_TOUCH_SIZE_DEFAULT = {
-  width: 48,
-  height: 48,
-};
+export type PortableSliderProps = Readonly<{
+  maximumValue?: number;
+  minimumValue?: number;
+  step?: number;
+  onValueChange?: (value: number | number[]) => void;
+  onSlidingStart?: (value: number | number[]) => void;
+  onSlidingComplete?: (value: number | number[]) => void;
+  value?: number;
+  minimumTrackTintColor?: string;
+  maximumTrackTintColor?: string;
+  disabled?: boolean;
+  trackStyle?: ViewStyle;
+  thumbTouchSize?: Readonly<{
+    width: number;
+    height: number;
+  }>;
+}>;
 
-export function Slider(
-  props: Omit<
-    ComponentProps<typeof MiblanchardSlider>,
-    "thumbTouchSize" | "trackStyle" | "thumbStyle" | "animationType"
-  >
-) {
+export function Slider(props: PortableSliderProps) {
   const native = Gesture.Native();
   return (
     <GestureDetector gesture={native}>
-      <MiblanchardSlider
-        thumbTouchSize={THUMB_TOUCH_SIZE_DEFAULT}
-        trackStyle={styles.sliderTrack}
-        thumbStyle={styles.sliderThumb}
-        {...props}
-      />
+      <MiblanchardSlider thumbStyle={styles.sliderThumb} {...props} />
     </GestureDetector>
   );
 }
 
 const styles = StyleSheet.create({
-  sliderTrack: {
-    height: 32,
-  },
   sliderThumb: {
     opacity: 0,
     width: 0,

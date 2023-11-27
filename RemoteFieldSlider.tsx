@@ -66,7 +66,7 @@ export function RemoteFieldSlider({
   );
   const prettyValue = field.definition.type.format(value);
   return (
-    <RemoteFieldRow page={page} field={field} inline={inline} vcenterLabel>
+    <RemoteFieldRow page={page} field={field} inline={inline}>
       <SliderControl
         prettyValue={prettyValue}
         field={field}
@@ -79,6 +79,11 @@ export function RemoteFieldSlider({
     </RemoteFieldRow>
   );
 }
+
+const THUMB_TOUCH_SIZE_DEFAULT = {
+  width: 48,
+  height: 48,
+};
 
 function SliderControl({
   prettyValue,
@@ -106,6 +111,8 @@ function SliderControl({
   return (
     <View style={styles.sliderContainer}>
       <Slider
+        thumbTouchSize={THUMB_TOUCH_SIZE_DEFAULT}
+        trackStyle={styles.sliderTrack}
         minimumValue={field.definition.type.min}
         maximumValue={field.definition.type.max}
         step={field.definition.type.step}
@@ -160,9 +167,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     position: "absolute",
+    top: 4,
     width: "100%",
-    height: "100%",
     pointerEvents: "none",
+    height: 32,
   },
   labelText: {
     textAlign: "center",
