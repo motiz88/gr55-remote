@@ -1,3 +1,4 @@
+import { useTheme } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button } from "@rneui/themed";
 import { useEffect } from "react";
@@ -13,6 +14,7 @@ export function BluetoothSettingsScreen({
   "BluetoothSettings",
   "SetupStack"
 >) {
+  const theme = useTheme();
   // TODO: Adapt look to match platform, this currently mimics the iOS nav bar
   useEffect(() => {
     navigation.setOptions({
@@ -20,13 +22,13 @@ export function BluetoothSettingsScreen({
         <Button
           onPress={() => navigation.pop()}
           type="clear"
-          titleStyle={{ color: tintColor }}
+          titleStyle={{ color: tintColor ?? theme.colors.primary }}
         >
           Done
         </Button>
       ),
     });
-  }, [navigation]);
+  }, [navigation, theme.colors.primary]);
   return <BluetoothDevicesView style={{ flex: 1 }} />;
 }
 

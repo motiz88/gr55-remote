@@ -9,8 +9,10 @@ import {
   DrawerItem,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import { useTheme } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as React from "react";
+import { useMemo } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import { AlertsProvider } from "react-native-paper-alerts";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -278,6 +280,7 @@ function RootTabNavigator() {
 
 function PatchStackNavigator() {
   const { closeAllPopovers } = usePopovers();
+  const theme = useTheme();
   return (
     <PatchStack.Navigator
       initialRouteName="PatchMain"
@@ -292,11 +295,16 @@ function PatchStackNavigator() {
       }}
     >
       <PatchStack.Group
-        screenOptions={{
-          headerRight: ({ tintColor }) => (
-            <PatchSaveHeaderButton tintColor={tintColor} />
-          ),
-        }}
+        screenOptions={useMemo(
+          () => ({
+            headerRight: ({ tintColor }) => (
+              <PatchSaveHeaderButton
+                tintColor={tintColor ?? theme.colors.primary}
+              />
+            ),
+          }),
+          [theme.colors.primary]
+        )}
       >
         <PatchStack.Screen name="PatchMain" component={PatchMainScreen} />
         <PatchStack.Screen name="PatchTone" component={PatchToneScreen} />

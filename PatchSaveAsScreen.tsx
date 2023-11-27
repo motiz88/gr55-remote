@@ -1,3 +1,4 @@
+import { useTheme as useNavigationTheme } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button } from "@rneui/themed";
 import React, {
@@ -101,6 +102,7 @@ export function PatchSaveAsScreen({
     () => patchNameStatus !== "pending" && patchMap != null,
     [patchNameStatus, patchMap]
   );
+  const navigationTheme = useNavigationTheme();
   // TODO: Adapt look to match platform, this currently mimics the iOS nav bar
   useEffect(() => {
     navigation.setOptions({
@@ -108,7 +110,7 @@ export function PatchSaveAsScreen({
         <Button
           onPress={() => navigation.pop()}
           type="clear"
-          titleStyle={{ color: tintColor }}
+          titleStyle={{ color: tintColor ?? navigationTheme.colors.primary }}
         >
           Cancel
         </Button>
@@ -118,13 +120,13 @@ export function PatchSaveAsScreen({
           onPress={handleSave}
           disabled={!canSave}
           type="clear"
-          titleStyle={{ color: tintColor }}
+          titleStyle={{ color: tintColor ?? navigationTheme.colors.primary }}
         >
           Save
         </Button>
       ),
     });
-  }, [canSave, handleSave, navigation]);
+  }, [canSave, handleSave, navigation, navigationTheme.colors.primary]);
   const userPatches = useMemo(() => {
     return patches?.filter((p) => p.identity.userPatch);
   }, [patches]);

@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Button } from "@rneui/themed";
 import { useCallback, useContext, useEffect } from "react";
@@ -40,6 +41,8 @@ export function IoSetupScreen({
     [setUserOptions]
   );
 
+  const theme = useTheme();
+
   useEffect(() => {
     if (canShowBluetoothSettings) {
       const navigateToBluetoothSettings = () => {
@@ -52,14 +55,14 @@ export function IoSetupScreen({
               <MaterialCommunityIcons
                 name="bluetooth"
                 size={24}
-                color={tintColor}
+                color={tintColor ?? theme.colors.primary}
               />
             </Button>
           );
         },
       });
     }
-  }, [navigation]);
+  }, [navigation, theme.colors.primary]);
 
   return (
     <PopoverAwareScrollView
