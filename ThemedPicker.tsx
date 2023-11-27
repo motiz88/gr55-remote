@@ -15,7 +15,11 @@ export const ThemedPicker = forwardRef(function ThemedPicker<T>(
   return (
     <Picker
       itemStyle={[{ color: colors.text }, itemStyle]}
-      style={[{ color: colors.text }, style]}
+      style={[
+        { color: colors.text, backgroundColor: colors.background },
+        style,
+      ]}
+      dropdownIconColor={colors.text}
       {...props}
       ref={ref}
     />
