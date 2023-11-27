@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { Platform } from "react-native";
 import usePromise from "react-use-promise";
 
 import { useStateWithStoredDefault } from "./AsyncStorageUtils";
@@ -42,15 +43,16 @@ export const MidiIoSetupContext = createContext<{
   setCurrentOutputId: () => {},
 });
 
-const NO_MIDI_ACCESS_ERROR = new Error();
+const MIDI_NOT_SUPPORTED_ERROR = new Error();
 
 function useMIDIAccess(sysex: boolean = false) {
   return usePromise(
     () =>
       // TODO: Move check into @motiz88/react-native-midi?
-      typeof navigator.requestMIDIAccess !== "undefined"
-        ? requestMIDIAccess({ sysex })
-        : Promise.reject(NO_MIDI_ACCESS_ERROR),
+      Platform.OS === "web" &&
+      typeof navigator.requestMIDIAccess === "undefined"
+        ? Promise.reject(MIDI_NOT_SUPPORTED_ERROR)
+        : requestMIDIAccess({ sysex }),
     [sysex]
   );
 }
@@ -62,7 +64,7 @@ function useMidiIoSetupImpl() {
     if (midiAccessStatus === "pending") {
       return "pending" as const;
     }
-    if (midiAccessError === NO_MIDI_ACCESS_ERROR) {
+    if (midiAccessError === MIDI_NOT_SUPPORTED_ERROR) {
       return "not-supported" as const;
     }
     if (midiAccessStatus === "rejected") {
