@@ -3,6 +3,7 @@ import type { MIDIInput, MIDIOutput } from "@motiz88/react-native-midi";
 import {
   createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
@@ -14,7 +15,8 @@ import { useStateWithStoredDefault } from "./AsyncStorageUtils";
 export const MidiIoContext = createContext<{
   inputPort: MIDIInput | void | null;
   outputPort: MIDIOutput | void | null;
-}>({ inputPort: null, outputPort: null });
+  midiStatus: "pending" | "permission-denied" | "not-supported" | "ok";
+}>({ inputPort: null, outputPort: null, midiStatus: "pending" });
 
 export const MidiIoSetupContext = createContext<{
   midiIoContext: {
@@ -40,12 +42,34 @@ export const MidiIoSetupContext = createContext<{
   setCurrentOutputId: () => {},
 });
 
+const NO_MIDI_ACCESS_ERROR = new Error();
+
 function useMIDIAccess(sysex: boolean = false) {
-  return usePromise(() => requestMIDIAccess({ sysex }), [sysex]);
+  return usePromise(
+    () =>
+      // TODO: Move check into @motiz88/react-native-midi?
+      typeof navigator.requestMIDIAccess !== "undefined"
+        ? requestMIDIAccess({ sysex })
+        : Promise.reject(NO_MIDI_ACCESS_ERROR),
+    [sysex]
+  );
 }
 
 function useMidiIoSetupImpl() {
-  const [midiAccess] = useMIDIAccess(true);
+  const [midiAccess, midiAccessError, midiAccessStatus] = useMIDIAccess(true);
+
+  const midiStatus = useMemo(() => {
+    if (midiAccessStatus === "pending") {
+      return "pending" as const;
+    }
+    if (midiAccessError === NO_MIDI_ACCESS_ERROR) {
+      return "not-supported" as const;
+    }
+    if (midiAccessStatus === "rejected") {
+      return "permission-denied" as const;
+    }
+    return "ok" as const;
+  }, [midiAccessStatus, midiAccessError]);
 
   const [inputPort, setInputPort, inputPortReadStatus] =
     useStateWithStoredDefault<string>(
@@ -111,8 +135,9 @@ function useMidiIoSetupImpl() {
       inputPort: inputPort != null ? midiAccess?.inputs?.get(inputPort) : null,
       outputPort:
         outputPort != null ? midiAccess?.outputs?.get(outputPort) : null,
+      midiStatus,
     };
-  }, [inputPort, midiAccess, midiStateChangeCount, outputPort]);
+  }, [inputPort, midiAccess, midiStateChangeCount, outputPort, midiStatus]);
 
   const { inputs, outputs } = useMemo(() => {
     // eslint-disable-next-line no-unused-expressions
@@ -147,4 +172,8 @@ export function MidiIoSetupContainer({
       </MidiIoContext.Provider>
     </MidiIoSetupContext.Provider>
   );
+}
+
+export function useMidiIoContext() {
+  return useContext(MidiIoContext);
 }

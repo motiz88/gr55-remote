@@ -10,6 +10,8 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import { MIDINotAvailableView } from "./MIDINotAvailableView";
+import { useMidiIoContext } from "./MidiIo";
 import { PatchNameHeaderButton } from "./PatchNameHeaderButton";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
@@ -116,6 +118,11 @@ export function PatchMainScreen({
   const { reloadData } = useContext(PATCH);
 
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
+
+  const { midiStatus } = useMidiIoContext();
+  if (midiStatus === "not-supported" || midiStatus === "permission-denied") {
+    return <MIDINotAvailableView reason={midiStatus} />;
+  }
 
   if (!selectedDevice) {
     return <RolandGR55NotConnectedView navigation={navigation} />;

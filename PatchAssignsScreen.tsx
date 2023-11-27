@@ -7,6 +7,8 @@ import { useCallback, useContext, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 
 import { ContextualStyleProvider } from "./ContextualStyle";
+import { MIDINotAvailableView } from "./MIDINotAvailableView";
+import { useMidiIoContext } from "./MidiIo";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RemoteFieldDynamic } from "./RemoteFieldDynamic";
@@ -117,6 +119,12 @@ export function PatchAssignsScreen({
   const topTabNavigatorDefaults = useTopTabNavigatorDefaults();
 
   const assignsMap = useAssignsMap();
+
+  const { midiStatus } = useMidiIoContext();
+  if (midiStatus === "not-supported" || midiStatus === "permission-denied") {
+    return <MIDINotAvailableView reason={midiStatus} />;
+  }
+
   if (!assignsMap) {
     return <RolandGR55NotConnectedView navigation={navigation} />;
   }

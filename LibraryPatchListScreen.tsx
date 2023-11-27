@@ -9,6 +9,8 @@ import {
 } from "react";
 
 import { LibraryPatchListNoResultsView } from "./LibraryPatchListNoResultsView";
+import { MIDINotAvailableView } from "./MIDINotAvailableView";
+import { useMidiIoContext } from "./MidiIo";
 import { PatchListView } from "./PatchListView";
 import { useFocusQueryPriority } from "./RolandDataTransfer";
 import { RolandGR55NotConnectedView } from "./RolandGR55NotConnectedView";
@@ -59,6 +61,11 @@ export function LibraryPatchListScreen({
     () => patches?.some((patch) => patch.status === "pending") ?? false,
     [patches]
   );
+
+  const { midiStatus } = useMidiIoContext();
+  if (midiStatus === "not-supported" || midiStatus === "permission-denied") {
+    return <MIDINotAvailableView reason={midiStatus} />;
+  }
 
   if (!patches) {
     return <RolandGR55NotConnectedView navigation={navigation} />;

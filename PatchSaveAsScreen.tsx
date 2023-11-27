@@ -10,6 +10,8 @@ import React, {
 } from "react";
 import { StyleSheet, View } from "react-native";
 
+import { MIDINotAvailableView } from "./MIDINotAvailableView";
+import { useMidiIoContext } from "./MidiIo";
 import { PatchListView } from "./PatchListView";
 import { PendingTextPlaceholder } from "./PendingContentPlaceholders";
 import { useFocusQueryPriority } from "./RolandDataTransfer";
@@ -151,6 +153,11 @@ export function PatchSaveAsScreen({
   useEffect(() => {
     setLocalPatchName(patchName);
   }, [patchName]);
+  const { midiStatus } = useMidiIoContext();
+  if (midiStatus === "not-supported" || midiStatus === "permission-denied") {
+    // TODO: Make it fit the screen, or just pop to the previous screen
+    return <MIDINotAvailableView reason={midiStatus} />;
+  }
   if (!patchMap || !userPatches) {
     // TODO: Make it fit the screen, or just pop to the previous screen
     return <RolandGR55NotConnectedView navigation={navigation} />;
