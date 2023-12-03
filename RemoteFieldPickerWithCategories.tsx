@@ -68,7 +68,6 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
   );
   const categoryPicker = (
     <PickerControl
-      key={layout + "category"}
       value={category!.name}
       onValueChange={handleCategoryChange}
       items={categoryPickerItems}
@@ -78,7 +77,6 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
   );
   const mainPicker = (
     <PickerControl
-      key={layout + "main"}
       value={value}
       onValueChange={onValueChange}
       items={items}
@@ -106,7 +104,9 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
             <WithLabel label={shortDescription ?? field.definition.description}>
               {mainPicker}
             </WithLabel>
-          ) : null}
+          ) : (
+            mainPicker
+          )}
         </View>
       </RemoteFieldRow>
     </>
