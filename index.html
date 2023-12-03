@@ -37,8 +37,8 @@
         text-decoration: none;
         border-radius: 5px;
       }
-      .about-section,
-      .system-section {
+      section {
+        display: block;
         margin-top: 20px;
       }
       @media (max-width: 1023px) {
@@ -110,6 +110,10 @@
         border-color: rgb(226, 226, 226);
         border-width: 0.25px;
       }
+      .inline-icon {
+        height: 20px;
+        margin-bottom: -4px;
+      }
     </style>
   </head>
   <body>
@@ -147,7 +151,7 @@
             alt="App Screenshot"
             class="sideimg"
           />
-          <div class="about-section">
+          <section>
             <h2>About GR-55 Editor</h2>
             <p>
               GR-55 Editor is an iOS/Android/web app for use with the Roland
@@ -182,7 +186,66 @@
                 >VGuitarForums GR-55 community</a
               >.
             </p>
-          </div>
+            <h2>Quick Start Instructions</h2>
+            <h3>1. Connect your GR-55</h3>
+            <p>
+              Connect your GR-55 to your phone or tablet using a MIDI adapter.
+            </p>
+            <p>
+              In the app, go to the
+              <img src="images/settings.svg" class="inline-icon" alt="" />
+              <b>Setup</b> tab and select your MIDI adapter as both the Input
+              and Output port. You should see the GR-55 listed under "Connected
+              Devices"
+            </p>
+            <p>
+              If using a Bluetooth MIDI adapter, tap the
+              <img
+                src="images/bluetooth.svg"
+                class="inline-icon"
+                title="Bluetooth"
+              />
+              icon in the top right corner of the Setup tab to scan for and
+              connect to your adapter. Note that Bluetooth scanning is not
+              available in the web version.
+            </p>
+            <h3>2. Browse patches</h3>
+            <p>
+              Go to the
+              <img src="images/library.svg" class="inline-icon" alt="" />
+              <b>Library</b> tab to see a list of all patches in the GR-55. Tap
+              any patch to load it into the GR-55.
+            </p>
+            <p>
+              You can also search for patches by name using the search bar at
+              the top of the screen.
+            </p>
+            <h3>3. Edit and save patches</h3>
+            <p>
+              The <img src="images/sound-mix.svg" class="inline-icon" alt="" />
+              <b>Patch</b> tab shows an overview of the current patch. You can
+              quickly adjust the overall patch level and select which tones and
+              effects should be active. Tap any of the tones/effects to see more
+              details and adjust parameters.
+            </p>
+            <p>
+              All parameter changes you make will take effect immediately, but
+              patches are <b>not</b> saved automatically to memory. Tap the
+              <img src="images/pencil.svg" title="Pencil" class="inline-icon" />
+              icon in the top right corner to quickly write your changes to the
+              current user patch, or tap the
+              <img
+                src="images/pencil-plus.svg"
+                class="inline-icon"
+                title="Pencil with plus sign"
+              />
+              icon to write into a different user patch.
+            </p>
+            <p>
+              You can edit assigns by long-pressing the name of any parameter,
+              or by navigating to the Assigns screen.
+            </p>
+          </section>
         </div>
       </div>
       <hr />
