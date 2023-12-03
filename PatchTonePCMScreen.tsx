@@ -5,10 +5,12 @@ import { StyleSheet } from "react-native";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
 import { RefreshControl } from "./RefreshControl";
 import { RemoteFieldPicker } from "./RemoteFieldPicker";
+import { RemoteFieldPickerWithCategories } from "./RemoteFieldPickerWithCategories";
 import { RemoteFieldSlider } from "./RemoteFieldSlider";
 import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
 import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
+import { rolandToneCategories } from "./RolandGR55ToneMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
 import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { PatchToneTabParamList } from "./navigation";
@@ -28,7 +30,6 @@ export function PatchTonePCMScreen({
     route.name === "PCM1"
       ? GR55.temporaryPatch.patchPCMTone1Offset
       : GR55.temporaryPatch.patchPCMTone2Offset;
-
   const safeAreaStyle = useMainScrollViewSafeAreaStyle();
 
   return (
@@ -40,7 +41,11 @@ export function PatchTonePCMScreen({
       contentContainerStyle={safeAreaStyle}
     >
       <RemoteFieldSwitchedSection page={PATCH} field={pcmTonePage.muteSwitch}>
-        <RemoteFieldPicker page={PATCH} field={pcmTonePage.toneSelect} />
+        <RemoteFieldPickerWithCategories
+          page={PATCH}
+          field={pcmTonePage.toneSelect}
+          categories={rolandToneCategories}
+        />
         <RemoteFieldSlider page={PATCH} field={pcmTonePage.partLevel} />
         <RemoteFieldSlider page={PATCH} field={pcmTonePage.partOctaveShift} />
         <RemoteFieldSwitch page={PATCH} field={pcmTonePage.chromatic} />

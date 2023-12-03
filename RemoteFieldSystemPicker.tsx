@@ -75,7 +75,7 @@ export function RemoteFieldSystemPicker<T extends number | string>({
   );
 }
 
-function PickerControl<T extends number | string>({
+export function PickerControl<T extends number | string>({
   value,
   onValueChange,
   items,

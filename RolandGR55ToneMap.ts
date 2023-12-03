@@ -6,7 +6,6 @@ import { pack7 } from "./RolandSysExProtocol";
 // Writing to the BS LSB + PC fields (second and third bytes) works even if we
 // ignore the MSB, but reading from them requires us to parse the MSB correctly.
 // This array encodes the correct MSB for each tone.
-// TODO: Encode and render categories (source here: https://www.vguitarforums.com/smf/index.php?topic=3060.0)
 const tonesAndOffsets = [
   [
     pack7(0x580000),
@@ -963,3 +962,194 @@ export const pcmToneSelectField = enumField(
     new U3BytesField()
   )
 );
+
+export const rolandToneCategories = [
+  {
+    name: "Ac.Piano",
+    toneRange1Based: [1, 16],
+  },
+  {
+    name: "Pop Piano",
+    toneRange1Based: [17, 19],
+  },
+  {
+    name: "E.Grand Piano",
+    toneRange1Based: [20, 21],
+  },
+  {
+    name: "E.Piano1",
+    toneRange1Based: [22, 46],
+  },
+  {
+    name: "E.Piano2",
+    toneRange1Based: [47, 59],
+  },
+  {
+    name: "E.Organ",
+    toneRange1Based: [60, 91],
+  },
+  {
+    name: "Pipe Organ",
+    toneRange1Based: [92, 96],
+  },
+  {
+    name: "Reed Organ",
+    toneRange1Based: [97, 97],
+  },
+  {
+    name: "Harpsichord",
+    toneRange1Based: [98, 102],
+  },
+  {
+    name: "Clav",
+    toneRange1Based: [103, 110],
+  },
+  {
+    name: "Celesta",
+    toneRange1Based: [111, 111],
+  },
+  {
+    name: "Accordion",
+    toneRange1Based: [112, 117],
+  },
+  {
+    name: "Harmonica",
+    toneRange1Based: [118, 119],
+  },
+  {
+    name: "Bell",
+    toneRange1Based: [120, 140],
+  },
+  {
+    name: "Mallet",
+    toneRange1Based: [141, 162],
+  },
+  {
+    name: "Ac.Guitar",
+    toneRange1Based: [163, 180],
+  },
+  {
+    name: "E.Guitar",
+    toneRange1Based: [181, 198],
+  },
+  {
+    name: "Dist.Guitar",
+    toneRange1Based: [199, 209],
+  },
+  {
+    name: "Ac.Bass",
+    toneRange1Based: [210, 213],
+  },
+  {
+    name: "E.Bass",
+    toneRange1Based: [214, 227],
+  },
+  {
+    name: "Synth Bass",
+    toneRange1Based: [228, 314],
+  },
+  {
+    name: "Plucked/Stroke",
+    toneRange1Based: [315, 332],
+  },
+  {
+    name: "Solo Strings",
+    toneRange1Based: [333, 341],
+  },
+  {
+    name: "Ensemble Strings",
+    toneRange1Based: [342, 363],
+  },
+  {
+    name: "Orchestral",
+    toneRange1Based: [364, 367],
+  },
+  {
+    name: "Solo Brass",
+    toneRange1Based: [368, 378],
+  },
+  {
+    name: "Ensemble Brass",
+    toneRange1Based: [379, 385],
+  },
+  {
+    name: "Wind",
+    toneRange1Based: [386, 392],
+  },
+  {
+    name: "Flute",
+    toneRange1Based: [393, 404],
+  },
+  {
+    name: "Sax",
+    toneRange1Based: [405, 411],
+  },
+  {
+    name: "Recorder",
+    toneRange1Based: [412, 415],
+  },
+  {
+    name: "Vox/Choir",
+    toneRange1Based: [416, 443],
+  },
+  {
+    name: "Scat",
+    toneRange1Based: [444, 445],
+  },
+  {
+    name: "Synth Lead",
+    toneRange1Based: [446, 568],
+  },
+  {
+    name: "Synth Brass",
+    toneRange1Based: [569, 608],
+  },
+  {
+    name: "Synth Pad/Strings",
+    toneRange1Based: [609, 692],
+  },
+  {
+    name: "Synth Bellpad",
+    toneRange1Based: [693, 709],
+  },
+  {
+    name: "Synth PolyKey",
+    toneRange1Based: [710, 754],
+  },
+  {
+    name: "Synth FX",
+    toneRange1Based: [755, 785],
+  },
+  {
+    name: "Synth Seq/Pop",
+    toneRange1Based: [786, 796],
+  },
+  {
+    name: "Pulsating",
+    toneRange1Based: [797, 828],
+  },
+  {
+    name: "Beat&Groove",
+    toneRange1Based: [829, 839],
+  },
+  {
+    name: "Hit",
+    toneRange1Based: [840, 846],
+  },
+  {
+    name: "Sound FX",
+    toneRange1Based: [847, 883],
+  },
+  {
+    name: "Percussion",
+    toneRange1Based: [884, 896],
+  },
+  {
+    name: "Drums",
+    toneRange1Based: [897, 910],
+  },
+].map(({ name, toneRange1Based }) => ({
+  name,
+  first: allPcmToneLabels[toneRange1Based[0] - 1],
+  last: allPcmToneLabels[toneRange1Based[1] - 1],
+}));
