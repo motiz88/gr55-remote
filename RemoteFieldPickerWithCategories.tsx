@@ -1,9 +1,12 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { Dimensions, Platform, StyleSheet, View } from "react-native";
 
 import { FieldRow } from "./FieldRow";
+import { styles as pickerStyles } from "./Picker";
+import { RemoteFieldRow } from "./RemoteFieldRow";
 import {
   PickerControl,
-  RemoteFieldSystemPicker,
+  useRemoteFieldSystemPicker,
 } from "./RemoteFieldSystemPicker";
 import {
   EnumField,
@@ -15,7 +18,16 @@ import {
 } from "./RolandAddressMap";
 import { RolandRemotePageContext } from "./RolandRemotePageContext";
 import { ThemedPicker as Picker } from "./ThemedPicker";
-import { useMaybeControlledRemoteField } from "./useRemoteField";
+import { ThemedText as Text } from "./ThemedText";
+
+const SINGLE_PICKER_REQUIRED_WIDTH = 300;
+
+function getLayoutForWidth(width: number): "normal" | "wide" {
+  return Platform.select({
+    ios: width >= SINGLE_PICKER_REQUIRED_WIDTH ? "wide" : "normal",
+    default: "normal",
+  });
+}
 
 export function RemoteFieldPickerWithCategories<T extends number | string>({
   page,
@@ -23,6 +35,7 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
   value: valueProp,
   onValueChange: onValueChangeProp,
   categories,
+  shortDescription,
 }: {
   page: RolandRemotePageContext;
   field: FieldReference<
@@ -31,13 +44,98 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
   value?: T;
   onValueChange?: (value: T) => void;
   categories: { name: string; first: T; last: T }[];
+  shortDescription?: string;
 }) {
-  const [value, onValueChange, status] = useMaybeControlledRemoteField(
-    page,
-    field,
-    valueProp,
-    onValueChangeProp
+  const { value, onValueChange, items, isPending } = useRemoteFieldSystemPicker(
+    {
+      page,
+      field,
+      value: valueProp,
+      onValueChange: onValueChangeProp,
+    }
   );
+  const { category, handleCategoryChange, categoryPickerItems } =
+    useCategories<T>(field, categories, value, onValueChange);
+  const [layout, setLayout] = useState<"normal" | "wide">(
+    // HACK: Approximate the initial layout to avoid a flash of the wrong layout
+    getLayoutForWidth(Dimensions.get("window").width * 0.66)
+  );
+  const handleMainPickerLayout = useCallback(
+    (event: { nativeEvent: { layout: { width: number } } }) => {
+      setLayout(getLayoutForWidth(event.nativeEvent.layout.width));
+    },
+    []
+  );
+  const categoryPicker = (
+    <PickerControl
+      key={layout + "category"}
+      value={category!.name}
+      onValueChange={handleCategoryChange}
+      items={categoryPickerItems}
+      isPending={isPending}
+      style={layout === "wide" ? styles.pickerInWideLayout : undefined}
+    />
+  );
+  const mainPicker = (
+    <PickerControl
+      key={layout + "main"}
+      value={value}
+      onValueChange={onValueChange}
+      items={items}
+      isPending={isPending}
+      style={layout === "wide" ? styles.pickerInWideLayout : undefined}
+    />
+  );
+
+  return (
+    <>
+      {layout === "normal" ? (
+        <FieldRow description={field.definition.description + " (Category)"}>
+          {categoryPicker}
+        </FieldRow>
+      ) : null}
+      <RemoteFieldRow page={page} field={field}>
+        <View
+          onLayout={handleMainPickerLayout}
+          style={[styles.row, layout === "wide" && styles.rowInWideLayout]}
+        >
+          {layout === "wide" ? (
+            <WithLabel label="Category">{categoryPicker}</WithLabel>
+          ) : null}
+          {layout === "wide" ? (
+            <WithLabel label={shortDescription ?? field.definition.description}>
+              {mainPicker}
+            </WithLabel>
+          ) : null}
+        </View>
+      </RemoteFieldRow>
+    </>
+  );
+}
+
+function WithLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <View style={styles.labelAndContentContainer}>
+      <Text style={styles.label}>{label}</Text>
+      {children}
+    </View>
+  );
+}
+
+function useCategories<T extends number | string>(
+  field: FieldReference<
+    FieldType<T> & (EnumField<{ [encoded: number]: string }> | NumericField)
+  >,
+  categories: { name: string; first: T; last: T }[],
+  value: string | number,
+  onValueChange: (newValue: T) => void
+) {
   const fieldValuesToNumbers = useMemo(() => {
     if (isEnumFieldReference(field)) {
       const result = Object.create(null);
@@ -103,25 +201,7 @@ export function RemoteFieldPickerWithCategories<T extends number | string>({
     },
     [categoriesWithIndices, onValueChange]
   );
-  return (
-    <>
-      {/* TODO: Place the pickers side-by-side on iOS when the display is wide enough */}
-      <FieldRow description={field.definition.description + " (Category)"}>
-        <PickerControl
-          value={category!.name}
-          onValueChange={handleCategoryChange}
-          items={categoryPickerItems}
-          isPending={status === "pending"}
-        />
-      </FieldRow>
-      <RemoteFieldSystemPicker
-        page={page}
-        field={field}
-        value={valueProp}
-        onValueChange={onValueChangeProp}
-      />
-    </>
-  );
+  return { category, handleCategoryChange, categoryPickerItems };
 }
 
 function findCategory<T extends number | string>(
@@ -150,3 +230,25 @@ function findCategory<T extends number | string>(
   }
   return null;
 }
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+  },
+  rowInWideLayout: pickerStyles.container,
+  pickerInWideLayout: {
+    borderWidth: 0,
+    ...Platform.select({ ios: { backgroundColor: "transparent" } }),
+  },
+  label: {
+    marginHorizontal: 8,
+    marginTop: 8,
+    textAlign: "center",
+    opacity: 0.66,
+    textTransform: "uppercase",
+  },
+  labelAndContentContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+});

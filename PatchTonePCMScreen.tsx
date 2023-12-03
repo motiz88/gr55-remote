@@ -45,6 +45,7 @@ export function PatchTonePCMScreen({
           page={PATCH}
           field={pcmTonePage.toneSelect}
           categories={rolandToneCategories}
+          shortDescription="Tone"
         />
         <RemoteFieldSlider page={PATCH} field={pcmTonePage.partLevel} />
         <RemoteFieldSlider page={PATCH} field={pcmTonePage.partOctaveShift} />

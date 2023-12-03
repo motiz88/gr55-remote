@@ -15,7 +15,7 @@ export function Picker<T>({ style, itemStyle, ...props }: PickerProps<T>) {
 
 Picker.Item = PickerImpl.Item;
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   picker: {},
   container: {
     borderWidth: StyleSheet.hairlineWidth,
