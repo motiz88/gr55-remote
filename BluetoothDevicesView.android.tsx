@@ -1,11 +1,12 @@
 import { useFocusEffect } from "@react-navigation/core";
 import React, { useCallback, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { Device as BLEDevice } from "react-native-ble-plx";
 import { List } from "react-native-paper";
 
 import { BLEService } from "./BLEService";
 import { PopoverAwareScrollView } from "./PopoverAwareScrollView";
+import { useMainScrollViewSafeAreaStyle } from "./SafeAreaUtils";
 import { ThemedText as Text } from "./ThemedText";
 import {
   OpenBluetoothDeviceInfo,
@@ -124,38 +125,43 @@ export function BluetoothDevicesView(props: MidiHardwareManagerViewProps) {
     }
     return result;
   }, [openDevices, scannedDevices]);
+  const safeAreaStyle = useMainScrollViewSafeAreaStyle();
   return (
-    <View style={props.style}>
-      <PopoverAwareScrollView>
-        {/* TODO: render the connected devices here, not just the scan results */}
-        {devices.size === 0 ? (
-          state === "idle" ? (
-            <Text style={styles.message}>No devices found.</Text>
-          ) : (
-            <Text style={styles.message}>Scanning for devices...</Text>
-          )
+    <PopoverAwareScrollView
+      style={props.style}
+      contentContainerStyle={safeAreaStyle}
+    >
+      {/* TODO: render the connected devices here, not just the scan results */}
+      {devices.size === 0 ? (
+        state === "idle" ? (
+          <Text style={styles.message}>No devices found.</Text>
         ) : (
-          [...devices.values()].map((device) => (
-            <List.Item
-              key={device.id}
-              title={device.name ?? "<Unknown device>"}
-              description={device.id + " " + device.status}
-              onPress={() => handleItemPress(device)}
-              right={() =>
-                openDevices.has(device.id) ? (
-                  <List.Icon icon="bluetooth-connect" />
-                ) : undefined
-              }
-            />
-          ))
-        )}
-      </PopoverAwareScrollView>
-    </View>
+          <Text style={styles.message}>Scanning for devices...</Text>
+        )
+      ) : (
+        [...devices.values()].map((device) => (
+          <List.Item
+            key={device.id}
+            title={device.name ?? "<Unknown device>"}
+            description={device.id}
+            onPress={() => handleItemPress(device)}
+            right={() => (
+              <Text style={styles.statusLabel}>
+                {device.status === "open" ? "Connected" : "Not connected"}
+              </Text>
+            )}
+          />
+        ))
+      )}
+    </PopoverAwareScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   message: {
     padding: 8,
+  },
+  statusLabel: {
+    paddingTop: 8,
   },
 });
