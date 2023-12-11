@@ -259,8 +259,17 @@ const invertedMuteField = new BooleanField("UNMUTE", "MUTE", {
   invertedForDisplay: true,
 });
 
-const velocityCurveField = // TODO: Graphical representation, maybe name each curve?
-  enumField(["FIX", "1", "2", "3", "4", "5", "6", "7", "TONE"] as const);
+const velocityCurveField = enumField([
+  "FIX",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "TONE",
+] as const);
 
 const c200Field = new UByteField(-200, 200, {
   encodedOffset: 64,
