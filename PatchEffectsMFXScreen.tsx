@@ -469,6 +469,10 @@ export function PatchEffectsMFXScreen({
           </>
         )}
       </RemoteFieldSwitchedSection>
+      {/* TODO: Should these be greyed out when the effect is off, or do the sends happen anyway? */}
+      <RemoteFieldSlider page={PATCH} field={mfx.mfxDelaySendLevel} />
+      <RemoteFieldSlider page={PATCH} field={mfx.mfxReverbSendLevel} />
+      <RemoteFieldSlider page={PATCH} field={mfx.mfxChorusSendLevel} />
     </PopoverAwareScrollView>
   );
 }

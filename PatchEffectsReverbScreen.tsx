@@ -35,8 +35,6 @@ export function PatchEffectsReverbScreen({
         <RemoteFieldPicker page={PATCH} field={sendsAndEq.reverbHighCut} />
         <RemoteFieldSlider page={PATCH} field={sendsAndEq.reverbEffectLevel} />
 
-        {/* TODO: send levels should be replicated next to the sources too. */}
-        {/* TODO: maybe also a mixer view? */}
         <RemoteFieldSlider page={PATCH} field={mfx.mfxReverbSendLevel} />
         <RemoteFieldSlider page={PATCH} field={ampModNs.modReverbSendLevel} />
         <RemoteFieldSlider page={PATCH} field={common.bypassReverbSendLevel} />
