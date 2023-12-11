@@ -35,8 +35,6 @@ export function PatchEffectsChorusScreen({
         <RemoteFieldSlider page={PATCH} field={sendsAndEq.chorusDepth} />
         <RemoteFieldSlider page={PATCH} field={sendsAndEq.chorusEffectLevel} />
 
-        {/* TODO: send levels should be replicated next to the sources too. */}
-        {/* TODO: maybe also a mixer view? */}
         <RemoteFieldSlider page={PATCH} field={mfx.mfxChorusSendLevel} />
         <RemoteFieldSlider page={PATCH} field={ampModNs.modChorusSendLevel} />
         <RemoteFieldSlider page={PATCH} field={common.bypassChorusSendLevel} />

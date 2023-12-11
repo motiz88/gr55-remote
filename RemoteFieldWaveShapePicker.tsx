@@ -59,7 +59,7 @@ export function RemoteFieldWaveShapePicker<T extends WaveShapeLabel>({
   );
 }
 
-function SegmentedPickerControl<T extends string>({
+export function SegmentedPickerControl<T extends string>({
   value,
   onValueChange,
   values,

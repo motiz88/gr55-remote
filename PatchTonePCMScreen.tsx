@@ -9,6 +9,7 @@ import { RemoteFieldPickerWithCategories } from "./RemoteFieldPickerWithCategori
 import { RemoteFieldSlider } from "./RemoteFieldSlider";
 import { RemoteFieldSwitch } from "./RemoteFieldSwitch";
 import { RemoteFieldSwitchedSection } from "./RemoteFieldSwitchedSection";
+import { RemoteFieldVelocityCurvePicker } from "./RemoteFieldVelocityCurvePicker";
 import { RolandGR55AddressMapAbsolute as GR55 } from "./RolandGR55AddressMap";
 import { rolandToneCategories } from "./RolandGR55ToneMap";
 import { RolandRemotePatchContext as PATCH } from "./RolandRemotePageContext";
@@ -55,7 +56,7 @@ export function PatchTonePCMScreen({
           page={PATCH}
           field={pcmToneOffsetPage.tvaLevelVelocitySensOffset}
         />
-        <RemoteFieldPicker
+        <RemoteFieldVelocityCurvePicker
           page={PATCH}
           field={pcmToneOffsetPage.tvaLevelVelocityCurve}
         />
@@ -99,7 +100,7 @@ export function PatchTonePCMScreen({
           page={PATCH}
           field={pcmToneOffsetPage.nuanceCutoffSens}
         />
-        <RemoteFieldPicker
+        <RemoteFieldVelocityCurvePicker
           page={PATCH}
           field={pcmToneOffsetPage.tvfCutoffVelocityCurve}
         />

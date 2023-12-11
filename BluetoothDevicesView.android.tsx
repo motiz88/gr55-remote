@@ -131,7 +131,6 @@ export function BluetoothDevicesView(props: MidiHardwareManagerViewProps) {
       style={props.style}
       contentContainerStyle={safeAreaStyle}
     >
-      {/* TODO: render the connected devices here, not just the scan results */}
       {devices.size === 0 ? (
         state === "idle" ? (
           <Text style={styles.message}>No devices found.</Text>

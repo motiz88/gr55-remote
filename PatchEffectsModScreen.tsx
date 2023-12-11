@@ -366,6 +366,19 @@ export function PatchEffectsModScreen({
           field={GR55.temporaryPatch.ampModNs.nsReleaseTime}
         />
       </RemoteFieldSwitchedSection>
+      {/* TODO: Should these be greyed out when the effect is off, or do the sends happen anyway? */}
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.modDelaySendLevel}
+      />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.modReverbSendLevel}
+      />
+      <RemoteFieldSlider
+        page={PATCH}
+        field={GR55.temporaryPatch.ampModNs.modChorusSendLevel}
+      />
     </PopoverAwareScrollView>
   );
 }
